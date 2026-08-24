@@ -16,7 +16,7 @@ interface RouteContext {
  * rather than leaking which is which.
  */
 export async function DELETE(_request: Request, { params }: RouteContext) {
-  const originError = assertSameOrigin(request);
+  const originError = assertSameOrigin(_request);
   if (originError) return originError;
   const { itemId } = await params;
 
