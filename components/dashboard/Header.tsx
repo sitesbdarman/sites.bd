@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CartBadge } from "./CartBadge";
 import { MenuIcon, UserIcon } from "./icons";
@@ -28,18 +29,22 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
 
       <div className="flex items-center gap-3">
         {userEmail && (
-          <div className="hidden items-center gap-2 sm:flex">
-            <span className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600">
+          <Link
+            href="/profile"
+            title="Edit profile"
+            className="group hidden items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-blue-50 sm:flex active:scale-[.98]"
+          >
+            <span className="flex h-9 w-9 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100 transition group-hover:ring-blue-300">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
               ) : (
                 <UserIcon className="h-4 w-4" />
               )}
             </span>
-            <span className="max-w-[14rem] truncate text-sm text-gray-600">
+            <span className="max-w-[14rem] truncate text-sm font-medium text-gray-600 group-hover:text-blue-700">
               {fullName || userEmail}
             </span>
-          </div>
+          </Link>
         )}
         <CartBadge />
         <LogoutButton variant="icon" />

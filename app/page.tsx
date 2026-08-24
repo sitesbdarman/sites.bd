@@ -74,8 +74,6 @@ export default async function Home() {
           <ProfileMenu loggedIn={Boolean(user)} avatarUrl={profile?.avatar_url} fullName={profile?.full_name} />
         </div>
       </nav>
-      <DeveloperCredit />
-
       <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 pb-16 pt-32 text-center text-white lg:px-8">
         <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -right-20 bottom-20 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
@@ -167,10 +165,11 @@ export default async function Home() {
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
           <div><div className="flex items-center gap-3 text-2xl font-extrabold"><Icon name="globe" className="h-8 w-8 text-blue-400" />SITES.BD</div><p className="mt-4 leading-7 text-gray-400">A simple home for free subdomains, domains, hosting, DNS management and support.</p></div>
           <div><h4 className="font-extrabold">Services</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/domains/search" className="hover:text-white">Free Subdomains</Link></li><li><Link href="/domains/search" className="hover:text-white">Domain Search</Link></li><li><Link href="/domains/whois" className="hover:text-white">WHOIS Lookup</Link></li><li><Link href="/dashboard" className="hover:text-white">DNS Management</Link></li></ul></div>
-          <div><h4 className="font-extrabold">Support</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/contact" className="hover:text-white">Contact Us</Link></li><li><Link href="/dashboard/support" className="hover:text-white">Support Tickets</Link></li><li><Link href="/login" className="hover:text-white">Customer Login</Link></li><li><Link href="/register" className="hover:text-white">Create Account</Link></li></ul></div>
+          <div><h4 className="font-extrabold">Support</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/contact" className="hover:text-white">Contact Us</Link></li><li><Link href="/dashboard/tickets" className="hover:text-white">Support Tickets</Link></li><li><Link href="/login" className="hover:text-white">Customer Login</Link></li><li><Link href="/register" className="hover:text-white">Create Account</Link></li></ul></div>
           <div><h4 className="font-extrabold">Platform</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/checkout/hosting" className="hover:text-white">Hosting</Link></li><li><Link href="/cart" className="hover:text-white">Cart</Link></li><li><Link href="/dashboard" className="hover:text-white">Dashboard</Link></li><li><Link href="/domains/search" className="hover:text-white">Domain Search</Link></li><li><Link href="/admin/login" className="hover:text-white">Admin Login</Link></li></ul></div>
         </div>
         <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-7 text-center text-sm text-gray-400">© {new Date().getFullYear()} SITES.BD. All rights reserved.</div>
+        <div className="mx-auto max-w-7xl"><DeveloperCredit /></div>
       </footer>
     </main>
   );

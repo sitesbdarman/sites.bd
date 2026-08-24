@@ -1,6 +1,5 @@
 -- Promote an existing profile to admin.
--- Change the email below if you want to promote a different account.
--- Run in Supabase SQL Editor.
+-- Run this entire block in Supabase SQL Editor.
 
 begin;
 

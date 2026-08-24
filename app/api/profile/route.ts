@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { assertSameOrigin } from "@/lib/security/csrf";
 import { z } from "zod";
 import { addressSchema, fullNameSchema, mobileNumberSchema } from "@/lib/validation/auth";
@@ -16,31 +17,16 @@ export async function PATCH(request: Request) {
   if (originError) return originError;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
   let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-  }
+  try { body = await request.json(); } catch { return NextResponse.json({ error: "Invalid request body." }, { status: 400 }); }
 
   const parsed = profileUpdateSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid profile data." },
-      { status: 400 },
-    );
-  }
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid profile data." }, { status: 400 });
 
   const { fullName, mobileNumber, address, avatarUrl } = parsed.data;
-
   if (avatarUrl) {
     try {
       const hostname = new URL(avatarUrl).hostname;
@@ -51,24 +37,22 @@ export async function PATCH(request: Request) {
     }
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      full_name: fullName,
-      mobile_number: mobileNumber,
-      address: { full_address: address },
-      avatar_url: avatarUrl,
-      profile_status: "complete",
-    })
-    .eq("id", user.id);
+  // Auth is verified above. Only editable profile fields are sent through the
+  // service-role client, so role/customer_id/email cannot be overwritten by
+  // this endpoint and old RLS policies cannot block harmless profile edits.
+  const admin = createAdminClient();
+  const { error } = await admin.from("profiles").update({
+    full_name: fullName,
+    mobile_number: mobileNumber,
+    address: { full_address: address },
+    ...(avatarUrl !== undefined ? { avatar_url: avatarUrl } : {}),
+    profile_status: "complete",
+  }).eq("id", user.id);
 
   if (error) {
     console.error("profile update failed:", error);
-    return NextResponse.json(
-      { error: "Couldn't save your profile. Please try again." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Couldn't save your profile. Please try again." }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, avatarUrl });
+  return NextResponse.json({ ok: true, avatarUrl: avatarUrl ?? undefined });
 }

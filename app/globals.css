@@ -18,3 +18,20 @@ html, body {
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* Consistent keyboard focus and press feedback across the application. */
+button:not(:disabled),
+[role="button"] {
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+button:not(:disabled):active,
+[role="button"]:active {
+  transform: scale(.98);
+}
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid rgb(14 165 233 / .55);
+  outline-offset: 2px;
+}

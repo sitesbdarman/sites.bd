@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { assertSameOrigin } from "@/lib/security/csrf";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -12,7 +13,6 @@ function cloudinarySignature(params: Record<string, string>, apiSecret: string) 
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => `${key}=${value}`)
     .join("&");
-
   return createHash("sha1").update(`${serialized}${apiSecret}`).digest("hex");
 }
 
@@ -21,43 +21,24 @@ export async function POST(request: Request) {
   if (originError) return originError;
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
   const formData = await request.formData();
   const file = formData.get("file");
-
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: "Please select an image." }, { status: 400 });
-  }
-
-  if (!ALLOWED_TYPES.has(file.type)) {
-    return NextResponse.json({ error: "Please choose a JPG, PNG or WEBP image." }, { status: 400 });
-  }
-
-  if (file.size > MAX_IMAGE_SIZE) {
-    return NextResponse.json({ error: "Profile picture must be 5 MB or smaller." }, { status: 400 });
-  }
+  if (!(file instanceof File)) return NextResponse.json({ error: "Please select an image." }, { status: 400 });
+  if (!ALLOWED_TYPES.has(file.type)) return NextResponse.json({ error: "Please choose a JPG, PNG or WEBP image." }, { status: 400 });
+  if (file.size > MAX_IMAGE_SIZE) return NextResponse.json({ error: "Profile picture must be 5 MB or smaller." }, { status: 400 });
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  const admin = createAdminClient();
 
-  // Cloudinary is preferred when configured. This removes the dependency on
-  // a Supabase Storage bucket for profile pictures.
   if (cloudName && apiKey && apiSecret) {
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const publicId = `sitesbd/avatars/${user.id}`;
-    const signature = cloudinarySignature(
-      { public_id: publicId, timestamp },
-      apiSecret,
-    );
-
+    const signature = cloudinarySignature({ public_id: publicId, timestamp }, apiSecret);
     const uploadData = new FormData();
     uploadData.append("file", file);
     uploadData.append("api_key", apiKey);
@@ -65,76 +46,44 @@ export async function POST(request: Request) {
     uploadData.append("public_id", publicId);
     uploadData.append("signature", signature);
 
-    const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: uploadData,
-        cache: "no-store",
-      },
-    );
-
-    const result = await cloudinaryResponse.json().catch(() => null);
-
-    if (!cloudinaryResponse.ok || !result?.secure_url) {
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: "POST",
+      body: uploadData,
+      cache: "no-store",
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.secure_url) {
       console.error("Cloudinary upload failed:", result);
-      return NextResponse.json(
-        { error: result?.error?.message ?? "Profile picture upload failed." },
-        { status: 502 },
-      );
+      return NextResponse.json({ error: result?.error?.message ?? "Profile picture upload failed." }, { status: 502 });
     }
 
     const avatarUrl = String(result.secure_url);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ avatar_url: avatarUrl, profile_status: "complete" })
-      .eq("id", user.id);
-
+    // Service-role update is intentionally limited to this user's avatar_url.
+    // Auth was verified above, so RLS is not needed for this single-field write.
+    const { error } = await admin.from("profiles").update({ avatar_url: avatarUrl, profile_status: "complete" }).eq("id", user.id);
     if (error) {
       console.error("profile avatar save failed:", error);
-      return NextResponse.json(
-        { error: "Image uploaded, but the profile could not be updated." },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Image uploaded, but the profile could not be updated." }, { status: 500 });
     }
-
     return NextResponse.json({ ok: true, avatarUrl, provider: "cloudinary" });
   }
 
-  // Safe fallback for installations that have not configured Cloudinary yet.
   const path = `${user.id}/avatar`;
-  const { error: uploadError } = await supabase.storage
-    .from("avatars")
-    .upload(path, file, {
-      cacheControl: "3600",
-      contentType: file.type,
-      upsert: true,
-    });
-
+  const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
+    cacheControl: "3600",
+    contentType: file.type,
+    upsert: true,
+  });
   if (uploadError) {
     console.error("Supabase avatar upload failed:", uploadError);
-    return NextResponse.json(
-      {
-        error:
-          "Profile image storage is not configured. Add the Cloudinary environment variables or create the Supabase avatars bucket.",
-      },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Profile image storage is not configured. Add the Cloudinary environment variables or create the Supabase avatars bucket." }, { status: 500 });
   }
 
   const avatarUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-  const { error: profileError } = await supabase
-    .from("profiles")
-    .update({ avatar_url: avatarUrl, profile_status: "complete" })
-    .eq("id", user.id);
-
+  const { error: profileError } = await admin.from("profiles").update({ avatar_url: avatarUrl, profile_status: "complete" }).eq("id", user.id);
   if (profileError) {
     console.error("profile avatar save failed:", profileError);
-    return NextResponse.json(
-      { error: "Image uploaded, but the profile could not be updated." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Image uploaded, but the profile could not be updated." }, { status: 500 });
   }
-
   return NextResponse.json({ ok: true, avatarUrl, provider: "supabase" });
 }
