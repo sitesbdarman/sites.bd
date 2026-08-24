@@ -1,54 +1,44 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { ProfileForm } from "./ProfileForm";
+"use client";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 
-export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+type Profile = { id:string; full_name:string|null; email:string|null; phone:string|null; address:string|null; avatar_url:string|null };
 
-  if (!user) redirect("/login");
+export default function ProfilePage(){
+  const [profile,setProfile]=useState<Profile|null>(null);
+  const [name,setName]=useState(""); const [address,setAddress]=useState(""); const [avatar,setAvatar]=useState("");
+  const [msg,setMsg]=useState(""); const [saving,setSaving]=useState(false);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, email, mobile_number, address, avatar_url")
-    .eq("id", user.id)
-    .maybeSingle();
+  useEffect(()=>{(async()=>{try{
+    const sb=supabase(); const {data:{user}}=await sb.auth.getUser();
+    if(!user){setMsg("Please login first.");return;}
+    const {data,error}=await sb.from("profiles").select("id,full_name,email,phone,address,avatar_url").eq("id",user.id).single();
+    if(error){setMsg(error.message);return;}
+    setProfile(data); setName(data.full_name||""); setAddress(data.address||""); setAvatar(data.avatar_url||"");
+  }catch(e){setMsg(e instanceof Error?e.message:"Unable to load profile");}})()},[]);
 
-  const address =
-    profile?.address && typeof profile.address === "object" && "full_address" in profile.address
-      ? String((profile.address as { full_address?: unknown }).full_address ?? "")
-      : "";
+  async function save(){
+    if(!profile)return; setSaving(true);setMsg("");
+    try{const sb=supabase(); const {error}=await sb.from("profiles").update({full_name:name,address,avatar_url:avatar||null,updated_at:new Date().toISOString()}).eq("id",profile.id);
+      if(error) throw error; setMsg("Profile updated successfully.");
+    }catch(e){setMsg(e instanceof Error?e.message:"Profile update failed.");}finally{setSaving(false);}
+  }
 
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4">
-          <div>
-            <p className="text-sm font-semibold text-blue-600">SITES.BD</p>
-            <h1 className="text-xl font-bold text-gray-900">My Profile</h1>
-          </div>
-          <Link
-            href="/dashboard"
-            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-          >
-            Back to Dashboard
-          </Link>
-        </div>
-      </header>
+  async function upload(file:File){
+    setMsg("Uploading image...");
+    const fd=new FormData();fd.append("file",file);
+    const res=await fetch("/api/cloudinary-signature",{method:"POST",body:fd});
+    const data=await res.json(); if(!res.ok) throw new Error(data.error||"Upload failed");
+    setAvatar(data.secure_url); setMsg("Image uploaded. Click Save changes to store it in your profile.");
+  }
 
-      <div className="mx-auto max-w-3xl px-5 py-8">
-        <ProfileForm
-          userId={user.id}
-          email={profile?.email ?? user.email ?? ""}
-          initialFullName={profile?.full_name ?? ""}
-          initialMobileNumber={profile?.mobile_number ?? ""}
-          initialAddress={address}
-          initialAvatarUrl={profile?.avatar_url ?? null}
-        />
-      </div>
-    </main>
-  );
+  return <main className="section"><div className="container"><div className="form">
+    <h1>My Profile</h1>
+    {msg&&<div className={"notice "+(msg.toLowerCase().includes("success")?"success":msg.toLowerCase().includes("fail")||msg.toLowerCase().includes("error")?"error":"")}>{msg}</div>}
+    <div style={{display:"flex",gap:20,alignItems:"center",margin:"25px 0"}}>{avatar?<img src={avatar} alt="Profile" style={{width:100,height:100,borderRadius:"50%",objectFit:"cover",border:"3px solid #e2e8f0"}}/>:<div style={{width:100,height:100,borderRadius:"50%",background:"#e2e8f0",display:"grid",placeItems:"center"}}>👤</div>}<div><b>Profile picture</b><p>JPG, PNG or WEBP. Maximum 5 MB.</p><input type="file" accept="image/jpeg,image/png,image/webp" onChange={e=>{const f=e.target.files?.[0];if(f)upload(f).catch(x=>setMsg(x.message))}}/></div></div>
+    <div className="field"><label>Email</label><input value={profile?.email||""} disabled/></div>
+    <div className="row"><div className="field"><label>Full name</label><input value={name} onChange={e=>setName(e.target.value)}/></div><div className="field"><label>Mobile number</label><input value={profile?.phone||""} disabled/></div></div>
+    <div className="field"><label>Address</label><textarea rows={5} value={address} onChange={e=>setAddress(e.target.value)}/></div>
+    <button className="btn primary" onClick={save} disabled={saving}>{saving?"Saving...":"Save changes"}</button>
+  </div></div></main>
 }

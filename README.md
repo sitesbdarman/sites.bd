@@ -1,45 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SITES.BD Fixed Project
 
-## Getting Started
+This is a clean runnable Next.js reconstruction/fix package based on the project
+requirements and code supplied in this conversation. It is **not a byte-for-byte
+copy of the private Vercel/GitHub repository**, because the original repository
+source was not attached.
 
-First, run the development server:
+## Included fixes
+- Profile normal-field update no longer gets blocked by the immutable-field trigger.
+- Profile avatar URL is saved to `profiles.avatar_url`.
+- Cloudinary upload route with 5 MB and image-type validation.
+- Footer credit: `Developed by RA Fahim` with a sky-blue Facebook link and no underline.
+- Pricing management page scaffold.
+- Supabase pricing migration scaffold.
+- Responsive UI and basic interaction states.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Run
+1. Install Node.js 20+.
+2. Copy `.env.example` to `.env.local`.
+3. Fill Supabase and Cloudinary variables.
+4. Run `npm install`.
+5. Run `npm run dev`.
+6. Open http://localhost:3000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Supabase
+Run `supabase/profile_fix.sql` first.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The existing project has had different profile column names in screenshots
+(`mobile_number`) while the supplied requirements describe `phone` and
+`avatar_url`. Therefore this package uses `avatar_url` and `phone` only where
+the supplied schema supports them; verify your live schema before applying
+additional migrations.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Important
+The pricing admin page included here is a safe UI scaffold using local storage.
+For production, connect it to the `pricing_plans` table and protect write
+operations with your verified admin authorization/RLS policy.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Phase 4 — DNS / Nameserver
-
-Apply database migrations in order, including `database/0011_desec_dns_provider.sql`, before testing DNS management.
-For real deSEC synchronization, set `DESEC_API_TOKEN` and `DESEC_BASE_URL` in `.env.local`. Without them, records are safely stored in the application database as `pending` and are not sent to deSEC.
-
-## Phase 9 QA
-
-See `docs/QA_CHECKLIST.md` for the production smoke-test and deployment checklist. A minimal `GET /api/health` endpoint is available for deployment health checks.
+Do not commit `.env.local` or Cloudinary/Supabase secrets.
