@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/dashboard/EmptyState";
 import { DomainList } from "@/components/dashboard/DomainList";
 import { GlobeIcon } from "@/components/dashboard/icons";
 import { getUserDomains } from "@/lib/domains/queries";
+import Link from "next/link";
 
 /**
  * Authenticated user's full domain list. Ownership is enforced two ways:
@@ -29,6 +30,10 @@ export default async function DomainsPage() {
 
   return (
     <DashboardLayout pageTitle="My Domains" userEmail={user?.email ?? null}>
+      <div className="mb-4 flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div><h2 className="font-bold text-gray-900">Need another domain?</h2><p className="mt-1 text-sm text-gray-600">Search and purchase a new domain or get a free SITES.BD subdomain.</p></div>
+        <Link href="/domains/search" className="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-extrabold text-white shadow-sm transition hover:bg-blue-700">+ Buy / Add New Domain</Link>
+      </div>
       <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
         {hasError ? (
           <EmptyState

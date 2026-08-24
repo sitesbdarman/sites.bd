@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { ProfileMenu } from "@/components/auth/ProfileMenu";
 
 type IconName = "globe" | "star" | "tag" | "cart" | "mail" | "gift" | "bolt" | "server" | "settings" | "shield" | "users" | "search" | "arrow";
 
@@ -39,7 +41,10 @@ const toneClasses: Record<string, string> = {
   teal: "from-teal-50 to-teal-100 text-teal-600",
 };
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-800">
       <nav className="sticky inset-x-0 top-0 z-50 border-b border-white/70 bg-white/95 shadow-lg backdrop-blur">
@@ -51,11 +56,12 @@ export default function Home() {
           <div className="hidden items-center gap-7 text-sm font-semibold md:flex">
             <a href="#home" className="transition hover:text-blue-600"><Icon name="globe" className="mr-2 inline h-4 w-4" />Home</a>
             <a href="#features" className="transition hover:text-blue-600"><Icon name="star" className="mr-2 inline h-4 w-4" />Features</a>
+            <Link href="/pricing" className="transition hover:text-blue-600"><Icon name="tag" className="mr-2 inline h-4 w-4" />Pricing</Link>
             <Link href="/domains/search" className="transition hover:text-blue-600"><Icon name="search" className="mr-2 inline h-4 w-4" />Domain Search</Link>
             <a href="#order" className="transition hover:text-blue-600"><Icon name="cart" className="mr-2 inline h-4 w-4" />Order</a>
             <Link href="/contact" className="transition hover:text-blue-600"><Icon name="mail" className="mr-2 inline h-4 w-4" />Contact</Link>
           </div>
-          <Link href="/register" className="rounded-full bg-blue-600 px-5 py-2.5 font-bold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700">Get Started</Link>
+          <ProfileMenu loggedIn={Boolean(user)} />
         </div>
       </nav>
 
@@ -142,33 +148,6 @@ export default function Home() {
                 <h3 className="text-2xl font-extrabold">{title}</h3><p className="mt-4 leading-7 text-gray-600">{text}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 py-20 text-white lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-5xl">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
-            <h2 className="text-4xl font-extrabold sm:text-5xl">Need Help?</h2>
-            <p className="mt-4 text-lg text-white/90">Get in touch with our support team for questions or assistance.</p>
-          </div>
-          <div className="grid gap-10 md:grid-cols-2">
-            <div className="rounded-3xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-md">
-              <h3 className="text-2xl font-extrabold">Send us a message</h3>
-              <form className="mt-6 space-y-4" action="/dashboard/support/new">
-                <input name="name" placeholder="Your Name" className="w-full rounded-xl border-0 p-4 text-gray-900 outline-none ring-2 ring-transparent focus:ring-white" />
-                <input name="email" type="email" placeholder="Your Email" className="w-full rounded-xl border-0 p-4 text-gray-900 outline-none ring-2 ring-transparent focus:ring-white" />
-                <select name="topic" className="w-full rounded-xl border-0 p-4 text-gray-900 outline-none ring-2 ring-transparent focus:ring-white"><option>General Question</option><option>Technical Support</option><option>Domain Issue</option><option>Hosting Question</option></select>
-                <textarea name="message" rows={4} placeholder="Your message" className="w-full resize-none rounded-xl border-0 p-4 text-gray-900 outline-none ring-2 ring-transparent focus:ring-white" />
-                <Link href="/dashboard/support" className="block w-full rounded-xl bg-white py-4 text-center font-extrabold text-blue-600 transition hover:bg-blue-50">Open Support</Link>
-              </form>
-            </div>
-            <div className="space-y-5">
-              {[['Email', 'help@sites.bd', 'mail'], ['Response Time', 'Within 24 hours', 'bolt'], ['Support', 'Technical support available', 'users']].map(([title, value, icon]) => (
-                <div key={title} className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-md"><div className="flex items-center gap-4"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600"><Icon name={icon as IconName} /></div><div><h4 className="font-extrabold">{title}</h4><p className="mt-1 text-white/75">{value}</p></div></div></div>
-              ))}
-              <div className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-md"><h4 className="font-extrabold">Explore the platform</h4><div className="mt-4 flex flex-wrap gap-3"><Link href="/domains/search" className="rounded-full bg-white px-4 py-2 text-sm font-bold text-blue-600">Domains</Link><Link href="/domains/whois" className="rounded-full bg-white px-4 py-2 text-sm font-bold text-blue-600">WHOIS</Link><Link href="/login" className="rounded-full bg-white px-4 py-2 text-sm font-bold text-blue-600">Login</Link></div></div>
-            </div>
           </div>
         </div>
       </section>
