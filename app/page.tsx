@@ -51,7 +51,7 @@ export default function Home() {
           <div className="hidden items-center gap-7 text-sm font-semibold md:flex">
             <a href="#home" className="transition hover:text-blue-600"><Icon name="globe" className="mr-2 inline h-4 w-4" />Home</a>
             <a href="#features" className="transition hover:text-blue-600"><Icon name="star" className="mr-2 inline h-4 w-4" />Features</a>
-            <Link href="/pricing" className="transition hover:text-blue-600"><Icon name="tag" className="mr-2 inline h-4 w-4" />Pricing</Link>
+            <Link href="/domains/search" className="transition hover:text-blue-600"><Icon name="search" className="mr-2 inline h-4 w-4" />Domain Search</Link>
             <a href="#order" className="transition hover:text-blue-600"><Icon name="cart" className="mr-2 inline h-4 w-4" />Order</a>
             <Link href="/contact" className="transition hover:text-blue-600"><Icon name="mail" className="mr-2 inline h-4 w-4" />Contact</Link>
           </div>
@@ -146,25 +146,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="bg-white px-5 py-20 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-5xl">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
-            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl"><Icon name="tag" className="mr-3 inline h-9 w-9 text-blue-600" />Simple Pricing</h2>
-            <p className="mt-4 text-lg text-gray-600">Everything you need to get started online, with a completely free subdomain option.</p>
-          </div>
-          <div className="relative overflow-visible rounded-3xl bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 p-8 text-center text-white shadow-2xl sm:p-12">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-yellow-400 px-5 py-2 text-sm font-extrabold text-gray-900 shadow-lg">COMPLETELY FREE</div>
-            <h3 className="mt-3 text-3xl font-extrabold">Free Subdomain</h3>
-            <div className="mt-3 text-6xl font-extrabold">৳0</div>
-            <p className="mt-2 text-xl text-white/80">Forever Free</p>
-            <ul className="mx-auto mt-8 max-w-md space-y-4 text-left text-lg text-white/90">
-              {['yourname.sites.bd subdomain', 'Instant activation', 'Connect to any hosting', 'Use with Blogger', 'Automatic DNS updates', 'DNS support', 'No setup fees', 'No monthly charges'].map((item) => <li key={item}>✓ <span className="ml-2">{item}</span></li>)}
-            </ul>
-            <Link href="/domains/search" className="mt-9 inline-block rounded-full bg-white px-9 py-4 text-lg font-extrabold text-blue-600 shadow-xl transition hover:-translate-y-1"><Icon name="gift" className="mr-2 inline h-5 w-5" />Get Subdomain</Link>
-          </div>
-        </div>
-      </section>
-
       <section id="contact" className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 py-20 text-white lg:px-8 lg:py-24">
         <div className="mx-auto max-w-5xl">
           <div className="mx-auto mb-14 max-w-3xl text-center">
@@ -197,7 +178,7 @@ export default function Home() {
           <div><div className="flex items-center gap-3 text-2xl font-extrabold"><Icon name="globe" className="h-8 w-8 text-blue-400" />SITES.BD</div><p className="mt-4 leading-7 text-gray-400">A simple home for free subdomains, domains, hosting, DNS management and support.</p></div>
           <div><h4 className="font-extrabold">Services</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/domains/search" className="hover:text-white">Free Subdomains</Link></li><li><Link href="/domains/search" className="hover:text-white">Domain Search</Link></li><li><Link href="/domains/whois" className="hover:text-white">WHOIS Lookup</Link></li><li><Link href="/dashboard" className="hover:text-white">DNS Management</Link></li></ul></div>
           <div><h4 className="font-extrabold">Support</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/contact" className="hover:text-white">Contact Us</Link></li><li><Link href="/dashboard/support" className="hover:text-white">Support Tickets</Link></li><li><Link href="/login" className="hover:text-white">Customer Login</Link></li><li><Link href="/register" className="hover:text-white">Create Account</Link></li></ul></div>
-          <div><h4 className="font-extrabold">Platform</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/checkout/hosting" className="hover:text-white">Hosting</Link></li><li><Link href="/cart" className="hover:text-white">Cart</Link></li><li><Link href="/dashboard" className="hover:text-white">Dashboard</Link></li><li><Link href="/pricing" className="hover:text-white">Pricing</Link></li></ul></div>
+          <div><h4 className="font-extrabold">Platform</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/checkout/hosting" className="hover:text-white">Hosting</Link></li><li><Link href="/cart" className="hover:text-white">Cart</Link></li><li><Link href="/dashboard" className="hover:text-white">Dashboard</Link></li><li><Link href="/domains/search" className="hover:text-white">Domain Search</Link></li></ul></div>
         </div>
         <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-7 text-center text-sm text-gray-400">© {new Date().getFullYear()} SITES.BD. All rights reserved.</div>
       </footer>

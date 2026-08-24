@@ -1,7 +1,9 @@
-export type PaymentMode = "simulation" | "production";
+export type PaymentMode = "manual" | "simulation" | "production";
 
 export function getPaymentMode(): PaymentMode {
-  return process.env.PAYMENT_MODE === "production" ? "production" : "simulation";
+  if (process.env.PAYMENT_MODE === "production") return "production";
+  if (process.env.PAYMENT_MODE === "simulation") return "simulation";
+  return "manual";
 }
 
-export const PAYMENT_GATEWAY_NAME = process.env.PAYMENT_GATEWAY_NAME || "Simulation Gateway";
+export const PAYMENT_GATEWAY_NAME = process.env.PAYMENT_GATEWAY_NAME || "bKash / Nagad / Rocket (manual review)";

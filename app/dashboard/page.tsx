@@ -62,6 +62,13 @@ export default async function DashboardPage() {
 
   const fullName = profile?.full_name?.trim() || null;
   const email = user?.email ?? null;
+  let isAdmin = false;
+  if (user) {
+    try {
+      const { data: roleProfile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle<{ role: string | null }>();
+      isAdmin = roleProfile?.role === "admin";
+    } catch { isAdmin = false; }
+  }
   const mobileNumber = profile?.mobile_number?.trim() || null;
 
   const [domainsResult, invoicesResult, ticketsResult, servicesResult] = user ? await Promise.all([
@@ -81,7 +88,7 @@ export default async function DashboardPage() {
   const contactLine = [email, mobileNumber].filter(Boolean).join(" · ");
 
   return (
-    <DashboardLayout pageTitle="Dashboard" userEmail={email}>
+    <DashboardLayout pageTitle="Dashboard" userEmail={email} isAdmin={isAdmin}>
       <div className="flex flex-col gap-6">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-gray-900">

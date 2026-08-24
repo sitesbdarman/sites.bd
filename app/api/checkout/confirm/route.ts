@@ -6,6 +6,7 @@ import { getCartItems } from "@/lib/cart/queries";
 import { getHostingPlanById, CUSTOM_CONNECTION_PLAN_ID, type HostingPlanType } from "@/lib/hosting/plans";
 import { getAddonById } from "@/lib/hosting/addons";
 import { notifyOrderCreated, notifyAdmin } from "@/lib/email/notifications";
+import { checkCoupon } from "@/lib/coupons/service";
 
 interface ConfirmBody {
   hosting?: {
@@ -15,6 +16,7 @@ interface ConfirmBody {
   };
   addonIds?: string[];
   termsAccepted?: boolean;
+  couponCode?: string;
 }
 
 function validIp(value: string) {
@@ -64,7 +66,17 @@ export async function POST(request: Request) {
 
   const domainTotal = Math.round(cartItems.reduce((s, i) => s + Number(i.price), 0) * 100) / 100;
   const addonsTotal = Math.round(addons.reduce((s, a) => s + a.price, 0) * 100) / 100;
-  const total = Math.round((domainTotal + hosting.price + addonsTotal) * 100) / 100;
+  const subtotal = Math.round((domainTotal + hosting.price + addonsTotal) * 100) / 100;
+  const requestedCoupon = body.couponCode?.trim() || "";
+  let couponCode: string | null = null;
+  let couponDiscount = 0;
+  if (requestedCoupon) {
+    const quote = await checkCoupon(requestedCoupon, subtotal);
+    if (!quote.valid) return NextResponse.json({ success:false, error:quote.message }, {status:400});
+    couponCode = quote.code;
+    couponDiscount = quote.discount;
+  }
+  const total = Math.max(0, Math.round((subtotal - couponDiscount) * 100) / 100);
 
   const admin = createAdminClient();
   const { data: orderNumber, error: orderNumberError } = await admin.rpc("generate_order_number");
@@ -76,8 +88,10 @@ export async function POST(request: Request) {
     order_number: orderNumber,
     status: orderStatus,
     currency: "BDT",
-    subtotal: total,
+    subtotal,
     total,
+    coupon_code: couponCode,
+    coupon_discount: couponDiscount,
     hosting_plan_id: hosting.planId,
     hosting_plan_name: hosting.planName,
     hosting_price: hosting.price,
@@ -86,6 +100,20 @@ export async function POST(request: Request) {
     custom_ip_address: hosting.custom?.ipAddress ?? null,
   }).select("id, order_number, status, total").single();
   if (orderError || !order) return NextResponse.json({ success: false, error: "Couldn't create your order." }, { status: 500 });
+
+  if (couponCode) {
+    const { data: redemption, error: redemptionError } = await admin.rpc("redeem_coupon", {p_code: couponCode, p_order_total: subtotal});
+    const result = redemption?.[0];
+    if (redemptionError || !result?.valid) {
+      await admin.from("orders").delete().eq("id", order.id);
+      return NextResponse.json({success:false,error:result?.message || "Coupon could not be reserved. Please try again."},{status:400});
+    }
+    const actualDiscount = Number(result.discount || 0);
+    if (Math.round(actualDiscount*100) !== Math.round(couponDiscount*100)) {
+      await admin.from("orders").delete().eq("id", order.id);
+      return NextResponse.json({success:false,error:"Coupon changed while checking out. Please apply it again."},{status:409});
+    }
+  }
 
   const items = [
     ...cartItems.map((item) => ({ order_id: order.id, item_type: "domain", item_id: item.id, name: item.domain_name, quantity: 1, unit_price: item.price, total_price: item.price, metadata: { validity_years: item.validity_years } })),

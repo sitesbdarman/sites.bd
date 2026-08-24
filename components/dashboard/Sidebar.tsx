@@ -24,6 +24,7 @@ interface SidebarProps {
   /** Mobile off-canvas open state. Ignored (always visible) on desktop. */
   open: boolean;
   onClose: () => void;
+  isAdmin?: boolean;
 }
 
 function isActive(pathname: string, href: string) {
@@ -34,10 +35,12 @@ function SidebarContent({
   pathname,
   onNavigate,
   onClose,
+  isAdmin,
 }: {
   pathname: string;
   onNavigate?: () => void;
   onClose?: () => void;
+  isAdmin?: boolean;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -56,6 +59,7 @@ function SidebarContent({
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+        <Link href="/" onClick={onNavigate} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900">Home</Link>
         {NAV_ITEMS.map((item) => {
           const active = isActive(pathname, item.href);
           const Icon = item.icon;
@@ -79,21 +83,21 @@ function SidebarContent({
       </nav>
 
       <div className="shrink-0 border-t border-gray-200 p-3">
-        <Link href="/admin" onClick={onNavigate} className="mb-2 flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Admin Panel</Link>
+        {isAdmin && <Link href="/admin" onClick={onNavigate} className="mb-2 flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Admin Login</Link>}
         <LogoutButton variant="full" />
       </div>
     </div>
   );
 }
 
-export function Sidebar({ open, onClose }: SidebarProps) {
+export function Sidebar({ open, onClose, isAdmin }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <>
       {/* Desktop: persistent sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-gray-200 bg-white md:block">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} isAdmin={isAdmin} />
       </aside>
 
       {/* Mobile: off-canvas sidebar + backdrop */}
@@ -110,7 +114,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} />
+          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} isAdmin={isAdmin} />
         </aside>
       </div>
     </>

@@ -34,6 +34,8 @@ interface ReviewTotals {
   hostingPrice: number;
   addonsTotal: number;
   finalTotal: number;
+  couponDiscount?: number;
+  subtotal?: number;
 }
 
 interface ReviewResponse {
@@ -71,6 +73,10 @@ export function ReviewContent() {
   const [confirmError, setConfirmError] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponMessage, setCouponMessage] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -152,6 +158,20 @@ export function ReviewContent() {
 
   const canConfirm = state === "valid" && termsAccepted && !confirmed && !confirming;
 
+  async function applyCoupon() {
+    if (!couponCode.trim() || !hosting) return;
+    setCouponBusy(true); setCouponMessage("");
+    try {
+      const savedHosting = loadHostingSelection();
+      const savedAddons = loadAddonsSelection();
+      const response = await fetch("/api/coupons/validate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({code:couponCode, hosting:savedHosting ? {type:savedHosting.type,planId:savedHosting.planId} : undefined, addonIds:savedAddons?.addonIds ?? []})});
+      const data = await response.json();
+      if (!response.ok || !data.success) { setCouponDiscount(0); setCouponMessage(data.message || data.error || "Coupon is not valid."); return; }
+      setCouponCode(data.code || couponCode.toUpperCase()); setCouponDiscount(Number(data.discount||0)); setCouponMessage(data.message || "Coupon applied.");
+      setTotals(prev => prev ? {...prev, finalTotal:Number(data.total), couponDiscount:Number(data.discount||0), subtotal:Number(data.subtotal)} : prev);
+    } catch { setCouponDiscount(0); setCouponMessage("Could not check coupon."); } finally { setCouponBusy(false); }
+  }
+
   async function confirmOrder() {
     if (!canConfirm) return;
     setConfirming(true);
@@ -164,6 +184,7 @@ export function ReviewContent() {
           hosting: hosting ? { type: hosting.type as HostingPlanType, planId: hosting.planId, custom: hosting.custom } : undefined,
           addonIds: addons.map((addon) => addon.id),
           termsAccepted: true,
+          couponCode: couponCode.trim() || undefined,
         }),
       });
       const data = await response.json();
@@ -263,6 +284,15 @@ export function ReviewContent() {
         )}
       </section>
 
+      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-gray-900">Coupon</h2>
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <input value={couponCode} onChange={e=>setCouponCode(e.target.value.toUpperCase())} disabled={confirmed || couponBusy} placeholder="Enter coupon code" className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm" />
+          <button type="button" onClick={applyCoupon} disabled={confirmed || couponBusy || !couponCode.trim()} className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40">{couponBusy?"Checking...":"Apply Coupon"}</button>
+        </div>
+        {couponMessage && <p className={`mt-2 text-sm ${couponDiscount>0 ? "text-green-700":"text-red-600"}`}>{couponMessage}</p>}
+      </section>
+
       {/* Totals */}
       {totals && (
         <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -280,6 +310,7 @@ export function ReviewContent() {
               <dt className="text-gray-500">Add-on total</dt>
               <dd className="text-gray-900">{formatBDT(totals.addonsTotal)}</dd>
             </div>
+            {couponDiscount > 0 && <div className="flex items-center justify-between text-green-700"><dt>Coupon discount</dt><dd>-{formatBDT(couponDiscount)}</dd></div>}
           </dl>
           <div className="mt-3 flex items-center justify-between border-t border-gray-200 pt-3">
             <span className="text-sm font-medium text-gray-700">Final Total</span>

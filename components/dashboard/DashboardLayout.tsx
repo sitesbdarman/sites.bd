@@ -8,6 +8,7 @@ interface DashboardLayoutProps {
   pageTitle: string;
   userEmail: string | null;
   children: ReactNode;
+  isAdmin?: boolean;
 }
 
 /**
@@ -16,12 +17,12 @@ interface DashboardLayoutProps {
  * area. `children` can be server-rendered content — only the open/close
  * state needs to live on the client.
  */
-export function DashboardLayout({ pageTitle, userEmail, children }: DashboardLayoutProps) {
+export function DashboardLayout({ pageTitle, userEmail, children, isAdmin = false }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} isAdmin={isAdmin} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Header

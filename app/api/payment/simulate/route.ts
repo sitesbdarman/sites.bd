@@ -8,7 +8,7 @@ import { notifyPaymentSuccess, notifyAdmin } from "@/lib/email/notifications";
 export async function POST(request: Request) {
   const originError = assertSameOrigin(request);
   if (originError) return originError;
-  if (getPaymentMode() !== "simulation") return NextResponse.json({ success: false, error: "Simulation payments are disabled in production mode." }, { status: 403 });
+  return NextResponse.json({ success: false, error: "Simulation payments are disabled. Submit a bKash, Nagad or Rocket payment for admin review." }, { status: 410 });
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ success: false, error: "Not authenticated." }, { status: 401 });

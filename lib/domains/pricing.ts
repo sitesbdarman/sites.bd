@@ -34,7 +34,9 @@ const DEFAULT_BASE_PRICE = 19.99;
 const DEFAULT_CURRENCY = "USD";
 
 export function getDomainPriceQuote(domain: string): DomainPriceQuote {
-  const tld = domain.split(".").pop() ?? "";
+  const normalized = domain.trim().toLowerCase();
+  if (normalized.endsWith(".sites.bd")) return { domain: normalized, price: 0, currency: "BDT", isMock: false };
+  const tld = normalized.split(".").pop() ?? "";
   const basePrice = BASE_PRICE_BY_TLD[tld] ?? DEFAULT_BASE_PRICE;
 
   // Arbitrary placeholder variation (0.00-0.99) just so the demo cart
@@ -43,5 +45,5 @@ export function getDomainPriceQuote(domain: string): DomainPriceQuote {
   const cents = hash[1]! % 100;
   const price = Math.round((basePrice + cents / 100) * 100) / 100;
 
-  return { domain, price, currency: DEFAULT_CURRENCY, isMock: true };
+  return { domain: normalized, price, currency: DEFAULT_CURRENCY, isMock: true };
 }

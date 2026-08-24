@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect("/admin/login");
 
   const admin = createAdminClient();
   const { data: profile } = await admin.from("profiles").select("role, full_name, email, customer_id").eq("id", user.id).maybeSingle();
