@@ -1,3 +1,16 @@
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-export default async function AdminDomainsPage(){ await requireAdmin(); const db=createAdminClient(); const {data}=await db.from("domains").select("id,domain_name,status,auto_renew,registered_at,expires_at,owner_id").order("created_at",{ascending:false}); return <section><h1 className="text-2xl font-bold">Domains</h1><div className="mt-6 overflow-x-auto rounded-xl border bg-white shadow-sm"><table className="w-full text-left text-sm"><thead className="bg-gray-50 text-xs uppercase text-gray-500"><tr>{['Domain','Owner','Status','Auto Renew','Registered','Expires'].map(x=><th key={x} className="px-5 py-3">{x}</th>)}</tr></thead><tbody className="divide-y">{(data||[]).map((d:any)=><tr key={d.id}><td className="px-5 py-4 font-medium">{d.domain_name}</td><td className="px-5 py-4 text-xs">{d.owner_id}</td><td className="px-5 py-4">{d.status}</td><td className="px-5 py-4">{d.auto_renew?'Yes':'No'}</td><td className="px-5 py-4">{d.registered_at?new Date(d.registered_at).toLocaleDateString():'—'}</td><td className="px-5 py-4">{d.expires_at?new Date(d.expires_at).toLocaleDateString():'—'}</td></tr>)}</tbody></table></div></section>}
+import { DomainManager } from "./domain-manager";
+
+export default async function AdminDomainsPage({ searchParams }: { searchParams: Promise<{ owner?: string }> }) {
+  await requireAdmin();
+  const { owner } = await searchParams;
+  const db = createAdminClient();
+
+  const [{ data: domains }, { data: owners }] = await Promise.all([
+    db.from("domains").select("id,domain_name,status,auto_renew,registered_at,expires_at,owner_id").order("created_at", { ascending: false }),
+    db.from("profiles").select("id,customer_id,email,full_name").order("created_at", { ascending: false }),
+  ]);
+
+  return <DomainManager initialDomains={(domains || []) as any} owners={(owners || []) as any} defaultOwnerId={owner} />;
+}

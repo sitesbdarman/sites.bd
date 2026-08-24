@@ -93,11 +93,17 @@ export async function updateSession(request: NextRequest) {
   if (isProtectedRoute || isAuthPage) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("profile_status")
+      .select("profile_status, account_status")
       .eq("id", user.id)
       .maybeSingle();
 
     const profileStatus = (profile?.profile_status as string | undefined) ?? "pending";
+    const accountStatus = (profile?.account_status as string | undefined) ?? "active";
+
+    if (isProtectedRoute && accountStatus === "suspended" && pathname !== "/account-suspended") {
+      const redirectUrl = new URL("/account-suspended", request.url);
+      return withRefreshedCookies(NextResponse.redirect(redirectUrl), supabaseResponse);
+    }
 
     if (isAuthPage) {
       const destination = profileStatus === "complete" ? "/dashboard" : "/profile-completion";
@@ -107,7 +113,7 @@ export async function updateSession(request: NextRequest) {
 
     // isProtectedRoute: keep pending users confined to profile-completion,
     // without looping if they're already there.
-    if (profileStatus !== "complete" && pathname !== "/profile-completion") {
+    if (profileStatus !== "complete" && pathname !== "/profile-completion" && pathname !== "/account-suspended") {
       const redirectUrl = new URL("/profile-completion", request.url);
       return withRefreshedCookies(NextResponse.redirect(redirectUrl), supabaseResponse);
     }

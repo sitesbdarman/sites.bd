@@ -31,6 +31,11 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ success: false, error: "Not authenticated." }, { status: 401 });
 
+  const { data: callerProfile } = await supabase.from("profiles").select("account_status").eq("id", user.id).maybeSingle();
+  if (callerProfile?.account_status === "suspended") {
+    return NextResponse.json({ success: false, error: "Your account is suspended. Please contact support." }, { status: 403 });
+  }
+
   let body: ConfirmBody;
   try { body = await request.json(); } catch {
     return NextResponse.json({ success: false, error: "Invalid request body." }, { status: 400 });

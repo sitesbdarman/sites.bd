@@ -1,3 +1,14 @@
 import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-export default async function AdminUsersPage(){ await requireAdmin(); const db=createAdminClient(); const {data}=await db.from("profiles").select("id,customer_id,full_name,email,mobile_number,role,profile_status,created_at").order("created_at",{ascending:false}); return <section><h1 className="text-2xl font-bold">Users</h1><div className="mt-6 overflow-x-auto rounded-xl border bg-white shadow-sm"><table className="w-full text-left text-sm"><thead className="bg-gray-50 text-xs uppercase text-gray-500"><tr>{['Customer ID','Name','Email','Mobile','Role','Status','Joined'].map(x=><th key={x} className="px-5 py-3">{x}</th>)}</tr></thead><tbody className="divide-y">{(data||[]).map((u:any)=><tr key={u.id}><td className="px-5 py-4 font-medium">{u.customer_id}</td><td className="px-5 py-4">{u.full_name||'—'}</td><td className="px-5 py-4">{u.email}</td><td className="px-5 py-4">{u.mobile_number||'—'}</td><td className="px-5 py-4">{u.role}</td><td className="px-5 py-4">{u.profile_status}</td><td className="px-5 py-4">{new Date(u.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div></section> }
+import { UserManager } from "./user-manager";
+
+export default async function AdminUsersPage() {
+  await requireAdmin();
+  const db = createAdminClient();
+  const { data } = await db
+    .from("profiles")
+    .select("id,customer_id,full_name,email,mobile_number,role,profile_status,account_status,created_at")
+    .order("created_at", { ascending: false });
+
+  return <UserManager initialUsers={(data || []) as any} />;
+}
