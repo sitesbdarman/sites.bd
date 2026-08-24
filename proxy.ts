@@ -1,24 +1,21 @@
-/**
- * Next.js 16 renamed `middleware.ts` to `proxy.ts` (same file convention,
- * new name/export — see node_modules/next/dist/docs/.../proxy.md).
- *
- * Current scope: Supabase auth session refresh only. No route protection
- * or redirects are implemented here yet — that is a separate, later step.
- */
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function proxy(request: NextRequest) {
-  return updateSession(request);
+  const response = await updateSession(request);
+  const adminHost = process.env.ADMIN_HOST;
+  const host = request.headers.get("host")?.split(":")[0];
+  if (adminHost && host === adminHost && !request.nextUrl.pathname.startsWith("/admin")) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/admin${request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname}`;
+    const rewritten = NextResponse.rewrite(url);
+    response.headers.forEach((value, key) => rewritten.headers.set(key, value));
+    return rewritten;
+  }
+  return response;
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Run on every request except static assets, image optimization
-     * files, and common static file extensions, so the session cookie
-     * stays fresh on real navigations without extra work on assets.
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

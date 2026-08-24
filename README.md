@@ -43,3 +43,8 @@ For real deSEC synchronization, set `DESEC_API_TOKEN` and `DESEC_BASE_URL` in `.
 ## Phase 9 QA
 
 See `docs/QA_CHECKLIST.md` for the production smoke-test and deployment checklist. A minimal `GET /api/health` endpoint is available for deployment health checks.
+
+
+## Full Requirements Release
+
+See `docs/REQUIREMENTS_IMPLEMENTATION.md` for the complete implementation notes. Run `database/0018_full_requirements.sql` after the existing migrations. The project uses a provider-neutral DNS layer with deSEC as the active provider.
