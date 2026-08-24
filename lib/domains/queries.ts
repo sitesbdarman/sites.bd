@@ -14,10 +14,14 @@ export interface Domain {
   registered_at: string | null;
   expires_at: string | null;
   created_at: string;
+  nameserver1: string | null;
+  nameserver2: string | null;
+  nameserver3: string | null;
+  nameserver4: string | null;
 }
 
 const DOMAIN_COLUMNS =
-  "id, domain_name, status, auto_renew, registered_at, expires_at, created_at";
+  "id, domain_name, status, auto_renew, registered_at, expires_at, created_at, nameserver1, nameserver2, nameserver3, nameserver4";
 
 export interface GetUserDomainsResult {
   data: Domain[];
