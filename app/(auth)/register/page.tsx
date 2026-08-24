@@ -130,7 +130,7 @@ export default function RegisterPage() {
       );
 
       if (status !== 200 || !data.ticket) {
-        setOtpError(data.error ?? "That code is incorrect. Please try again.");
+        setOtpError(data.error ?? "That code could not be verified. Please request a new code and try again.");
         return;
       }
 

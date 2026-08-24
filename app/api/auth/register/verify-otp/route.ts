@@ -44,7 +44,10 @@ export async function POST(request: Request) {
     const ticket = issueTicket(email, "registration");
     return NextResponse.json({ ok: true, ticket });
   } catch (error) {
-    console.error("register/verify-otp failed:", error);
+    console.error("register/verify-otp failed:", {
+      email,
+      error,
+    });
     return NextResponse.json(
       { error: "Something went wrong verifying your code. Please try again." },
       { status: 500 },

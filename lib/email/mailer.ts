@@ -49,7 +49,9 @@ function getTransporter(): Transporter {
 
 /** Sends a single email through the configured SMTP transport. */
 export async function sendEmail(input: SendEmailInput): Promise<void> {
-  const from = process.env.SMTP_FROM ?? process.env.SMTP_USER;
+  const fromEmail = process.env.SMTP_FROM ?? process.env.SMTP_FROM_EMAIL ?? process.env.SMTP_USER;
+  const fromName = process.env.SMTP_FROM_NAME;
+  const from = fromName && fromEmail ? `${fromName} <${fromEmail}>` : fromEmail;
   const transporter = getTransporter();
 
   await transporter.sendMail({

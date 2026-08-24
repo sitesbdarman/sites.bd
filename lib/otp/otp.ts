@@ -187,14 +187,26 @@ export async function verifyOtp(
     return { ok: false, reason: "expired" };
   }
 
-  const matches = verifyPackedHash(submittedCode, row.otp_hash as string);
+  let matches = false;
+  try {
+    matches = verifyPackedHash(submittedCode.trim(), row.otp_hash as string);
+  } catch (error) {
+    // A malformed/corrupted stored hash must not turn into a generic 500.
+    // Treat it as an invalid OTP and log the server-side detail for debugging.
+    console.error("OTP hash verification failed:", error);
+    matches = false;
+  }
 
   if (!matches) {
     const nextAttempts = (row.attempts as number) + 1;
-    await admin
+    const { error: attemptUpdateError } = await admin
       .from("email_otps")
       .update({ attempts: nextAttempts })
       .eq("id", row.id as string);
+
+    if (attemptUpdateError) {
+      throw new Error(`Failed to update OTP attempts: ${attemptUpdateError.message}`);
+    }
 
     return {
       ok: false,
@@ -202,10 +214,14 @@ export async function verifyOtp(
     };
   }
 
-  await admin
+  const { error: markUsedError } = await admin
     .from("email_otps")
     .update({ used_at: new Date().toISOString() })
     .eq("id", row.id as string);
+
+  if (markUsedError) {
+    throw new Error(`Failed to mark OTP as used: ${markUsedError.message}`);
+  }
 
   return { ok: true };
 }
