@@ -44,6 +44,15 @@ const toneClasses: Record<string, string> = {
 export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  let profile: { avatar_url: string | null; full_name: string | null } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("avatar_url, full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = data;
+  }
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-800">
@@ -61,7 +70,7 @@ export default async function Home() {
             <a href="#order" className="transition hover:text-blue-600"><Icon name="cart" className="mr-2 inline h-4 w-4" />Order</a>
             <Link href="/contact" className="transition hover:text-blue-600"><Icon name="mail" className="mr-2 inline h-4 w-4" />Contact</Link>
           </div>
-          <ProfileMenu loggedIn={Boolean(user)} />
+          <ProfileMenu loggedIn={Boolean(user)} avatarUrl={profile?.avatar_url} fullName={profile?.full_name} />
         </div>
       </nav>
 

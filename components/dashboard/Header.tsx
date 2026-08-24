@@ -5,10 +5,12 @@ import { MenuIcon, UserIcon } from "./icons";
 interface HeaderProps {
   pageTitle: string;
   userEmail: string | null;
+  avatarUrl?: string | null;
+  fullName?: string | null;
   onOpenSidebar: () => void;
 }
 
-export function Header({ pageTitle, userEmail, onOpenSidebar }: HeaderProps) {
+export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSidebar }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 sm:px-6">
       <button
@@ -27,10 +29,16 @@ export function Header({ pageTitle, userEmail, onOpenSidebar }: HeaderProps) {
       <div className="flex items-center gap-3">
         {userEmail && (
           <div className="hidden items-center gap-2 sm:flex">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-              <UserIcon className="h-4 w-4" />
+            <span className="flex h-8 w-8 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <UserIcon className="h-4 w-4" />
+              )}
             </span>
-            <span className="max-w-[14rem] truncate text-sm text-gray-600">{userEmail}</span>
+            <span className="max-w-[14rem] truncate text-sm text-gray-600">
+              {fullName || userEmail}
+            </span>
           </div>
         )}
         <CartBadge />

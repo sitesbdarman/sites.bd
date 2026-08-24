@@ -5,4 +5,4 @@
 
 update public.profiles
 set role = 'admin'
-where lower(email) = lower('YOUR_ADMIN_EMAIL@example.com');
+where lower(email) = lower('rabbiahmedfahim44@gmail.com');

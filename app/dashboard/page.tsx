@@ -22,6 +22,8 @@ interface ProfileInfo {
   full_name: string | null;
   email: string;
   mobile_number: string | null;
+  address: { full_address?: string } | null;
+  avatar_url: string | null;
 }
 
 /**
@@ -45,7 +47,7 @@ export default async function DashboardPage() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("full_name, email, mobile_number")
+        .select("full_name, email, mobile_number, address, avatar_url")
         .eq("id", user.id)
         .maybeSingle<ProfileInfo>();
 
@@ -70,6 +72,7 @@ export default async function DashboardPage() {
     } catch { isAdmin = false; }
   }
   const mobileNumber = profile?.mobile_number?.trim() || null;
+  const avatarUrl = profile?.avatar_url || null;
 
   const [domainsResult, invoicesResult, ticketsResult, servicesResult] = user ? await Promise.all([
     supabase.from("domains").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
@@ -88,7 +91,12 @@ export default async function DashboardPage() {
   const contactLine = [email, mobileNumber].filter(Boolean).join(" · ");
 
   return (
-    <DashboardLayout pageTitle="Dashboard" userEmail={email} isAdmin={isAdmin}>
+    <DashboardLayout
+      pageTitle="Dashboard"
+      userEmail={email}
+      fullName={fullName}
+      avatarUrl={avatarUrl}
+    >
       <div className="flex flex-col gap-6">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-gray-900">
@@ -98,6 +106,22 @@ export default async function DashboardPage() {
             Here&apos;s an overview of your domains, services, invoices, and support tickets.
           </p>
           {contactLine && <p className="mt-1 text-xs text-gray-400">{contactLine}</p>}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/profile"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+            >
+              Edit Profile
+            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
+              >
+                Admin Panel
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Statistics cards — placeholder values only; structured so real

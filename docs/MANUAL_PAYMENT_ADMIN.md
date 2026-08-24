@@ -13,6 +13,6 @@
 
 ## Admin access
 
-There is no public Admin Login button. A signed-in user must have `profiles.role = 'admin'`; only then does the normal dashboard show the **Admin Login** entry. The entry opens `/admin`, where all admin routes are protected by the server-side admin check.
+There is no public Admin Login button. A signed-in user must have `profiles.role = 'admin'`; only then does the normal dashboard show the **Admin Login** entry. The dashboard-only **Admin Panel** entry opens `/admin`, where all admin routes are protected by the server-side admin check.
 
 For database setup, use `database/INSTALL_ALL.sql` to run all migrations at once, or run the numbered SQL files in order.

@@ -49,11 +49,6 @@ export function ProfileCompletionForm({
 }: ProfileCompletionFormProps) {
   const router = useRouter();
 
-  // Mobile number becomes locked forever once set on the server, so if
-  // one already exists (e.g. a Google user re-visiting this page after a
-  // partial save) show it read-only rather than letting it be re-typed.
-  const mobileLocked = initialMobileNumber.trim().length > 0;
-
   const [values, setValues] = useState<FormValues>({
     fullName: initialFullName,
     mobileNumber: initialMobileNumber,
@@ -139,11 +134,8 @@ export function ProfileCompletionForm({
         value={values.mobileNumber}
         onChange={handleChange("mobileNumber")}
         error={errors.mobileNumber}
-        disabled={isSubmitting || mobileLocked}
+        disabled={isSubmitting}
       />
-      {mobileLocked && (
-        <p className="-mt-3 text-xs text-gray-400">Mobile number cannot be changed once set.</p>
-      )}
 
       <TextField
         id="address"

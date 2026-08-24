@@ -13,6 +13,15 @@ const tlds = [
 export default async function PricingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  let profile: { avatar_url: string | null; full_name: string | null } | null = null;
+  if (user) {
+    const { data } = await supabase
+      .from("profiles")
+      .select("avatar_url, full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = data;
+  }
 
   return (
     <main className="min-h-screen bg-gray-50 text-gray-800">
@@ -20,7 +29,7 @@ export default async function PricingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <Link href="/" className="text-2xl font-extrabold text-blue-600">SITES<span className="text-gray-900">.BD</span></Link>
           <div className="hidden gap-7 text-sm font-bold md:flex"><Link href="/">Home</Link><Link href="/pricing" className="text-blue-600">Pricing</Link><Link href="/contact">Contact</Link><Link href="/domains/search">Domains</Link></div>
-          <ProfileMenu loggedIn={Boolean(user)} />
+          <ProfileMenu loggedIn={Boolean(user)} avatarUrl={profile?.avatar_url} fullName={profile?.full_name} />
         </div>
       </nav>
 

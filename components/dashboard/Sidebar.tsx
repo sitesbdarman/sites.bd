@@ -24,7 +24,6 @@ interface SidebarProps {
   /** Mobile off-canvas open state. Ignored (always visible) on desktop. */
   open: boolean;
   onClose: () => void;
-  isAdmin?: boolean;
 }
 
 function isActive(pathname: string, href: string) {
@@ -35,12 +34,10 @@ function SidebarContent({
   pathname,
   onNavigate,
   onClose,
-  isAdmin,
 }: {
   pathname: string;
   onNavigate?: () => void;
   onClose?: () => void;
-  isAdmin?: boolean;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -83,21 +80,20 @@ function SidebarContent({
       </nav>
 
       <div className="shrink-0 border-t border-gray-200 p-3">
-        {isAdmin && <Link href="/admin" onClick={onNavigate} className="mb-2 flex items-center justify-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Admin Login</Link>}
         <LogoutButton variant="full" />
       </div>
     </div>
   );
 }
 
-export function Sidebar({ open, onClose, isAdmin }: SidebarProps) {
+export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <>
       {/* Desktop: persistent sidebar */}
       <aside className="hidden w-64 shrink-0 border-r border-gray-200 bg-white md:block">
-        <SidebarContent pathname={pathname} isAdmin={isAdmin} />
+        <SidebarContent pathname={pathname} />
       </aside>
 
       {/* Mobile: off-canvas sidebar + backdrop */}
@@ -114,7 +110,7 @@ export function Sidebar({ open, onClose, isAdmin }: SidebarProps) {
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} isAdmin={isAdmin} />
+          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} />
         </aside>
       </div>
     </>
