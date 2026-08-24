@@ -1,7 +1,6 @@
 import { createHash } from "crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { assertSameOrigin } from "@/lib/security/csrf";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -58,13 +57,9 @@ export async function POST(request: Request) {
     }
 
     const avatarUrl = String(result.secure_url);
-    // Service-role update is intentionally limited to this user's avatar_url.
-    // Auth was verified above, so RLS is not needed for this single-field write.
-    const { error } = await admin.from("profiles").update({ avatar_url: avatarUrl, profile_status: "complete" }).eq("id", user.id);
-    if (error) {
-      console.error("profile avatar save failed:", error);
-      return NextResponse.json({ error: "Image uploaded, but the profile could not be updated." }, { status: 500 });
-    }
+    // Do not update profiles here. The profile form immediately follows this
+    // upload with the authenticated PATCH /api/profile request, which keeps
+    // avatar + name/mobile/address updates in one consistent write path.
     return NextResponse.json({ ok: true, avatarUrl, provider: "cloudinary" });
   }
 
@@ -80,10 +75,5 @@ export async function POST(request: Request) {
   }
 
   const avatarUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-  const { error: profileError } = await admin.from("profiles").update({ avatar_url: avatarUrl, profile_status: "complete" }).eq("id", user.id);
-  if (profileError) {
-    console.error("profile avatar save failed:", profileError);
-    return NextResponse.json({ error: "Image uploaded, but the profile could not be updated." }, { status: 500 });
-  }
   return NextResponse.json({ ok: true, avatarUrl, provider: "supabase" });
 }

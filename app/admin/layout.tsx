@@ -8,6 +8,7 @@ const nav = [
   ["/admin/orders", "Orders & Payments", "◫"],
   ["/admin/tickets", "Support", "◌"],
   ["/admin/coupons", "Coupons", "%"],
+  ["/admin/pricing", "Pricing", "৳"],
   ["/admin/settings", "Settings", "⚙"],
 ] as const;
 

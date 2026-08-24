@@ -24,6 +24,12 @@ export default async function PricingPage() {
     profile = data;
   }
 
+  const { data: plans } = await supabase
+    .from("pricing_plans")
+    .select("id,name,price,currency,billing_period,description,features,badge,cta_text")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-800">
       <nav className="sticky top-0 z-50 border-b bg-white/95 shadow-sm backdrop-blur">
@@ -42,14 +48,25 @@ export default async function PricingPage() {
       </section>
 
       <section className="px-5 py-16 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-br from-emerald-50 to-blue-50 p-8 text-center shadow-sm ring-1 ring-emerald-100 sm:p-10">
-          <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-emerald-600">Always Free</p>
-          <h2 className="mt-2 text-3xl font-extrabold text-gray-900 sm:text-4xl">SITES.BD Free Subdomain</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">Choose a name such as <strong>yourname.sites.bd</strong> and use it at no cost. No registration fee, no monthly fee, and no hidden charge.</p>
-          <div className="mt-6 grid gap-3 text-left sm:grid-cols-3">
-            {[["৳0", "Registration"], ["৳0", "Monthly fee"], ["৳0", "Setup fee"]].map(([value, label]) => <div key={label} className="rounded-2xl bg-white p-5 text-center shadow-sm"><div className="text-2xl font-extrabold text-emerald-600">{value}</div><div className="mt-1 text-sm text-gray-500">{label}</div></div>)}
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 text-center">
+            <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-blue-600">Plans & pricing</p>
+            <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Choose what fits your website</h2>
+            <p className="mt-3 text-gray-600">Pricing is managed from the SITES.BD admin panel.</p>
           </div>
-          <Link href="/domains/search?q=example.sites.bd" className="mt-7 inline-block rounded-full bg-emerald-600 px-7 py-3.5 font-extrabold text-white shadow-lg transition hover:bg-emerald-700">Get Free Subdomain</Link>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {(plans ?? []).map((plan: any) => (
+              <article key={plan.id} className="relative rounded-3xl bg-white p-7 shadow-sm ring-1 ring-gray-100 transition hover:-translate-y-1 hover:shadow-xl">
+                {plan.badge && <span className="absolute right-5 top-5 rounded-full bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700">{plan.badge}</span>}
+                <h3 className="text-2xl font-extrabold text-gray-900">{plan.name}</h3>
+                <p className="mt-2 min-h-12 text-sm text-gray-500">{plan.description}</p>
+                <div className="mt-6"><span className="text-4xl font-black text-gray-950">{plan.currency} {Number(plan.price).toLocaleString()}</span><span className="ml-2 text-sm text-gray-500">/ {plan.billing_period}</span></div>
+                <ul className="mt-6 space-y-2 text-sm text-gray-700">{(Array.isArray(plan.features) ? plan.features : []).map((f: string) => <li key={f}>✓ {f}</li>)}</ul>
+                <Link href="/domains/search" className="mt-7 block rounded-xl bg-blue-600 py-3 text-center font-bold text-white transition hover:bg-blue-700 active:scale-[.98]">{plan.cta_text || "Get Started"}</Link>
+              </article>
+            ))}
+          </div>
+          {(!plans || plans.length === 0) && <div className="rounded-2xl bg-emerald-50 p-8 text-center"><h3 className="text-xl font-bold text-emerald-800">SITES.BD Free Subdomain</h3><p className="mt-2 text-emerald-700">Run database/0017_admin_pricing.sql to enable admin-managed pricing.</p></div>}
         </div>
       </section>
 

@@ -41,13 +41,15 @@ export async function PATCH(request: Request) {
   // service-role client, so role/customer_id/email cannot be overwritten by
   // this endpoint and old RLS policies cannot block harmless profile edits.
   const admin = createAdminClient();
-  const { error } = await admin.from("profiles").update({
+  const updatePayload: Record<string, unknown> = {
     full_name: fullName,
     mobile_number: mobileNumber,
     address: { full_address: address },
-    ...(avatarUrl !== undefined ? { avatar_url: avatarUrl } : {}),
-    profile_status: "complete",
-  }).eq("id", user.id);
+  };
+  if (avatarUrl !== undefined) updatePayload.avatar_url = avatarUrl;
+  updatePayload.profile_status = "complete";
+
+  const { error } = await admin.from("profiles").update(updatePayload).eq("id", user.id);
 
   if (error) {
     console.error("profile update failed:", error);

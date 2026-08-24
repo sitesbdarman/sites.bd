@@ -8,7 +8,7 @@ export function DeveloperCredit() {
         href="https://www.facebook.com/rafahimn"
         target="_blank"
         rel="noopener noreferrer"
-        className="font-extrabold text-sky-400 underline decoration-sky-400/50 underline-offset-4 transition-colors hover:text-sky-300"
+        className="font-extrabold text-sky-400 no-underline transition-colors hover:text-sky-300"
       >
         RA Fahim
       </Link>
