@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ClaimModal } from "@/components/domains/ClaimModal";
 
 interface DomainResult {
@@ -200,7 +201,7 @@ export default function DomainSearchPage() {
           Search up to 5 domains at once, separated by commas or spaces.
         </p>
         <div className="mt-3 text-center text-sm">
-          <a href="/" className="font-semibold text-blue-600 hover:text-blue-700">← Back to homepage</a>
+          <Link href="/" className="font-semibold text-blue-600 hover:text-blue-700">← Back to homepage</Link>
         </div>
 
         {state === "error" && errorMessage && (

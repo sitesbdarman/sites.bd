@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-export function DeveloperCredit() {
+export function DeveloperCredit({ className = "" }: { className?: string }) {
   return (
-    <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-gray-400">
+    <div className={`text-sm text-gray-400 ${className}`}>
       Developed by{" "}
       <Link
         href="https://www.facebook.com/rafahimn"

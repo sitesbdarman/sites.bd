@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatBDT, type HostingPlanType } from "@/lib/hosting/plans";
 import { loadHostingSelection, type HostingSelection } from "@/lib/hosting/selection";
 import { loadAddonsSelection } from "@/lib/hosting/addons-selection";
@@ -61,6 +62,7 @@ function formatDomainPrice(item: ReviewCartItem): string {
 }
 
 export function ReviewContent() {
+  const router = useRouter();
   const [state, setState] = useState<LoadState>("loading");
   const [errors, setErrors] = useState<string[]>([]);
   const [cart, setCart] = useState<ReviewCartItem[]>([]);
@@ -196,7 +198,7 @@ export function ReviewContent() {
       setInvoiceId(data.invoiceId ?? "");
       setConfirmed(true);
       if (data.nextStep === "payment" && data.invoiceId) {
-        window.location.href = `/checkout/payment?invoice=${encodeURIComponent(data.invoiceId)}`;
+        router.push(`/checkout/payment?invoice=${encodeURIComponent(data.invoiceId)}`);
       }
     } catch {
       setConfirmError("Could not reach the server. Please try again.");

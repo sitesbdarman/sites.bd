@@ -82,7 +82,7 @@ export default async function PricingPage() {
       <section className="bg-white px-5 py-16 lg:px-8"><div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3"><div className="rounded-2xl bg-blue-50 p-7"><h3 className="text-xl font-extrabold">Easy search</h3><p className="mt-2 text-gray-600">Search your preferred name before adding it to your order.</p></div><div className="rounded-2xl bg-blue-50 p-7"><h3 className="text-xl font-extrabold">DNS management</h3><p className="mt-2 text-gray-600">Manage supported DNS records from your dashboard after setup.</p></div><div className="rounded-2xl bg-blue-50 p-7"><h3 className="text-xl font-extrabold">One dashboard</h3><p className="mt-2 text-gray-600">Keep domains, hosting, invoices and support in one account.</p></div></div></section>
       <footer className="bg-blue-950 px-5 py-10 text-white lg:px-8">
         <div className="mx-auto max-w-7xl text-center text-sm text-gray-400">© {new Date().getFullYear()} SITES.BD. All rights reserved.</div>
-        <div className="mx-auto max-w-7xl"><DeveloperCredit /></div>
+        <div className="mx-auto mt-2 max-w-7xl text-center"><DeveloperCredit /></div>
       </footer>
     </main>
   );
