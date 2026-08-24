@@ -8,7 +8,7 @@ const profileUpdateSchema = z.object({
   fullName: fullNameSchema,
   mobileNumber: mobileNumberSchema,
   address: addressSchema,
-  avatarPath: z.string().nullable().optional(),
+  avatarUrl: z.string().url().nullable().optional(),
 });
 
 export async function PATCH(request: Request) {
@@ -39,15 +39,17 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const { fullName, mobileNumber, address, avatarPath } = parsed.data;
+  const { fullName, mobileNumber, address, avatarUrl } = parsed.data;
 
-  if (avatarPath && avatarPath !== `${user.id}/avatar`) {
-    return NextResponse.json({ error: "Invalid profile image path." }, { status: 400 });
+  if (avatarUrl) {
+    try {
+      const hostname = new URL(avatarUrl).hostname;
+      const allowed = hostname.endsWith(".cloudinary.com") || hostname.endsWith(".supabase.co");
+      if (!allowed) throw new Error("unsupported host");
+    } catch {
+      return NextResponse.json({ error: "Invalid profile image URL." }, { status: 400 });
+    }
   }
-
-  const avatarUrl = avatarPath
-    ? supabase.storage.from("avatars").getPublicUrl(avatarPath).data.publicUrl
-    : null;
 
   const { error } = await supabase
     .from("profiles")

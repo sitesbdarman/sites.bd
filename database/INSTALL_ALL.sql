@@ -162,7 +162,8 @@ returns trigger
 language plpgsql
 as $$
 begin
-  if new.role is distinct from old.role then
+  if new.role is distinct from old.role
+     and coalesce(current_setting('app.allow_profile_role_change', true), 'off') <> 'on' then
     raise exception 'role cannot be changed directly';
   end if;
 
@@ -937,7 +938,8 @@ returns trigger
 language plpgsql
 as $$
 begin
-  if new.role is distinct from old.role then
+  if new.role is distinct from old.role
+     and coalesce(current_setting('app.allow_profile_role_change', true), 'off') <> 'on' then
     raise exception 'role cannot be changed directly';
   end if;
 

@@ -2,7 +2,6 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 interface ProfileFormProps {
   userId: string;
@@ -63,19 +62,21 @@ export function ProfileForm({
 
   async function uploadAvatar() {
     if (!selectedFile) return null;
-    const supabase = createClient();
-    const path = `${userId}/avatar`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, selectedFile, {
-        cacheControl: "3600",
-        contentType: selectedFile.type,
-        upsert: true,
-      });
+    const formData = new FormData();
+    formData.append("file", selectedFile);
 
-    if (uploadError) throw new Error(uploadError.message);
-    return path;
+    const response = await fetch("/api/profile/avatar", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.error ?? "Profile picture upload failed.");
+    }
+
+    return data.avatarUrl as string;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -85,14 +86,12 @@ export function ProfileForm({
     setSuccess("");
 
     try {
-      let avatarPath: string | null | undefined = undefined;
+      let avatarUrlToSave: string | null | undefined = undefined;
 
       if (removeAvatar) {
-        const supabase = createClient();
-        await supabase.storage.from("avatars").remove([`${userId}/avatar`]);
-        avatarPath = null;
+        avatarUrlToSave = null;
       } else if (selectedFile) {
-        avatarPath = await uploadAvatar();
+        avatarUrlToSave = await uploadAvatar();
       }
 
       const response = await fetch("/api/profile", {
@@ -102,7 +101,7 @@ export function ProfileForm({
           fullName,
           mobileNumber,
           address,
-          avatarPath,
+          avatarUrl: avatarUrlToSave,
         }),
       });
 

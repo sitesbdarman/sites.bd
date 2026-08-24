@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileMenu } from "@/components/auth/ProfileMenu";
+import { DeveloperCredit } from "@/components/DeveloperCredit";
 
 const tlds = [
   [".com", "৳1,299/yr"], [".net", "৳1,499/yr"], [".org", "৳1,399/yr"], [".info", "৳999/yr"],
@@ -32,6 +33,7 @@ export default async function PricingPage() {
           <ProfileMenu loggedIn={Boolean(user)} avatarUrl={profile?.avatar_url} fullName={profile?.full_name} />
         </div>
       </nav>
+      <DeveloperCredit />
 
       <section className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 py-20 text-center text-white lg:py-28">
         <p className="font-bold uppercase tracking-[0.25em] text-blue-100">Domain Pricing</p>

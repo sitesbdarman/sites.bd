@@ -1,4 +1,4 @@
-"use client";
+use client";
 
 import Link from "next/link";
 
@@ -27,24 +27,23 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ loggedIn, avatarUrl, fullName }: ProfileMenuProps) {
-  const label = loggedIn ? `Open dashboard${fullName ? ` for ${fullName}` : ""}` : "Log in or sign up";
+  const label = loggedIn
+    ? `Open dashboard${fullName ? ` for ${fullName}` : ""}`
+    : "Log in or sign up";
 
   return (
     <Link
       href={loggedIn ? "/dashboard" : "/login"}
       aria-label={label}
       title={loggedIn ? "Dashboard" : "Login / Sign up"}
-      className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+      className="group relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gradient-to-br from-sky-50 to-blue-100 text-blue-600 shadow-md ring-1 ring-blue-200/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:ring-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 sm:h-12 sm:w-12"
     >
       {avatarUrl ? (
-        <img
-          src={avatarUrl}
-          alt=""
-          className="h-full w-full object-cover"
-        />
+        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
       ) : (
-        <UserIcon className="h-6 w-6" />
+        <UserIcon className="h-6 w-6 transition group-hover:scale-105" />
       )}
+      <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/70" />
     </Link>
   );
 }
