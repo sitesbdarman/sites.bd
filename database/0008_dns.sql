@@ -13,7 +13,7 @@ create table if not exists public.dns_records (
   id uuid primary key default gen_random_uuid(),
   domain_id uuid not null references public.domains(id) on delete cascade,
   owner_id uuid not null references auth.users(id) on delete cascade,
-  type text not null check (type in ('A','AAAA','CNAME','MX','TXT','NS')),
+  type text not null check (type in ('A','AAAA','CNAME','MX','TXT','NS','SRV','CAA','HTTPS','TLSA')),
   name text not null,
   content text not null,
   ttl integer not null default 3600 check (ttl between 60 and 86400),

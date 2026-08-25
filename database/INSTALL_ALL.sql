@@ -152,12 +152,10 @@ create trigger trg_profiles_assign_customer_id
 
 -- =============================================================================
 -- Immutability guard
--- Prevent a normal user from changing role, customer_id, or email via a
--- direct table update (defense in depth — RLS below already restricts which
--- rows/columns a user can touch, but this trigger protects against any
--- future overly-broad policy too). Mobile number is intentionally editable
--- from the user's Profile page — see the final (0016) redefinition of this
--- function further down, which is the version that actually takes effect.
+-- Prevent a normal user from changing role, customer_id, email, or an
+-- already-set mobile_number via a direct table update (defense in depth —
+-- RLS below already restricts which rows/columns a user can touch, but this
+-- trigger protects against any future overly-broad policy too).
 -- =============================================================================
 create or replace function public.enforce_profile_immutable_fields()
 returns trigger
@@ -175,6 +173,11 @@ begin
 
   if new.email is distinct from old.email then
     raise exception 'email cannot be changed';
+  end if;
+
+  if old.mobile_number is not null
+     and new.mobile_number is distinct from old.mobile_number then
+    raise exception 'mobile_number cannot be changed once set';
   end if;
 
   return new;
@@ -1195,3 +1198,9 @@ create table if not exists public.notification_preferences (
 alter table public.notification_preferences enable row level security;
 drop policy if exists "notification_preferences_own" on public.notification_preferences;
 create policy "notification_preferences_own" on public.notification_preferences for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+
+-- 0021: allow common DNS record types used by modern hosting providers.
+alter table public.dns_records drop constraint if exists dns_records_type_check;
+alter table public.dns_records drop constraint if exists dns_records_type_check1;
+alter table public.dns_records add constraint dns_records_type_check check (type in ('A','AAAA','CNAME','MX','TXT','NS','SRV','CAA','HTTPS','TLSA'));

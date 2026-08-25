@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CloseIcon, DashboardIcon, GlobeIcon, InvoiceIcon, ServerIcon, TicketIcon } from "./icons";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface NavItem {
   label: string;
@@ -40,10 +41,12 @@ function SidebarContent({
   onNavigate?: () => void;
   onClose?: () => void;
 }) {
+  const { language } = useLanguage();
+  const label = (en: string, bn: string) => language === "bn" ? bn : en;
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-gray-200 px-5">
-        <span className="text-lg font-bold tracking-tight text-gray-900">DomainHost</span>
+        <span className="text-lg font-bold tracking-tight text-gray-900">SITES.BD</span>
         {onClose && (
           <button
             type="button"

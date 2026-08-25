@@ -36,8 +36,10 @@ export function DashboardLayout({
         <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
           {children}
         </main>
+        <footer className="border-t border-gray-200 bg-white px-4 py-5 text-center sm:px-6">
+          <DeveloperCredit />
+        </footer>
       </div>
-      <DeveloperCredit />
     </div>
   );
 }
