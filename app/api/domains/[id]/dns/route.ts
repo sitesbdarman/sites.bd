@@ -41,6 +41,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid DNS record", details: parsed.error.flatten() }, { status: 400 });
 
+  const isApexName = parsed.data.name.trim() === "@" || parsed.data.name.trim() === "" || parsed.data.name.trim().toLowerCase() === domain.domain_name.toLowerCase();
+  if (parsed.data.type === "CNAME" && isApexName) {
+    return NextResponse.json(
+      { error: "A CNAME can't be used at the root domain (@) — that name always needs NS records for the domain to work. Use an A or AAAA record for the root, or add the CNAME on a subdomain instead.", code: "DNS_APEX_CNAME" },
+      { status: 400 },
+    );
+  }
+
   try {
     const providerRecord = isDeSecConfigured()
       ? await upsertDnsRecord({ domain: domain.domain_name, ...parsed.data })

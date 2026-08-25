@@ -152,10 +152,12 @@ create trigger trg_profiles_assign_customer_id
 
 -- =============================================================================
 -- Immutability guard
--- Prevent a normal user from changing role, customer_id, email, or an
--- already-set mobile_number via a direct table update (defense in depth —
--- RLS below already restricts which rows/columns a user can touch, but this
--- trigger protects against any future overly-broad policy too).
+-- Prevent a normal user from changing role, customer_id, or email via a
+-- direct table update (defense in depth — RLS below already restricts which
+-- rows/columns a user can touch, but this trigger protects against any
+-- future overly-broad policy too). Mobile number is intentionally editable
+-- from the user's Profile page — see the final (0016) redefinition of this
+-- function further down, which is the version that actually takes effect.
 -- =============================================================================
 create or replace function public.enforce_profile_immutable_fields()
 returns trigger
@@ -173,11 +175,6 @@ begin
 
   if new.email is distinct from old.email then
     raise exception 'email cannot be changed';
-  end if;
-
-  if old.mobile_number is not null
-     and new.mobile_number is distinct from old.mobile_number then
-    raise exception 'mobile_number cannot be changed once set';
   end if;
 
   return new;

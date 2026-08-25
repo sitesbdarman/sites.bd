@@ -22,7 +22,7 @@ const TYPE_INFO: Record<RecordType, { placeholder: string; hint: string; validat
   },
   CNAME: {
     placeholder: "e.g. yourapp.vercel-dns.com",
-    hint: "Aliases this name to another hostname. Only one CNAME is allowed per name — adding a new one replaces the old one.",
+    hint: "Aliases this name to another hostname. Only one CNAME is allowed per name — adding a new one replaces the old one. Can't be used at the root (@); use A/AAAA there instead.",
     validate: (v) => (HOSTNAME_RE.test(v.trim()) ? null : "Enter a valid hostname, e.g. yourapp.vercel-dns.com."),
   },
   MX: {
@@ -65,16 +65,24 @@ export function DnsManager({ domainId }: { domainId: string }) {
 
   const info = TYPE_INFO[form.type];
   const isMx = form.type === "MX";
+  const isApexName = form.name.trim() === "@" || form.name.trim() === "";
+  const isApexCname = form.type === "CNAME" && isApexName;
 
   const liveError = useMemo(() => {
+    if (isApexCname) return "A CNAME can't be used at the root domain (@) — that name always needs NS records for the domain to work. Use an A or AAAA record for the root, or add the CNAME on a subdomain (e.g. `www`) instead.";
     if (!form.content.trim() || !info.validate) return null;
     return info.validate(form.content);
-  }, [form.content, info]);
+  }, [form.content, info, isApexCname]);
 
   async function addRecord(event: React.FormEvent) {
     event.preventDefault();
     setFeedback(null);
     setFieldError(null);
+
+    if (isApexCname) {
+      setFieldError("A CNAME can't be used at the root domain (@). Use an A or AAAA record for the root, or move this CNAME to a subdomain.");
+      return;
+    }
 
     const validationError = info.validate?.(form.content);
     if (validationError) {
@@ -192,7 +200,7 @@ export function DnsManager({ domainId }: { domainId: string }) {
             className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
             required
           />
-          <button disabled={busy} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
+          <button disabled={busy || isApexCname} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
             {busy ? "Saving…" : "Add Record"}
           </button>
         </div>
