@@ -69,11 +69,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   if (!domain) return NextResponse.json({ error: "Domain not found" }, { status: 404 });
   const recordId = new URL(request.url).searchParams.get("recordId");
   if (!recordId) return NextResponse.json({ error: "recordId is required" }, { status: 400 });
-  const { data: record } = await supabase.from("dns_records").select("id,type,name,content,provider_record_id").eq("id", recordId).eq("domain_id", id).eq("owner_id", user.id).maybeSingle();
+  const { data: record } = await supabase.from("dns_records").select("id,type,name,content,priority,provider_record_id").eq("id", recordId).eq("domain_id", id).eq("owner_id", user.id).maybeSingle();
   if (!record) return NextResponse.json({ error: "DNS record not found" }, { status: 404 });
   try {
     if (isDeSecConfigured()) {
-      await deleteDnsRecord({ domain: domain.domain_name, type: record.type, name: record.name, content: record.content });
+      await deleteDnsRecord({ domain: domain.domain_name, type: record.type, name: record.name, content: record.content, priority: record.priority });
     }
     const { error } = await supabase.from("dns_records").update({ status: "deleted" }).eq("id", recordId).eq("owner_id", user.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -32,12 +32,23 @@ async function deSecFetch(path: string, init?: RequestInit) {
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
   if (!response.ok) {
-    const detail = typeof data === "object" && data !== null
-      ? JSON.stringify(data)
-      : String(data || response.statusText);
-    throw new Error(`deSEC API request failed (${response.status}): ${detail}`);
+    throw new Error(`deSEC API request failed (${response.status}): ${describeDeSecError(data) ?? String(text || response.statusText)}`);
   }
   return data;
+}
+
+// deSEC returns DRF-style validation errors, e.g.
+// {"records":["Must be a list."]} or {"non_field_errors":["RRset already exists."]}.
+// Flattening these into one readable sentence is much friendlier in the UI
+// than the raw JSON blob the customer saw before ("non_field_errors": [...]).
+function describeDeSecError(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+  const messages: string[] = [];
+  for (const [field, value] of Object.entries(data as Record<string, unknown>)) {
+    const text = Array.isArray(value) ? value.join(" ") : String(value);
+    messages.push(field === "non_field_errors" ? text : `${field}: ${text}`);
+  }
+  return messages.length ? messages.join(" ") : null;
 }
 
 export function isDeSecConfigured() {
@@ -69,19 +80,71 @@ function fromSubname(domain: string, subname: string) {
   return `${subname}.${cleanDomain}`;
 }
 
+// deSEC (like any RFC 1035-compliant DNS API) requires each TXT record's
+// RDATA to be given as a quoted character-string, e.g. `"some value"`. A
+// bare `vc-domain-verify=...` is rejected with the exact 400 the customer
+// hit ("Data for TXT records must be given using quotation marks."). We
+// keep the *unquoted* value in Supabase (what the user typed / sees in the
+// UI) and only quote it right before it goes to deSEC, then unquote it
+// again when reading records back for display.
+function quoteTxtValue(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) return trimmed;
+  const escaped = trimmed.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return `"${escaped}"`;
+}
+
+function unquoteTxtValue(value: string): string {
+  const trimmed = value.trim();
+  if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) {
+    return trimmed.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+  }
+  return trimmed;
+}
+
+// deSEC requires hostname-type targets (CNAME/MX/NS) to be given as a
+// fully-qualified domain name with a trailing dot, e.g. `mail.example.com.`
+// — a bare `mail.example.com` (what most users naturally type) is rejected.
+// We normalize it here rather than making the user remember the dot.
+function canonicalizeHost(value: string): string {
+  const trimmed = value.trim().toLowerCase();
+  return trimmed.endsWith(".") ? trimmed : `${trimmed}.`;
+}
+
+// Builds the exact record string deSEC expects on the wire for a given
+// record type, given the (unmodified, user-facing) content stored in our
+// own `dns_records` table plus — for MX — the priority.
+function toProviderContent(type: string, content: string, priority?: number | null): string {
+  switch (type) {
+    case "TXT":
+      return quoteTxtValue(content);
+    case "CNAME":
+    case "NS":
+      return canonicalizeHost(content);
+    case "MX":
+      return `${priority ?? 10} ${canonicalizeHost(content)}`;
+    default:
+      return content.trim();
+  }
+}
+
 export async function listDnsRecords(domain: string) {
   const data = await deSecFetch(`/domains/${encodeURIComponent(domain)}/rrsets/`);
   const rrsets = Array.isArray(data) ? data as DeSecRRset[] : [];
-  return rrsets.flatMap((rrset) => rrset.records.map((content, index) => ({
-    id: `${rrset.type}:${rrset.subname || "@"}:${index}`,
-    type: rrset.type,
-    name: fromSubname(domain, rrset.subname || ""),
-    content,
-    ttl: rrset.ttl,
-    priority: rrset.type === "MX" ? Number(content.split(/\s+/, 1)[0]) || null : null,
-    status: "active",
-    providerRecordId: `${rrset.type}:${rrset.subname || "@"}:${index}`,
-  })));
+  return rrsets.flatMap((rrset) => rrset.records.map((content, index) => {
+    const isMx = rrset.type === "MX";
+    const [prio, ...hostParts] = isMx ? content.split(/\s+/) : [];
+    return {
+      id: `${rrset.type}:${rrset.subname || "@"}:${index}`,
+      type: rrset.type,
+      name: fromSubname(domain, rrset.subname || ""),
+      content: rrset.type === "TXT" ? unquoteTxtValue(content) : isMx ? hostParts.join(" ") : content,
+      ttl: rrset.ttl,
+      priority: isMx ? Number(prio) || null : null,
+      status: "active",
+      providerRecordId: `${rrset.type}:${rrset.subname || "@"}:${index}`,
+    };
+  }));
 }
 
 export async function upsertDnsRecord(input: {
@@ -90,9 +153,11 @@ export async function upsertDnsRecord(input: {
   name: string;
   content: string;
   ttl: number;
+  priority?: number | null;
 }) {
   const subname = toSubname(input.domain, input.name);
   const path = apiPath(input.domain, subname, input.type);
+  const providerContent = toProviderContent(input.type, input.content, input.priority);
 
   const existingResponse = await fetch(`${BASE_URL}${path}`, {
     headers: { Authorization: `Token ${getToken()}` },
@@ -101,7 +166,13 @@ export async function upsertDnsRecord(input: {
 
   if (existingResponse.ok) {
     const existing = await existingResponse.json() as DeSecRRset;
-    const records = Array.from(new Set([...(existing.records || []), input.content]));
+    // A name can only ever have one CNAME target — adding a second one
+    // isn't "another record", it's a replacement. (A/AAAA/MX/NS/TXT can
+    // legitimately have several values at the same name, so those still
+    // accumulate.)
+    const records = input.type === "CNAME"
+      ? [providerContent]
+      : Array.from(new Set([...(existing.records || []), providerContent]));
     return deSecFetch(path, {
       method: "PUT",
       body: JSON.stringify({
@@ -124,7 +195,7 @@ export async function upsertDnsRecord(input: {
       subname: subname === "@" ? "" : subname,
       type: input.type,
       ttl: input.ttl,
-      records: [input.content],
+      records: [providerContent],
     }),
   });
 }
@@ -134,9 +205,11 @@ export async function deleteDnsRecord(input: {
   type: string;
   name: string;
   content: string;
+  priority?: number | null;
 }) {
   const subname = toSubname(input.domain, input.name);
   const path = apiPath(input.domain, subname, input.type);
+  const providerContent = toProviderContent(input.type, input.content, input.priority);
   const existingResponse = await fetch(`${BASE_URL}${path}`, {
     headers: { Authorization: `Token ${getToken()}` },
     cache: "no-store",
@@ -148,7 +221,7 @@ export async function deleteDnsRecord(input: {
   }
 
   const existing = await existingResponse.json() as DeSecRRset;
-  const remaining = (existing.records || []).filter((record) => record !== input.content);
+  const remaining = (existing.records || []).filter((record) => record !== providerContent);
 
   if (remaining.length === 0) {
     return deSecFetch(path, { method: "DELETE" });

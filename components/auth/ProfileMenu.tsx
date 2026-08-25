@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 function UserIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -39,7 +40,7 @@ export function ProfileMenu({ loggedIn, avatarUrl, fullName }: ProfileMenuProps)
       className="group relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gradient-to-br from-sky-50 to-blue-100 text-blue-600 shadow-md ring-1 ring-blue-200/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:ring-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 sm:h-12 sm:w-12"
     >
       {avatarUrl ? (
-        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+        <Image src={avatarUrl} alt="" width={48} height={48} className="h-full w-full object-cover" />
       ) : (
         <UserIcon className="h-6 w-6 transition group-hover:scale-105" />
       )}

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CartBadge } from "./CartBadge";
+import { NotificationBell } from "./NotificationBell";
 import { MenuIcon, UserIcon } from "./icons";
 
 interface HeaderProps {
@@ -36,7 +38,7 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
           >
             <span className="flex h-9 w-9 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100 transition group-hover:ring-blue-300">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                <Image src={avatarUrl} alt="" width={36} height={36} className="h-full w-full object-cover" />
               ) : (
                 <UserIcon className="h-4 w-4" />
               )}
@@ -46,6 +48,7 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
             </span>
           </Link>
         )}
+        <NotificationBell />
         <CartBadge />
         <LogoutButton variant="icon" />
       </div>

@@ -1,7 +1,14 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/mailer";
-import { orderCreatedEmail, paymentSuccessEmail, ticketCreatedEmail } from "@/lib/email/templates/notifications";
+import {
+  orderCreatedEmail,
+  paymentSuccessEmail,
+  ticketCreatedEmail,
+  ticketReplyEmail,
+  domainExpiryReminderEmail,
+  cartAbandonmentEmail,
+} from "@/lib/email/templates/notifications";
 
 type Notification = { to: string; subject: string; html: string; text: string; event: string; userId?: string | null; metadata?: Record<string, unknown> };
 
@@ -30,6 +37,21 @@ export async function notifyPaymentSuccess(input: { email: string; userId: strin
 export async function notifyTicketCreated(input: { email: string; userId: string; ticketNumber: string; subject: string; priority: string }) {
   const message = ticketCreatedEmail(input);
   return deliver({ ...message, to: input.email, event: "ticket_created", userId: input.userId, metadata: { ticketNumber: input.ticketNumber } });
+}
+
+export async function notifyTicketReply(input: { email: string; userId: string; ticketNumber: string; subject: string; message: string }) {
+  const message = ticketReplyEmail(input);
+  return deliver({ ...message, to: input.email, event: "ticket_reply", userId: input.userId, metadata: { ticketNumber: input.ticketNumber } });
+}
+
+export async function notifyDomainExpiring(input: { email: string; userId: string; domain: string; daysLeft: number; expiresAt: string }) {
+  const message = domainExpiryReminderEmail(input);
+  return deliver({ ...message, to: input.email, event: "domain_expiry_reminder", userId: input.userId, metadata: { domain: input.domain, daysLeft: input.daysLeft } });
+}
+
+export async function notifyCartAbandonment(input: { email: string; userId: string; domains: string[] }) {
+  const message = cartAbandonmentEmail(input);
+  return deliver({ ...message, to: input.email, event: "cart_abandonment", userId: input.userId, metadata: { domains: input.domains } });
 }
 
 export async function notifyAdmin(subject: string, text: string, event: string, metadata: Record<string, unknown> = {}) {

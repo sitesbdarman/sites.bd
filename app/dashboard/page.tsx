@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { EmptyState } from "@/components/dashboard/EmptyState";
+import { ExpiryBanner } from "@/components/dashboard/ExpiryBanner";
 import {
   GlobeIcon,
   InboxIcon,
@@ -74,16 +75,18 @@ export default async function DashboardPage() {
   const mobileNumber = profile?.mobile_number?.trim() || null;
   const avatarUrl = profile?.avatar_url || null;
 
-  const [domainsResult, invoicesResult, ticketsResult, servicesResult] = user ? await Promise.all([
+  const [domainsResult, invoicesResult, ticketsResult, servicesResult, expiringDomainsResult] = user ? await Promise.all([
     supabase.from("domains").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
     supabase.from("invoices").select("id", { count: "exact", head: true }).eq("customer_id", user.id).eq("status", "unpaid"),
     supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("customer_id", user.id).in("status", ["open", "pending"]),
     supabase.from("orders").select("id", { count: "exact", head: true }).eq("customer_id", user.id).in("status", ["active", "processing"]),
-  ]) : [{ count: 0 }, { count: 0 }, { count: 0 }, { count: 0 }];
+    supabase.from("domains").select("domain_name, status, expires_at").eq("owner_id", user.id).eq("status", "active"),
+  ]) : [{ count: 0 }, { count: 0 }, { count: 0 }, { count: 0 }, { data: [] }];
   const domainCount = domainsResult.count ?? 0;
   const invoiceCount = invoicesResult.count ?? 0;
   const ticketCount = ticketsResult.count ?? 0;
   const serviceCount = servicesResult.count ?? 0;
+  const expiringDomains = expiringDomainsResult.data ?? [];
 
   // Full name is preferred; otherwise fall back to email. Never render
   // undefined/null/blank.
@@ -98,6 +101,8 @@ export default async function DashboardPage() {
       avatarUrl={avatarUrl}
     >
       <div className="flex flex-col gap-6">
+        <ExpiryBanner domains={expiringDomains} />
+
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-gray-900">
             Welcome back, {welcomeName}

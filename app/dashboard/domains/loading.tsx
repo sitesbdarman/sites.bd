@@ -1,15 +1,23 @@
-/**
- * Shown by Next.js while the domains page's Server Component (auth +
- * domain fetch) is resolving. Matches app/dashboard/loading.tsx.
- */
+import { DashboardSkeletonShell, Skeleton } from "@/components/dashboard/Skeleton";
+
+/** Mirrors the real domains table: search bar + status filter + rows. */
 export default function DomainsLoading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <span
-        aria-hidden="true"
-        className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"
-      />
-      <span className="sr-only">Loading your domains…</span>
-    </div>
+    <DashboardSkeletonShell>
+      <div className="mb-4 h-20 rounded-xl border border-gray-200 bg-white p-4">
+        <Skeleton className="h-full w-full" />
+      </div>
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Skeleton className="h-9 w-full sm:max-w-xs" />
+          <Skeleton className="h-9 w-40" />
+        </div>
+        <div className="mt-4 flex flex-col gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
+    </DashboardSkeletonShell>
   );
 }
