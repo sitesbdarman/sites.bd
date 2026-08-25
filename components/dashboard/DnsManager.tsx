@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type RecordItem = { id: string; type: string; name: string; content: string; ttl: number; priority: number | null; status: string };
 type RecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS";
@@ -50,18 +50,18 @@ export function DnsManager({ domainId }: { domainId: string }) {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [form, setForm] = useState({ type: "A" as RecordType, name: "@", content: "", ttl: "3600", priority: "10" });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const response = await fetch(`/api/domains/${domainId}/dns`, { cache: "no-store" });
     const data = await response.json();
     if (response.ok) { setRecords(data.records ?? []); setConfigured(Boolean(data.deSecConfigured)); }
     else setFeedback({ kind: "error", text: data.error ?? "Could not load DNS records." });
     setLoading(false);
-  }
+  }, [domainId]);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load for this domain; re-runs only when the domain changes.
     void load();
-  }, [domainId]);
+  }, [load]);
 
   const info = TYPE_INFO[form.type];
   const isMx = form.type === "MX";
