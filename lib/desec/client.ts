@@ -159,6 +159,35 @@ export async function upsertDnsRecord(input: {
   const path = apiPath(input.domain, subname, input.type);
   const providerContent = toProviderContent(input.type, input.content, input.priority);
 
+  // RFC 1034/1035 rule: a CNAME RRset cannot coexist with any other RRset
+  // at the same owner name. This check prevents the opaque deSEC 400 that
+  // otherwise appears when, for example, `database` already has A/MX/TXT.
+  const allResponse = await fetch(`${BASE_URL}/domains/${encodeURIComponent(input.domain)}/rrsets/`, {
+    headers: { Authorization: `Token ${getToken()}` },
+    cache: "no-store",
+  });
+  if (!allResponse.ok) {
+    const text = await allResponse.text();
+    throw new Error(`deSEC API request failed (${allResponse.status}): ${text}`);
+  }
+  const allData = await allResponse.json() as DeSecRRset[];
+  const sameName = allData.filter((rrset) => (rrset.subname || "@") === subname);
+  const existingOtherTypes = sameName.filter((rrset) => rrset.type !== input.type);
+  const existingCname = sameName.find((rrset) => rrset.type === "CNAME");
+
+  if (input.type === "CNAME" && existingOtherTypes.length) {
+    const types = Array.from(new Set(existingOtherTypes.map((rrset) => rrset.type))).join(", ");
+    throw new Error(
+      `CNAME conflict at \`${subname === "@" ? "@" : subname}\`. Existing ${types} record(s) use this name. Remove or replace the conflicting record(s) first; system TXT/NS records are protected.`
+    );
+  }
+
+  if (input.type !== "CNAME" && existingCname) {
+    throw new Error(
+      `This name already has a CNAME record. A ${input.type} record cannot be added alongside CNAME. Remove the existing CNAME first.`
+    );
+  }
+
   const existingResponse = await fetch(`${BASE_URL}${path}`, {
     headers: { Authorization: `Token ${getToken()}` },
     cache: "no-store",
@@ -166,10 +195,6 @@ export async function upsertDnsRecord(input: {
 
   if (existingResponse.ok) {
     const existing = await existingResponse.json() as DeSecRRset;
-    // A name can only ever have one CNAME target — adding a second one
-    // isn't "another record", it's a replacement. (A/AAAA/MX/NS/TXT can
-    // legitimately have several values at the same name, so those still
-    // accumulate.)
     const records = input.type === "CNAME"
       ? [providerContent]
       : Array.from(new Set([...(existing.records || []), providerContent]));

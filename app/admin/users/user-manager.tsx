@@ -75,6 +75,9 @@ export function UserManager({ initialUsers }: { initialUsers: UserRow[] }) {
                         {u.account_status === "suspended" ? "Unban" : "Ban"}
                       </button>
                     )}
+                    <Link href={`/admin/customers/${u.id}`} className="rounded border border-sky-200 bg-sky-50 px-3 py-1 text-sky-700">
+                      Details
+                    </Link>
                     <Link href={`/admin/domains?owner=${u.id}`} className="rounded border px-3 py-1">
                       Add Domain
                     </Link>

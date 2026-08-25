@@ -56,7 +56,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ record: data, synced: Boolean(providerRecord) }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "DNS sync failed" }, { status: 502 });
+    const message = error instanceof Error ? error.message : "DNS sync failed";
+    const isConflict = message.startsWith("CNAME conflict") || message.includes("already has a CNAME record");
+    return NextResponse.json({ error: message, code: isConflict ? "DNS_RRSET_CONFLICT" : "DNS_SYNC_FAILED" }, { status: isConflict ? 409 : 502 });
   }
 }
 

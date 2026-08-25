@@ -1,0 +1,2 @@
+import { assertAdminApi } from "@/lib/admin/auth";
+export async function GET(){ const {admin,response}=await assertAdminApi(); if(response)return response; const {data,error}=await admin!.from("profiles").select("id,customer_id,full_name,email,mobile_number,role,profile_status,account_status,created_at").order("created_at",{ascending:false}).limit(5000); if(error)return Response.json({error:error.message},{status:500}); return Response.json({users:data??[]}); }

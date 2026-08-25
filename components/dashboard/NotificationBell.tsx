@@ -24,6 +24,7 @@ const POLL_INTERVAL_MS = 60_000;
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
+  const [marking, setMarking] = useState(false);
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -93,8 +94,9 @@ export function NotificationBell() {
 
       {open && (
         <div className="absolute right-0 z-40 mt-2 w-80 max-w-[90vw] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-          <div className="border-b border-gray-100 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <p className="text-sm font-semibold text-gray-900">Notifications</p>
+            {count > 0 && <button type="button" disabled={marking} onClick={async()=>{setMarking(true); try{await fetch("/api/dashboard/notifications",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({all:true})}); setNotifications([]);} finally{setMarking(false);}}} className="text-xs font-semibold text-blue-600 hover:text-blue-700">Mark all read</button>}
           </div>
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
