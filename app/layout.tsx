@@ -1,4 +1,3 @@
-import { SupportFloat } from "@/components/SupportFloat";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
@@ -25,8 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
-        <LanguageProvider>{children}
-    <SupportFloat /></LanguageProvider>
+        <LanguageProvider>{children}</LanguageProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>
