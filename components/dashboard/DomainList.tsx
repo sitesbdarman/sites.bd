@@ -162,12 +162,26 @@ function DomainRow({ domain }: { domain: Domain }) {
         {domain.auto_renew ? "On" : "Off"}
       </td>
       <td className="whitespace-nowrap px-4 py-3 text-right">
-        <Link
-          href={`/dashboard/domains/${domain.id}`}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
-        >
-          View Details
-        </Link>
+        <div className="flex items-center justify-end gap-3">
+          <Link
+            href={`/dashboard/domains/${domain.id}/dns`}
+            className="text-sm font-medium text-gray-500 hover:text-blue-700"
+          >
+            DNS Records
+          </Link>
+          <Link
+            href={`/dashboard/domains/${domain.id}/nameservers`}
+            className="text-sm font-medium text-gray-500 hover:text-blue-700"
+          >
+            Nameservers
+          </Link>
+          <Link
+            href={`/dashboard/domains/${domain.id}`}
+            className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          >
+            View Details
+          </Link>
+        </div>
       </td>
     </tr>
   );
@@ -197,12 +211,26 @@ function DomainCard({ domain }: { domain: Domain }) {
           <dd className="mt-0.5 text-gray-600">{domain.auto_renew ? "On" : "Off"}</dd>
         </div>
       </dl>
-      <Link
-        href={`/dashboard/domains/${domain.id}`}
-        className="mt-3 inline-block text-xs font-medium text-blue-600 hover:text-blue-700"
-      >
-        View Details
-      </Link>
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <Link
+          href={`/dashboard/domains/${domain.id}/dns`}
+          className="text-xs font-medium text-gray-500 hover:text-blue-700"
+        >
+          DNS Records
+        </Link>
+        <Link
+          href={`/dashboard/domains/${domain.id}/nameservers`}
+          className="text-xs font-medium text-gray-500 hover:text-blue-700"
+        >
+          Nameservers
+        </Link>
+        <Link
+          href={`/dashboard/domains/${domain.id}`}
+          className="text-xs font-medium text-blue-600 hover:text-blue-700"
+        >
+          View Details
+        </Link>
+      </div>
     </div>
   );
 }
