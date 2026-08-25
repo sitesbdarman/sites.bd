@@ -28,6 +28,7 @@ export default async function AdminPage() {
     db.from("invoices").select("id", { count: "exact", head: true }).eq("status", "unpaid"),
     db.from("payments").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
     db.from("invoices").select("total").eq("status", "paid"),
+    db.from("admin_audit_with_admin").select("id, action, entity_type, entity_id, created_at").order("created_at", { ascending: false }).limit(8),
   ]);
   const revenue = (paidInvoices.data || []).reduce((sum, row) => sum + Number(row.total || 0), 0);
 
