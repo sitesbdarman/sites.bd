@@ -148,63 +148,90 @@ export function DnsManager({ domainId }: { domainId: string }) {
 
       <form onSubmit={addRecord} className="mt-5 rounded-lg border border-gray-100 bg-gray-50 p-4">
         <div className={`grid gap-3 sm:grid-cols-2 ${isMx ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
-          <select
-            value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value as RecordType, content: "" })}
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
-          >
-            <option value="A">A</option>
-            <option value="AAAA">AAAA</option>
-            <option value="CNAME">CNAME</option>
-            <option value="MX">MX</option>
-            <option value="TXT">TXT</option>
-            <option value="NS">NS</option>
-          </select>
-          <input
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Name / @"
-            aria-label="Record name"
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
-            required
-          />
-          <input
-            value={form.content}
-            onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder={info.placeholder}
-            aria-label="Record content"
-            className={`rounded-md border bg-white px-3 py-2 text-sm ${liveError ? "border-red-300" : "border-gray-200"}`}
-            required
-          />
-          {isMx && (
+          <div>
+            <label htmlFor="dns-type" className="mb-1 block text-xs font-semibold text-gray-600">Type</label>
+            <div className="relative">
+              <select
+                id="dns-type"
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value as RecordType, content: "" })}
+                className="w-full min-w-[100px] appearance-none rounded-md border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm leading-normal"
+              >
+                <option value="A">A</option>
+                <option value="AAAA">AAAA</option>
+                <option value="CNAME">CNAME</option>
+                <option value="MX">MX</option>
+                <option value="TXT">TXT</option>
+                <option value="NS">NS</option>
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400">
+                <path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <label htmlFor="dns-name" className="mb-1 block text-xs font-semibold text-gray-600">Name</label>
             <input
-              value={form.priority}
-              onChange={(e) => setForm({ ...form, priority: e.target.value })}
-              type="number"
-              min="0"
-              max="65535"
-              placeholder="Priority"
-              aria-label="MX priority"
-              className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+              id="dns-name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="@"
+              aria-label="Record name"
+              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
               required
             />
+          </div>
+          <div className={isMx ? "" : "sm:col-span-2 lg:col-span-1"}>
+            <label htmlFor="dns-content" className="mb-1 block text-xs font-semibold text-gray-600">Value</label>
+            <input
+              id="dns-content"
+              value={form.content}
+              onChange={(e) => setForm({ ...form, content: e.target.value })}
+              placeholder={info.placeholder}
+              aria-label="Record content"
+              className={`w-full rounded-md border bg-white px-3 py-2 text-sm ${liveError ? "border-red-300" : "border-gray-200"}`}
+              required
+            />
+          </div>
+          {isMx && (
+            <div>
+              <label htmlFor="dns-priority" className="mb-1 block text-xs font-semibold text-gray-600">Priority</label>
+              <input
+                id="dns-priority"
+                value={form.priority}
+                onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                type="number"
+                min="0"
+                max="65535"
+                placeholder="10"
+                aria-label="MX priority"
+                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                required
+              />
+            </div>
           )}
-          <input
-            value={form.ttl}
-            onChange={(e) => setForm({ ...form, ttl: e.target.value })}
-            type="number"
-            min="60"
-            max="86400"
-            placeholder="TTL"
-            aria-label="TTL (seconds)"
-            className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
-            required
-          />
-          <button disabled={busy || isApexCname} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
-            {busy ? "Saving…" : "Add Record"}
-          </button>
+          <div>
+            <label htmlFor="dns-ttl" className="mb-1 block text-xs font-semibold text-gray-600">TTL (sec)</label>
+            <input
+              id="dns-ttl"
+              value={form.ttl}
+              onChange={(e) => setForm({ ...form, ttl: e.target.value })}
+              type="number"
+              min="60"
+              max="86400"
+              placeholder="3600"
+              aria-label="TTL (seconds)"
+              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+              required
+            />
+          </div>
+          <div className="flex items-end">
+            <button disabled={busy || isApexCname} className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
+              {busy ? "Saving…" : "Add Record"}
+            </button>
+          </div>
         </div>
-        <p className="mt-2 text-xs text-gray-500">{info.hint}</p>
+        <p className="mt-3 text-xs text-gray-500">{info.hint}</p>
         {(fieldError || liveError) && (
           <p className="mt-1 text-xs font-medium text-red-600">{fieldError ?? liveError}</p>
         )}
