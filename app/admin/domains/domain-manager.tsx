@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type Domain = {
   id: string;
@@ -26,6 +26,9 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
   const [error, setError] = useState("");
   const [form, setForm] = useState({ ownerId: defaultOwnerId || "", domainName: "", status: "active", autoRenew: false, expiresAt: "" });
   const [creating, setCreating] = useState(false);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const filteredDomains = useMemo(() => domains.filter(d => (!query || `${d.domain_name} ${d.owner_id}`.toLowerCase().includes(query.toLowerCase())) && (statusFilter === "all" || d.status === statusFilter)), [domains, query, statusFilter]);
 
   function ownerLabel(id: string) {
     const o = owners.find((x) => x.id === id);
@@ -122,6 +125,8 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
         </button>
       </div>
 
+      <div className="mt-6 rounded-xl border bg-white p-4 shadow-sm"><div className="grid gap-3 sm:grid-cols-2"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search domain or owner ID" className="rounded-xl border px-4 py-3"/><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="rounded-xl border px-4 py-3"><option value="all">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="suspended">Suspended</option><option value="expired">Expired</option></select></div></div>
+
       <div className="mt-6 overflow-x-auto rounded-xl border bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
@@ -134,7 +139,7 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
             </tr>
           </thead>
           <tbody className="divide-y">
-            {domains.map((d) => (
+            {filteredDomains.map((d) => (
               <tr key={d.id}>
                 <td className="px-5 py-4 font-medium">{d.domain_name}</td>
                 <td className="px-5 py-4 text-xs">{ownerLabel(d.owner_id)}</td>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TextField } from "@/components/ui/TextField";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { createClient } from "@/lib/supabase/client";
 
 interface FormValues {
   email: string;
@@ -109,16 +110,15 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
+      const supabase = createClient();
       const email = values.email.trim();
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password: values.password }),
-      });
-      const payload = await response.json().catch(() => ({}));
 
-      if (!response.ok) {
-        const error = { code: payload.code as string | undefined, message: String(payload.error || "Login failed.") };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: values.password,
+      });
+
+      if (error) {
         if (error.code === "email_not_confirmed") {
           // Not fully authenticated yet — send them to the existing
           // verification page rather than treating this as a login error.
@@ -127,6 +127,11 @@ export default function LoginPage() {
         }
 
         setSubmitError(mapLoginError(error));
+        return;
+      }
+
+      if (!data.session) {
+        setSubmitError("Something went wrong signing you in. Please try again.");
         return;
       }
 

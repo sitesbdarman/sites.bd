@@ -152,10 +152,12 @@ create trigger trg_profiles_assign_customer_id
 
 -- =============================================================================
 -- Immutability guard
--- Prevent a normal user from changing role, customer_id, email, or an
--- already-set mobile_number via a direct table update (defense in depth —
--- RLS below already restricts which rows/columns a user can touch, but this
--- trigger protects against any future overly-broad policy too).
+-- Prevent a normal user from changing role, customer_id, or email via a
+-- direct table update (defense in depth — RLS below already restricts which
+-- rows/columns a user can touch, but this trigger protects against any
+-- future overly-broad policy too). Mobile number is intentionally editable
+-- from the user's Profile page — see the final (0016) redefinition of this
+-- function further down, which is the version that actually takes effect.
 -- =============================================================================
 create or replace function public.enforce_profile_immutable_fields()
 returns trigger
@@ -173,11 +175,6 @@ begin
 
   if new.email is distinct from old.email then
     raise exception 'email cannot be changed';
-  end if;
-
-  if old.mobile_number is not null
-     and new.mobile_number is distinct from old.mobile_number then
-    raise exception 'mobile_number cannot be changed once set';
   end if;
 
   return new;
@@ -1199,8 +1196,33 @@ alter table public.notification_preferences enable row level security;
 drop policy if exists "notification_preferences_own" on public.notification_preferences;
 create policy "notification_preferences_own" on public.notification_preferences for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- ============================================================
+-- 0022_admin_operations.sql
+-- ============================================================
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profiles_role_check') THEN
+    ALTER TABLE public.profiles DROP CONSTRAINT profiles_role_check;
+  END IF;
+END $$;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_role_check CHECK (role IN ('user','admin','super_admin','support_agent','finance'));
+INSERT INTO public.app_config(key,value) VALUES
+('policies','{"terms":"","refund":"","domain_policy":"","privacy":""}'::jsonb),
+('domain_search_settings','{"suggestions_enabled":true,"show_prices":true}'::jsonb)
+ON CONFLICT (key) DO NOTHING;
 
--- 0021: allow common DNS record types used by modern hosting providers.
-alter table public.dns_records drop constraint if exists dns_records_type_check;
-alter table public.dns_records drop constraint if exists dns_records_type_check1;
-alter table public.dns_records add constraint dns_records_type_check check (type in ('A','AAAA','CNAME','MX','TXT','NS','SRV','CAA','HTTPS','TLSA'));
+
+-- Safe admin role-change trigger bypass
+CREATE OR REPLACE FUNCTION public.enforce_profile_immutable_fields() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role AND COALESCE(current_setting('app.allow_profile_role_change', true),'off') <> 'on' THEN RAISE EXCEPTION 'role cannot be changed directly'; END IF;
+  IF NEW.customer_id IS DISTINCT FROM OLD.customer_id THEN RAISE EXCEPTION 'customer_id cannot be changed'; END IF;
+  IF NEW.email IS DISTINCT FROM OLD.email THEN RAISE EXCEPTION 'email cannot be changed'; END IF;
+  IF OLD.mobile_number IS NOT NULL AND NEW.mobile_number IS DISTINCT FROM OLD.mobile_number THEN RAISE EXCEPTION 'mobile_number cannot be changed once set'; END IF;
+  RETURN NEW;
+END; $$;
+
+CREATE OR REPLACE FUNCTION public.admin_set_profile_role(target_id uuid, new_role text) RETURNS public.profiles LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE r public.profiles; BEGIN IF new_role NOT IN ('user','admin','super_admin','support_agent','finance') THEN RAISE EXCEPTION 'invalid role'; END IF; PERFORM set_config('app.allow_profile_role_change','on',true); UPDATE public.profiles SET role=new_role WHERE id=target_id RETURNING * INTO r; RETURN r; END; $$;
+
+REVOKE ALL ON FUNCTION public.admin_set_profile_role(uuid,text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_set_profile_role(uuid,text) TO service_role;

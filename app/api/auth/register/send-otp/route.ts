@@ -1,6 +1,5 @@
 import { assertSameOrigin } from "@/lib/security/csrf";
 import { NextResponse } from "next/server";
-import { clientKey, checkAuthRateLimit } from "@/lib/security/auth-rate-limit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { issueOtp, OTP_TTL_MINUTES } from "@/lib/otp/otp";
 import { sendEmail } from "@/lib/email/mailer";
@@ -10,8 +9,6 @@ import { registerSendOtpSchema } from "@/lib/validation/auth";
 export async function POST(request: Request) {
   const originError = assertSameOrigin(request);
   if (originError) return originError;
-  const rate = checkAuthRateLimit(clientKey(request, "register-send"), 20);
-  if (!rate.allowed) return NextResponse.json({ error: "Too many attempts. Please wait and try again.", retryAfterSeconds: rate.retryAfterSeconds }, { status: 429 });
   let body: unknown;
   try {
     body = await request.json();

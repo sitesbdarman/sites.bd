@@ -26,6 +26,11 @@ interface ProfileResponse {
 export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: initialAvatar = null, fullName: initialName = null, email: initialEmail = null }: PublicNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setOpen(false);
+  }
   const [loggedIn, setLoggedIn] = useState(initialLoggedIn);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatar);
   const [fullName, setFullName] = useState(initialName);
@@ -44,10 +49,6 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
       })
       .catch(() => undefined);
     return () => { cancelled = true; };
-  }, [pathname]);
-
-  useEffect(() => {
-    setOpen(false);
   }, [pathname]);
 
   const links = [

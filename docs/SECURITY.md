@@ -11,3 +11,10 @@
 - Provider secrets belong in Vercel environment variables, never source control.
 - Cron execution should use `CRON_SECRET` in production.
 - Add external WAF/rate limiting if traffic grows beyond the current application-level rate limits.
+
+
+### Staff roles
+- super_admin/admin: full administration.
+- support_agent: customer lookup, tickets and notifications.
+- finance: orders, payments, coupons, reports and customer lookup.
+API routes enforce these permissions server-side.

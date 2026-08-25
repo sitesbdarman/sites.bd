@@ -4,7 +4,7 @@ import { sendEmail } from "@/lib/email/mailer";
 function escapeHtml(value: string) { return value.replace(/[&<>\"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c] ?? c)); }
 
 export async function GET() {
-  const { admin, response } = await assertAdminApi();
+  const { admin, response } = await assertAdminApi("notifications:write");
   if (response) return response;
   const { data, error } = await admin!.from("user_notifications").select("id,user_id,title,message,kind,link,is_read,created_at,created_by").order("created_at", { ascending: false }).limit(100);
   if (error) return Response.json({ error: error.message }, { status: 500 });
@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { user, admin, response } = await assertAdminApi();
+  const { user, admin, response } = await assertAdminApi("notifications:write");
   if (response) return response;
   const body = await request.json().catch(() => ({}));
   const title = String(body.title ?? "").trim();

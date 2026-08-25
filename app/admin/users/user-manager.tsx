@@ -1,93 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
-type UserRow = {
-  id: string;
-  customer_id: string;
-  full_name: string | null;
-  email: string;
-  mobile_number: string | null;
-  role: string;
-  profile_status: string;
-  account_status: string;
-  created_at: string;
-};
+type UserRow = { id:string; customer_id:string; full_name:string|null; email:string; mobile_number:string|null; role:string; profile_status:string; account_status:string; created_at:string };
 
-export function UserManager({ initialUsers }: { initialUsers: UserRow[] }) {
-  const [users, setUsers] = useState(initialUsers);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [error, setError] = useState("");
-
-  async function toggleBan(u: UserRow) {
-    const nextStatus = u.account_status === "suspended" ? "active" : "suspended";
-    if (nextStatus === "suspended" && !confirm(`Ban ${u.email}? They will lose access to the dashboard and cannot place new orders.`)) return;
-    setBusyId(u.id);
-    setError("");
-    try {
-      const r = await fetch(`/api/admin/users/${u.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountStatus: nextStatus }),
-      });
-      const d = await r.json();
-      if (r.ok && d.success) setUsers(users.map((x) => (x.id === u.id ? d.user : x)));
-      else setError(d.error || "Could not update this customer.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  return (
-    <section>
-      <h1 className="text-2xl font-bold">Users</h1>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      <div className="mt-6 overflow-x-auto rounded-xl border bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
-              {["Customer ID", "Name", "Email", "Mobile", "Role", "Profile", "Account", "Joined", "Actions"].map((x) => (
-                <th key={x} className="px-5 py-3">
-                  {x}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td className="px-5 py-4 font-medium">{u.customer_id}</td>
-                <td className="px-5 py-4">{u.full_name || "—"}</td>
-                <td className="px-5 py-4">{u.email}</td>
-                <td className="px-5 py-4">{u.mobile_number || "—"}</td>
-                <td className="px-5 py-4">{u.role}</td>
-                <td className="px-5 py-4">{u.profile_status}</td>
-                <td className="px-5 py-4">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${u.account_status === "suspended" ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}>
-                    {u.account_status === "suspended" ? "Banned" : "Active"}
-                  </span>
-                </td>
-                <td className="px-5 py-4">{new Date(u.created_at).toLocaleDateString()}</td>
-                <td className="px-5 py-4">
-                  <div className="flex flex-wrap gap-2">
-                    {u.role !== "admin" && (
-                      <button disabled={busyId === u.id} onClick={() => toggleBan(u)} className={`rounded border px-3 py-1 disabled:opacity-50 ${u.account_status === "suspended" ? "border-emerald-200 text-emerald-700" : "border-red-200 text-red-600"}`}>
-                        {u.account_status === "suspended" ? "Unban" : "Ban"}
-                      </button>
-                    )}
-                    <Link href={`/admin/customers/${u.id}`} className="rounded border border-sky-200 bg-sky-50 px-3 py-1 text-sky-700">
-                      Details
-                    </Link>
-                    <Link href={`/admin/domains?owner=${u.id}`} className="rounded border px-3 py-1">
-                      Add Domain
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
+export function UserManager({ initialUsers }:{initialUsers:UserRow[]}){
+  const [users,setUsers]=useState(initialUsers); const [q,setQ]=useState(""); const [status,setStatus]=useState("all"); const [selected,setSelected]=useState<string[]>([]); const [busy,setBusy]=useState(false); const [error,setError]=useState("");
+  const filtered=useMemo(()=>users.filter(u=>{const hay=`${u.full_name??""} ${u.email} ${u.mobile_number??""} ${u.customer_id}`.toLowerCase(); return (!q||hay.includes(q.toLowerCase()))&&(status==='all'||u.account_status===status)}),[users,q,status]);
+  const allSelected=filtered.length>0 && filtered.every(u=>selected.includes(u.id));
+  function toggle(id:string){setSelected(x=>x.includes(id)?x.filter(i=>i!==id):[...x,id])}
+  async function bulk(next:string){if(!selected.length)return; setBusy(true); setError(""); try{for(const id of selected){const r=await fetch(`/api/admin/users/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({accountStatus:next})}); if(!r.ok) throw new Error(`Failed to update ${id}`);} setUsers(xs=>xs.map(x=>selected.includes(x.id)?{...x,account_status:next}:x)); setSelected([]);}catch(e){setError(e instanceof Error?e.message:"Bulk update failed.")}finally{setBusy(false)}}
+  function exportCsv(){const rows=filtered.map(u=>[u.customer_id,u.full_name??"",u.email,u.mobile_number??"",u.role,u.account_status,new Date(u.created_at).toISOString()]); const csv=[['Customer ID','Name','Email','Mobile','Role','Account','Joined'],...rows].map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sites-bd-customers.csv';a.click();URL.revokeObjectURL(a.href)}
+  return <section className="space-y-5"><div><h1 className="text-2xl font-black">Customers</h1><p className="mt-1 text-sm text-slate-500">Search, filter and manage customer accounts.</p></div>
+    <div className="rounded-2xl border bg-white p-4 shadow-sm"><div className="grid gap-3 lg:grid-cols-[1fr_180px_auto_auto]"><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search name, email, phone or customer ID" className="rounded-xl border px-4 py-3"/><select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-xl border px-4 py-3"><option value="all">All statuses</option><option value="active">Active</option><option value="suspended">Suspended</option></select><button onClick={exportCsv} className="rounded-xl border px-4 py-3 text-sm font-bold">Export CSV</button><button onClick={()=>setSelected(allSelected?[]:filtered.map(x=>x.id))} className="rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white">{allSelected?"Clear selection":"Select all"}</button></div>{selected.length>0&&<div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-sky-50 p-3"><span className="text-sm font-bold text-sky-900">{selected.length} selected</span><button disabled={busy} onClick={()=>bulk('active')} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white">Activate</button><button disabled={busy} onClick={()=>bulk('suspended')} className="rounded-lg bg-red-600 px-3 py-2 text-xs font-bold text-white">Suspend</button></div>}</div>
+    {error&&<div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+    <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th className="px-5 py-3"></th>{['Customer','Email','Mobile','Role','Account','Joined','Actions'].map(x=><th key={x} className="px-5 py-3">{x}</th>)}</tr></thead><tbody className="divide-y">{filtered.map(u=><tr key={u.id} className="hover:bg-slate-50"><td className="px-5 py-4"><input type="checkbox" checked={selected.includes(u.id)} onChange={()=>toggle(u.id)}/></td><td className="px-5 py-4"><div className="font-semibold">{u.full_name||'Unnamed'}</div><div className="text-xs text-slate-400">{u.customer_id}</div></td><td className="px-5 py-4">{u.email}</td><td className="px-5 py-4">{u.mobile_number||'—'}</td><td className="px-5 py-4"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold">{u.role}</span></td><td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${u.account_status==='suspended'?'bg-red-50 text-red-700':'bg-emerald-50 text-emerald-700'}`}>{u.account_status}</span></td><td className="px-5 py-4">{new Date(u.created_at).toLocaleDateString()}</td><td className="px-5 py-4"><div className="flex gap-2"><Link href={`/admin/customers/${u.id}`} className="rounded-lg border px-3 py-1.5">Details</Link>{u.role!=='admin'&&<button onClick={()=>bulk(u.account_status==='suspended'?'active':'suspended')} className="rounded-lg border px-3 py-1.5">{u.account_status==='suspended'?'Activate':'Suspend'}</button>}</div></td></tr>)}{filtered.length===0&&<tr><td colSpan={8} className="px-5 py-10 text-center text-slate-500">No customers match your search.</td></tr>}</tbody></table></div>
+  </section>;
 }

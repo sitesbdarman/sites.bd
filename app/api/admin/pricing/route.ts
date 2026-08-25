@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { assertAdminApi } from "@/lib/admin/auth";
 
 export async function GET() {
-  const auth = await assertAdminApi();
+  const auth = await assertAdminApi("pricing:write");
   if (auth.response) return auth.response;
   const { data, error } = await auth.admin!.from("pricing_plans").select("*").order("sort_order", { ascending: true });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -10,7 +10,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  const auth = await assertAdminApi();
+  const auth = await assertAdminApi("pricing:write");
   if (auth.response) return auth.response;
   let body: any;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "Invalid JSON." }, { status: 400 }); }

@@ -69,7 +69,7 @@ export default async function DashboardPage() {
   if (user) {
     try {
       const { data: roleProfile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle<{ role: string | null }>();
-      isAdmin = roleProfile?.role === "admin";
+      isAdmin = ["admin","super_admin","finance","support_agent"].includes(roleProfile?.role ?? "");
     } catch { isAdmin = false; }
   }
   const mobileNumber = profile?.mobile_number?.trim() || null;
@@ -113,10 +113,10 @@ export default async function DashboardPage() {
           {contactLine && <p className="mt-1 text-xs text-gray-400">{contactLine}</p>}
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
-              href="/profile"
+              href="/dashboard/settings"
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
             >
-              Edit Profile
+              Settings
             </Link>
             {isAdmin && (
               <Link
@@ -131,6 +131,8 @@ export default async function DashboardPage() {
 
         {/* Statistics cards — placeholder values only; structured so real
             counts can be dropped in later without changing the layout. */}
+        <div className="rounded-2xl border border-sky-100 bg-sky-50 p-5 shadow-sm"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-sky-700">Getting started</p><h3 className="mt-1 text-lg font-black text-slate-900">Set up your account</h3><p className="mt-1 text-sm text-slate-600">Complete the basics before ordering your first domain or service.</p></div><Link href="/domains/search" className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Find a domain</Link></div><div className="mt-4 grid gap-2 sm:grid-cols-3"><Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:shadow-sm">1. Complete profile</Link><Link href="/domains/search" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:shadow-sm">2. Buy a domain</Link><Link href="/dashboard/domains" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:shadow-sm">3. Configure DNS</Link></div></div>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Total Domains" value={domainCount} icon={GlobeIcon} description="Domains registered to your account" />
           <StatCard title="Active Services" value={serviceCount} icon={ServerIcon} description="Hosting and other active services" />

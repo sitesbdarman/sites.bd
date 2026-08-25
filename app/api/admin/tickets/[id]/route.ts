@@ -9,7 +9,7 @@ const schema = z.object({
 });
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { user, admin, response } = await assertAdminApi();
+  const { user, admin, response } = await assertAdminApi("tickets:write");
   if (response) return response;
 
   const { id } = await params;

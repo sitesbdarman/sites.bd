@@ -1,6 +1,5 @@
 import { assertSameOrigin } from "@/lib/security/csrf";
 import { NextResponse } from "next/server";
-import { clientKey, checkAuthRateLimit } from "@/lib/security/auth-rate-limit";
 import { verifyOtp } from "@/lib/otp/otp";
 import { issueTicket } from "@/lib/auth/ticket";
 import { passwordResetVerifyOtpSchema } from "@/lib/validation/auth";
@@ -15,8 +14,6 @@ const ERROR_MESSAGES: Record<string, string> = {
 export async function POST(request: Request) {
   const originError = assertSameOrigin(request);
   if (originError) return originError;
-  const rate = checkAuthRateLimit(clientKey(request, "reset-verify"), 20);
-  if (!rate.allowed) return NextResponse.json({ error: "Too many attempts. Please wait and try again.", retryAfterSeconds: rate.retryAfterSeconds }, { status: 429 });
   let body: unknown;
   try {
     body = await request.json();

@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const originError = assertSameOrigin(request);
   if (originError) return originError;
 
-  const { user, admin, response } = await assertAdminApi();
+  const { user, admin, response } = await assertAdminApi("domains:write");
   if (response) return response;
 
   let body: any;

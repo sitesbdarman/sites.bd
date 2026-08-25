@@ -15,8 +15,7 @@ const THRESHOLDS = [30, 15, 7] as const;
 
 export async function GET(req: Request) {
   const auth = req.headers.get("authorization");
-  const secret = process.env.CRON_SECRET?.trim();
-  if (!secret || auth !== `Bearer ${secret}`) {
+  if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

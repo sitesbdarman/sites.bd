@@ -2,7 +2,7 @@ import { assertSameOrigin } from "@/lib/security/csrf";
 import { NextResponse } from "next/server";
 import { assertAdminApi } from "@/lib/admin/auth";
 export async function POST(request:Request){
- const originError=assertSameOrigin(request); if(originError)return originError; const {user,admin,response}=await assertAdminApi(); if(response)return response; if(!user||!admin)return NextResponse.json({success:false,error:"Forbidden."},{status:403});
+ const originError=assertSameOrigin(request); if(originError)return originError; const {user,admin,response}=await assertAdminApi("payments:write"); if(response)return response; if(!user||!admin)return NextResponse.json({success:false,error:"Forbidden."},{status:403});
  let body:{paymentId?:string;action?:string}; try{body=await request.json();}catch{return NextResponse.json({success:false,error:"Invalid request body."},{status:400});}
  const paymentId=body.paymentId?.trim(), action=body.action?.trim().toLowerCase(); if(!paymentId||!['approve','reject'].includes(action||''))return NextResponse.json({success:false,error:"Invalid payment action."},{status:400});
  const {data:payment,error}=await admin.from("payments").select("id,order_id,invoice_id,customer_id,status").eq("id",paymentId).single(); if(error||!payment)return NextResponse.json({success:false,error:"Payment not found."},{status:404}); if(payment.status!=="pending_review")return NextResponse.json({success:false,error:`Payment is already ${payment.status}.`},{status:400});

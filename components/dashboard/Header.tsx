@@ -4,7 +4,6 @@ import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CartBadge } from "./CartBadge";
 import { NotificationBell } from "./NotificationBell";
 import { MenuIcon, UserIcon } from "./icons";
-import { LanguageToggle } from "@/components/LanguageToggle";
 
 interface HeaderProps {
   pageTitle: string;
@@ -49,7 +48,6 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
             </span>
           </Link>
         )}
-        <LanguageToggle className="hidden sm:flex" />
         <NotificationBell />
         <CartBadge />
         <LogoutButton variant="icon" />

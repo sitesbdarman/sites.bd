@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type RecordItem = { id: string; type: string; name: string; content: string; ttl: number; priority: number | null; status: string };
-type RecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS" | "SRV" | "CAA" | "HTTPS" | "TLSA";
+type RecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS";
 
 const IPV4_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
 const IPV6_RE = /^[0-9a-fA-F:]+$/;
@@ -22,7 +22,7 @@ const TYPE_INFO: Record<RecordType, { placeholder: string; hint: string; validat
   },
   CNAME: {
     placeholder: "e.g. yourapp.vercel-dns.com",
-    hint: "Aliases this name to another hostname. Only one CNAME is allowed per name — adding a new one replaces the old one.",
+    hint: "Aliases this name to another hostname. Only one CNAME is allowed per name — adding a new one replaces the old one. Can't be used at the root (@); use A/AAAA there instead.",
     validate: (v) => (HOSTNAME_RE.test(v.trim()) ? null : "Enter a valid hostname, e.g. yourapp.vercel-dns.com."),
   },
   MX: {
@@ -39,22 +39,6 @@ const TYPE_INFO: Record<RecordType, { placeholder: string; hint: string; validat
     hint: "Delegates this subdomain to another nameserver.",
     validate: (v) => (HOSTNAME_RE.test(v.trim()) ? null : "Enter a valid nameserver hostname."),
   },
-  SRV: {
-    placeholder: "e.g. 10 5 443 target.example.com.",
-    hint: "Format: priority weight port target. Keep the target as a hostname.",
-  },
-  CAA: {
-    placeholder: 'e.g. 0 issue "letsencrypt.org"',
-    hint: "Certificate Authority Authorization value.",
-  },
-  HTTPS: {
-    placeholder: 'e.g. 1 . alpn="h2,h3"',
-    hint: "HTTPS service binding record for advanced configurations.",
-  },
-  TLSA: {
-    placeholder: "e.g. 3 1 1 <certificate-hash>",
-    hint: "TLSA certificate association record for DANE.",
-  },
 };
 
 export function DnsManager({ domainId }: { domainId: string }) {
@@ -66,31 +50,39 @@ export function DnsManager({ domainId }: { domainId: string }) {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [form, setForm] = useState({ type: "A" as RecordType, name: "@", content: "", ttl: "3600", priority: "10" });
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const response = await fetch(`/api/domains/${domainId}/dns`, { cache: "no-store" });
     const data = await response.json();
     if (response.ok) { setRecords(data.records ?? []); setConfigured(Boolean(data.deSecConfigured)); }
     else setFeedback({ kind: "error", text: data.error ?? "Could not load DNS records." });
     setLoading(false);
-  }
+  }, [domainId]);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- initial data load for this domain; re-runs only when the domain changes.
     void load();
-  }, [domainId]);
+  }, [load]);
 
   const info = TYPE_INFO[form.type];
   const isMx = form.type === "MX";
+  const isApexName = form.name.trim() === "@" || form.name.trim() === "";
+  const isApexCname = form.type === "CNAME" && isApexName;
 
   const liveError = useMemo(() => {
+    if (isApexCname) return "A CNAME can't be used at the root domain (@) — that name always needs NS records for the domain to work. Use an A or AAAA record for the root, or add the CNAME on a subdomain (e.g. `www`) instead.";
     if (!form.content.trim() || !info.validate) return null;
     return info.validate(form.content);
-  }, [form.content, info]);
+  }, [form.content, info, isApexCname]);
 
   async function addRecord(event: React.FormEvent) {
     event.preventDefault();
     setFeedback(null);
     setFieldError(null);
+
+    if (isApexCname) {
+      setFieldError("A CNAME can't be used at the root domain (@). Use an A or AAAA record for the root, or move this CNAME to a subdomain.");
+      return;
+    }
 
     const validationError = info.validate?.(form.content);
     if (validationError) {
@@ -146,66 +138,66 @@ export function DnsManager({ domainId }: { domainId: string }) {
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-base font-bold text-gray-900">DNS Records</h2>
-          <p className="mt-1 text-xs text-gray-500">Manage A, CNAME, MX, TXT and other DNS records for this domain.</p>
+          <h2 className="text-sm font-semibold text-gray-900">DNS Records</h2>
+          <p className="mt-1 text-xs text-gray-500">Manage A, CNAME, MX, TXT and other DNS records.</p>
         </div>
-        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${configured ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
-          {configured ? "● deSEC connected" : "● Local mode"}
+        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${configured ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+          {configured ? "deSEC connected" : "Local mode"}
         </span>
       </div>
 
-      <form onSubmit={addRecord} className="mt-5 rounded-xl border border-blue-100 bg-blue-50/40 p-4 sm:p-5">
-        <p className="mb-4 text-sm font-semibold text-gray-800">Add a new record</p>
-        <div className={`grid gap-4 sm:grid-cols-2 ${isMx ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
+      <form onSubmit={addRecord} className="mt-5 rounded-lg border border-gray-100 bg-gray-50 p-4">
+        <div className={`grid gap-3 sm:grid-cols-2 ${isMx ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-600">Record Type</label>
-            <select
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value as RecordType, content: "" })}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="A">A — IPv4 address</option>
-              <option value="AAAA">AAAA — IPv6 address</option>
-              <option value="CNAME">CNAME — Alias</option>
-              <option value="MX">MX — Mail server</option>
-              <option value="TXT">TXT — Text value</option>
-              <option value="NS">NS — Nameserver</option>
-              <option value="SRV">SRV — Service</option>
-              <option value="CAA">CAA — Cert authority</option>
-              <option value="HTTPS">HTTPS — Service binding</option>
-              <option value="TLSA">TLSA — DANE</option>
-            </select>
+            <label htmlFor="dns-type" className="mb-1 block text-xs font-semibold text-gray-600">Type</label>
+            <div className="relative">
+              <select
+                id="dns-type"
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value as RecordType, content: "" })}
+                className="w-full min-w-[100px] appearance-none rounded-md border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm leading-normal"
+              >
+                <option value="A">A</option>
+                <option value="AAAA">AAAA</option>
+                <option value="CNAME">CNAME</option>
+                <option value="MX">MX</option>
+                <option value="TXT">TXT</option>
+                <option value="NS">NS</option>
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400">
+                <path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
-
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-600">Name / Host</label>
+            <label htmlFor="dns-name" className="mb-1 block text-xs font-semibold text-gray-600">Name</label>
             <input
+              id="dns-name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="@ for root, or www"
+              placeholder="@"
               aria-label="Record name"
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
               required
             />
-            <p className="mt-1 text-[11px] text-gray-400">Use &quot;@&quot; for the root domain, or a subdomain like &quot;www&quot;.</p>
           </div>
-
           <div className={isMx ? "" : "sm:col-span-2 lg:col-span-1"}>
-            <label className="mb-1 block text-xs font-semibold text-gray-600">Value</label>
+            <label htmlFor="dns-content" className="mb-1 block text-xs font-semibold text-gray-600">Value</label>
             <input
+              id="dns-content"
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
               placeholder={info.placeholder}
               aria-label="Record content"
-              className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 ${liveError ? "border-red-300 focus:ring-red-100" : "border-gray-200 focus:border-blue-400 focus:ring-blue-100"}`}
+              className={`w-full rounded-md border bg-white px-3 py-2 text-sm ${liveError ? "border-red-300" : "border-gray-200"}`}
               required
             />
           </div>
-
           {isMx && (
             <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-600">Priority</label>
+              <label htmlFor="dns-priority" className="mb-1 block text-xs font-semibold text-gray-600">Priority</label>
               <input
+                id="dns-priority"
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
                 type="number"
@@ -213,44 +205,42 @@ export function DnsManager({ domainId }: { domainId: string }) {
                 max="65535"
                 placeholder="10"
                 aria-label="MX priority"
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
                 required
               />
             </div>
           )}
-
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-600">TTL (seconds)</label>
-            <select
+            <label htmlFor="dns-ttl" className="mb-1 block text-xs font-semibold text-gray-600">TTL (sec)</label>
+            <input
+              id="dns-ttl"
               value={form.ttl}
               onChange={(e) => setForm({ ...form, ttl: e.target.value })}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="300">5 minutes</option>
-              <option value="1800">30 minutes</option>
-              <option value="3600">1 hour (recommended)</option>
-              <option value="14400">4 hours</option>
-              <option value="86400">24 hours</option>
-            </select>
+              type="number"
+              min="60"
+              max="86400"
+              placeholder="3600"
+              aria-label="TTL (seconds)"
+              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+              required
+            />
+          </div>
+          <div className="flex items-end">
+            <button disabled={busy || isApexCname} className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
+              {busy ? "Saving…" : "Add Record"}
+            </button>
           </div>
         </div>
-
         <p className="mt-3 text-xs text-gray-500">{info.hint}</p>
         {(fieldError || liveError) && (
-          <p role="alert" className="mt-1 text-xs font-medium text-red-600">{fieldError ?? liveError}</p>
+          <p className="mt-1 text-xs font-medium text-red-600">{fieldError ?? liveError}</p>
         )}
-
-        <div className="mt-4">
-          <button disabled={busy} className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
-            {busy ? "Saving…" : "+ Add Record"}
-          </button>
-        </div>
       </form>
 
       {feedback && (
         <div
           role={feedback.kind === "error" ? "alert" : undefined}
-          className={`mt-3 rounded-lg px-3 py-2.5 text-sm font-medium ${
+          className={`mt-3 rounded-md px-3 py-2 text-sm ${
             feedback.kind === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
           }`}
         >
@@ -258,50 +248,43 @@ export function DnsManager({ domainId }: { domainId: string }) {
         </div>
       )}
 
-      <div className="mt-6">
-        <p className="mb-2 text-sm font-semibold text-gray-800">Current records</p>
-        <div className="overflow-x-auto rounded-lg border border-gray-100">
-          <table className="w-full min-w-[700px] text-left text-sm">
-            <thead className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
-              <tr>
-                <th className="px-3 py-2.5">Type</th>
-                <th className="px-3 py-2.5">Name</th>
-                <th className="px-3 py-2.5">Value</th>
-                <th className="px-3 py-2.5">Priority</th>
-                <th className="px-3 py-2.5">TTL</th>
-                <th className="px-3 py-2.5">Status</th>
-                <th className="px-3 py-2.5" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                <tr><td colSpan={7} className="py-6 text-center text-gray-500">Loading…</td></tr>
-              ) : records.length === 0 ? (
-                <tr><td colSpan={7} className="py-6 text-center text-gray-500">No DNS records yet. Add your first record above.</td></tr>
-              ) : (
-                records.map((record) => (
-                  <tr key={record.id} className="hover:bg-gray-50/60">
-                    <td className="px-3 py-3 font-semibold text-gray-900">{record.type}</td>
-                    <td className="px-3 py-3 text-gray-700">{record.name}</td>
-                    <td className="max-w-xs truncate px-3 py-3 text-gray-700">{record.content}</td>
-                    <td className="px-3 py-3 text-gray-500">{record.priority ?? "—"}</td>
-                    <td className="px-3 py-3 text-gray-500">{record.ttl}</td>
-                    <td className="px-3 py-3">
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${record.status === "active" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
-                        {record.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-right">
-                      <button disabled={busy} onClick={() => void removeRecord(record.id)} className="text-xs font-medium text-red-600 hover:text-red-700">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-[700px] text-left text-sm">
+          <thead className="border-b border-gray-100 text-xs text-gray-400">
+            <tr>
+              <th className="py-2">Type</th>
+              <th>Name</th>
+              <th>Content</th>
+              <th>Priority</th>
+              <th>TTL</th>
+              <th>Status</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={7} className="py-6 text-center text-gray-500">Loading…</td></tr>
+            ) : records.length === 0 ? (
+              <tr><td colSpan={7} className="py-6 text-center text-gray-500">No DNS records yet.</td></tr>
+            ) : (
+              records.map((record) => (
+                <tr key={record.id} className="border-b border-gray-50">
+                  <td className="py-3 font-semibold">{record.type}</td>
+                  <td>{record.name}</td>
+                  <td className="max-w-xs truncate">{record.content}</td>
+                  <td>{record.priority ?? "—"}</td>
+                  <td>{record.ttl}</td>
+                  <td>{record.status}</td>
+                  <td className="text-right">
+                    <button disabled={busy} onClick={() => void removeRecord(record.id)} className="text-xs font-medium text-red-600 hover:text-red-700">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

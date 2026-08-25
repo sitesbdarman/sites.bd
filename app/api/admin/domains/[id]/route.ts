@@ -8,7 +8,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const originError = assertSameOrigin(request);
   if (originError) return originError;
 
-  const { user, admin, response } = await assertAdminApi();
+  const { user, admin, response } = await assertAdminApi("domains:write");
   if (response) return response;
   const { id } = await params;
 
@@ -65,7 +65,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const originError = assertSameOrigin(request);
   if (originError) return originError;
 
-  const { user, admin, response } = await assertAdminApi();
+  const { user, admin, response } = await assertAdminApi("domains:write");
   if (response) return response;
   const { id } = await params;
 

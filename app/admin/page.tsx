@@ -20,7 +20,7 @@ function Card({ label, value, detail, href, icon }: { label: string; value: stri
 export default async function AdminPage() {
   await requireAdmin();
   const db = createAdminClient();
-  const [users, domains, orders, tickets, unpaid, pendingPayments, paidInvoices] = await Promise.all([
+  const [users, domains, orders, tickets, unpaid, pendingPayments, paidInvoices, activity] = await Promise.all([
     db.from("profiles").select("id", { count: "exact", head: true }),
     db.from("domains").select("id", { count: "exact", head: true }),
     db.from("orders").select("id", { count: "exact", head: true }),
@@ -75,6 +75,8 @@ export default async function AdminPage() {
           </div>
         </div>
       </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-center justify-between"><div><h2 className="text-lg font-black">Recent activity</h2><p className="mt-1 text-sm text-slate-500">The latest operational changes in the platform.</p></div><Link href="/admin/audit" className="text-sm font-bold text-sky-600">Full audit log →</Link></div><div className="mt-4 space-y-2">{(activity.data||[]).map((a:any)=><div key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3"><div><div className="font-semibold text-slate-800">{a.action}</div><div className="text-xs text-slate-500">{a.entity_type}{a.entity_id?` · ${a.entity_id}`:''}</div></div><time className="text-xs text-slate-400">{new Date(a.created_at).toLocaleString()}</time></div>)}{!(activity.data||[]).length&&<p className="text-sm text-slate-500">No recent activity yet.</p>}</div></section>
     </div>
   );
 }
