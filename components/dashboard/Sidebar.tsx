@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "My Services", href: "/dashboard/services", icon: ServerIcon },
   { label: "My Invoices", href: "/dashboard/invoices", icon: InvoiceIcon },
   { label: "Support Tickets", href: "/dashboard/tickets", icon: TicketIcon },
+  { label: "Settings", href: "/profile", icon: DashboardIcon },
 ];
 
 interface SidebarProps {

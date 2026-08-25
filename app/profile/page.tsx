@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./ProfileForm";
+import { PublicFooter } from "@/components/PublicFooter";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -49,6 +50,7 @@ export default async function ProfilePage() {
           initialAvatarUrl={profile?.avatar_url ?? null}
         />
       </div>
+      <PublicFooter />
     </main>
   );
 }

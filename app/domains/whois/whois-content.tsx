@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { PublicFooter } from "@/components/PublicFooter";
 import { useSearchParams } from "next/navigation";
 
 interface WhoisRecord {
@@ -93,7 +95,9 @@ export default function WhoisContent() {
   const effectiveError = missingDomain ? "No domain was specified." : errorMessage;
 
   return (
-    <main className="flex flex-1 flex-col items-center p-6 py-16">
+    <>
+      <PublicNavbar />
+      <main className="flex flex-1 flex-col items-center p-6 py-16">
       <div className="w-full max-w-lg">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">WHOIS lookup</h1>
@@ -174,6 +178,8 @@ export default function WhoisContent() {
           </Link>
         </div>
       </div>
-    </main>
+      </main>
+      <PublicFooter />
+    </>
   );
 }

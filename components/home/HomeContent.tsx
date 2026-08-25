@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ProfileMenu } from "@/components/auth/ProfileMenu";
-import { DeveloperCredit } from "@/components/DeveloperCredit";
-import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { homeText, tr } from "@/lib/i18n/translations";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { PublicFooter } from "@/components/PublicFooter";
 
 type IconName = "globe" | "star" | "tag" | "cart" | "mail" | "gift" | "bolt" | "server" | "settings" | "shield" | "users" | "search" | "arrow";
 
@@ -46,34 +45,16 @@ interface HomeContentProps {
   loggedIn: boolean;
   avatarUrl?: string | null;
   fullName?: string | null;
+  email?: string | null;
 }
 
-export function HomeContent({ loggedIn, avatarUrl, fullName }: HomeContentProps) {
+export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeContentProps) {
   const { language } = useLanguage();
   const t = homeText;
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-800">
-      <nav className="sticky inset-x-0 top-0 z-50 border-b border-white/70 bg-white/95 shadow-lg backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-          <Link href="/" className="flex items-center gap-3 text-2xl font-extrabold tracking-tight text-blue-600">
-            <Icon name="globe" className="h-8 w-8" />
-            SITES<span className="text-gray-800">.BD</span>
-          </Link>
-          <div className="hidden items-center gap-7 text-sm font-semibold md:flex">
-            <a href="#home" className="transition hover:text-blue-600"><Icon name="globe" className="mr-2 inline h-4 w-4" />{tr(t.nav.home, language)}</a>
-            <a href="#features" className="transition hover:text-blue-600"><Icon name="star" className="mr-2 inline h-4 w-4" />{tr(t.nav.features, language)}</a>
-            <Link href="/pricing" className="transition hover:text-blue-600"><Icon name="tag" className="mr-2 inline h-4 w-4" />{tr(t.nav.pricing, language)}</Link>
-            <Link href="/domains/search" className="transition hover:text-blue-600"><Icon name="search" className="mr-2 inline h-4 w-4" />{tr(t.nav.domainSearch, language)}</Link>
-            <a href="#order" className="transition hover:text-blue-600"><Icon name="cart" className="mr-2 inline h-4 w-4" />{tr(t.nav.order, language)}</a>
-            <Link href="/contact" className="transition hover:text-blue-600"><Icon name="mail" className="mr-2 inline h-4 w-4" />{tr(t.nav.contact, language)}</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <LanguageToggle />
-            <ProfileMenu loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} />
-          </div>
-        </div>
-      </nav>
+      <PublicNavbar loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
       <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 pb-16 pt-32 text-center text-white lg:px-8">
         <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -right-20 bottom-20 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
@@ -161,15 +142,7 @@ export function HomeContent({ loggedIn, avatarUrl, fullName }: HomeContentProps)
         </div>
       </section>
 
-      <footer className="bg-blue-950 px-5 py-12 text-white lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
-          <div><div className="flex items-center gap-3 text-2xl font-extrabold"><Icon name="globe" className="h-8 w-8 text-blue-400" />SITES.BD</div><p className="mt-4 leading-7 text-gray-400">{tr(t.footer.tagline, language)}</p><DeveloperCredit className="mt-4" /></div>
-          <div><h4 className="font-extrabold">{tr(t.footer.services, language)}</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/domains/search" className="hover:text-white">{tr(t.footer.links.freeSubdomains, language)}</Link></li><li><Link href="/domains/search" className="hover:text-white">{tr(t.footer.links.domainSearch, language)}</Link></li><li><Link href="/domains/whois" className="hover:text-white">{tr(t.footer.links.whois, language)}</Link></li><li><Link href="/dashboard" className="hover:text-white">{tr(t.footer.links.dnsManagement, language)}</Link></li></ul></div>
-          <div><h4 className="font-extrabold">{tr(t.footer.support, language)}</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/contact" className="hover:text-white">{tr(t.footer.links.contactUs, language)}</Link></li><li><Link href="/dashboard/tickets" className="hover:text-white">{tr(t.footer.links.supportTickets, language)}</Link></li><li><Link href="/login" className="hover:text-white">{tr(t.footer.links.customerLogin, language)}</Link></li><li><Link href="/register" className="hover:text-white">{tr(t.footer.links.createAccount, language)}</Link></li></ul></div>
-          <div><h4 className="font-extrabold">{tr(t.footer.platform, language)}</h4><ul className="mt-4 space-y-2 text-gray-400"><li><Link href="/checkout/hosting" className="hover:text-white">{tr(t.footer.links.hosting, language)}</Link></li><li><Link href="/cart" className="hover:text-white">{tr(t.footer.links.cart, language)}</Link></li><li><Link href="/dashboard" className="hover:text-white">{tr(t.footer.links.dashboard, language)}</Link></li><li><Link href="/domains/search" className="hover:text-white">{tr(t.footer.links.domainSearch, language)}</Link></li></ul></div>
-        </div>
-        <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-7 text-center text-sm text-gray-400">© {new Date().getFullYear()} SITES.BD. {tr(t.footer.rights, language)}</div>
-      </footer>
+      <PublicFooter />
     </main>
   );
 }

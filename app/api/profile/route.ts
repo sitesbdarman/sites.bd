@@ -12,6 +12,29 @@ const profileUpdateSchema = z.object({
   avatarUrl: z.string().url().nullable().optional(),
 });
 
+
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ authenticated: false, profile: null }, { status: 200 });
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("avatar_url, full_name, email, mobile_number")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  return NextResponse.json({
+    authenticated: true,
+    profile: {
+      avatar_url: profile?.avatar_url ?? null,
+      full_name: profile?.full_name ?? null,
+      email: profile?.email ?? user.email ?? null,
+      mobile_number: profile?.mobile_number ?? null,
+    },
+  });
+}
+
 export async function PATCH(request: Request) {
   const originError = assertSameOrigin(request);
   if (originError) return originError;

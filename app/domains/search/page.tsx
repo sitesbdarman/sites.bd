@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ClaimModal } from "@/components/domains/ClaimModal";
-import { LanguageToggle } from "@/components/LanguageToggle";
+import { PublicNavbar } from "@/components/PublicNavbar";
+import { PublicFooter } from "@/components/PublicFooter";
 import { useLanguage, type Language } from "@/lib/i18n/LanguageContext";
 import { domainSearchText, tr } from "@/lib/i18n/translations";
 
@@ -87,6 +88,7 @@ export default function DomainSearchPage() {
   const [claimTarget, setClaimTarget] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [claimOutcomes, setClaimOutcomes] = useState<Record<string, ClaimOutcome>>({});
+  const [cartAddedRecently, setCartAddedRecently] = useState<string | null>(null);
 
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showTldSuggestions, setShowTldSuggestions] = useState(false);
@@ -141,11 +143,25 @@ export default function DomainSearchPage() {
         return;
       }
 
-      setResults(data.results ?? []);
+      const nextResults = data.results ?? [];
+      setResults(nextResults);
       setIsMock(Boolean(data.mock));
       setState("success");
       saveRecentSearch(trimmed);
       setRecentSearches(loadRecentSearches());
+
+      const unavailable = nextResults.filter((item) => !item.available).slice(0, 3);
+      for (const item of unavailable) {
+        const candidates = buildAlternativeSuggestions(item.domain);
+        setAltLoading((prev) => ({ ...prev, [item.domain]: true }));
+        void fetch(`/api/domains/check?query=${encodeURIComponent(candidates.join(","))}`)
+          .then((response) => response.json() as Promise<CheckResponse>)
+          .then((altData) => {
+            if (altData.success) setAltResults((prev) => ({ ...prev, [item.domain]: altData.results ?? [] }));
+          })
+          .catch(() => undefined)
+          .finally(() => setAltLoading((prev) => ({ ...prev, [item.domain]: false })));
+      }
     } catch {
       setState("error");
       setErrorMessage("Couldn't reach the server. Please check your connection and try again.");
@@ -210,6 +226,8 @@ export default function DomainSearchPage() {
       }
 
       setClaimOutcomes((prev) => ({ ...prev, [claimTarget]: { kind: "added" } }));
+      setCartAddedRecently(claimTarget);
+      window.dispatchEvent(new Event("sitesbd:cart-updated"));
       setClaimTarget(null);
     } catch {
       setClaimOutcomes((prev) => ({
@@ -232,11 +250,10 @@ export default function DomainSearchPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center p-6 py-16">
+    <>
+      <PublicNavbar />
+      <main className="flex flex-1 flex-col items-center p-6 py-16">
       <div className="w-full max-w-2xl">
-        <div className="mb-3 flex justify-end">
-          <LanguageToggle />
-        </div>
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight">{tr(st.title, language)}</h1>
           <p className="mt-2 text-gray-500">
@@ -418,6 +435,14 @@ export default function DomainSearchPage() {
         )}
       </div>
 
+      {cartAddedRecently && (
+        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-gray-950 px-4 py-3 text-sm font-semibold text-white shadow-2xl ring-1 ring-white/10">
+          <span className="text-emerald-300">{cartAddedRecently}</span> added to cart.
+          <Link href="/cart" className="rounded-lg bg-blue-600 px-3 py-1.5 font-bold text-white transition hover:bg-blue-500 active:scale-95">Go to Cart</Link>
+          <button type="button" onClick={() => setCartAddedRecently(null)} className="text-gray-400 hover:text-white" aria-label="Dismiss">×</button>
+        </div>
+      )}
+
       {claimTarget && (
         <ClaimModal
           domain={claimTarget}
@@ -426,7 +451,9 @@ export default function DomainSearchPage() {
           onConfirm={handleClaimConfirm}
         />
       )}
-    </main>
+      </main>
+      <PublicFooter />
+    </>
   );
 }
 

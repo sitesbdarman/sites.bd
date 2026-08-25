@@ -36,8 +36,13 @@ export function CartBadge() {
     }
 
     loadCount();
+    const refreshHandler = () => { void loadCount(); };
+    window.addEventListener("sitesbd:cart-updated", refreshHandler);
+    window.addEventListener("focus", refreshHandler);
     return () => {
       cancelled = true;
+      window.removeEventListener("sitesbd:cart-updated", refreshHandler);
+      window.removeEventListener("focus", refreshHandler);
     };
   }, []);
 

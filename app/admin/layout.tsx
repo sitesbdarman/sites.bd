@@ -1,3 +1,4 @@
+import { DeveloperCredit } from "@/components/DeveloperCredit";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/auth";
 
@@ -63,6 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
 
           <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
+          <footer className="border-t border-slate-200 bg-white px-4 py-5 text-center"><DeveloperCredit /></footer>
         </main>
       </div>
     </div>

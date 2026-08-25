@@ -34,7 +34,7 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
           <Link
             href="/profile"
             title="Edit profile"
-            className="group hidden items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-blue-50 sm:flex active:scale-[.98]"
+            className="group flex min-w-0 items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-blue-50 active:scale-[.98]"
           >
             <span className="flex h-9 w-9 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100 transition group-hover:ring-blue-300">
               {avatarUrl ? (
@@ -43,7 +43,7 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
                 <UserIcon className="h-4 w-4" />
               )}
             </span>
-            <span className="max-w-[14rem] truncate text-sm font-medium text-gray-600 group-hover:text-blue-700">
+            <span className="max-w-[8rem] truncate text-xs font-medium text-gray-600 group-hover:text-blue-700 sm:max-w-[14rem] sm:text-sm">
               {fullName || userEmail}
             </span>
           </Link>

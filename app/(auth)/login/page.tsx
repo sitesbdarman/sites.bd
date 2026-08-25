@@ -238,14 +238,6 @@ export default function LoginPage() {
             Register
           </Link>
         </p>
-        <div className="mt-4 text-center">
-          <Link
-            href="/admin/login"
-            className="text-xs font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-700"
-          >
-            Admin Login
-          </Link>
-        </div>
       </div>
     </main>
   );

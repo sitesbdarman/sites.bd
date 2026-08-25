@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileCompletionForm } from "./ProfileCompletionForm";
+import { PublicFooter } from "@/components/PublicFooter";
 
 interface ProfileRow {
   full_name: string | null;
@@ -32,7 +33,8 @@ export default async function ProfileCompletionPage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center p-6">
+    <main className="min-h-screen bg-gray-50">
+      <div className="flex min-h-[calc(100vh-170px)] items-center justify-center p-6">
       <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold tracking-tight">Complete your profile</h1>
@@ -45,7 +47,9 @@ export default async function ProfileCompletionPage() {
           initialFullName={profile?.full_name ?? ""}
           initialMobileNumber={profile?.mobile_number ?? ""}
         />
+        </div>
       </div>
+      <PublicFooter />
     </main>
   );
 }
