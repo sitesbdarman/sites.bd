@@ -14,7 +14,8 @@ export default async function DomainDetailsPage({ params }: { params: Promise<{ 
   if (!domain) notFound();
 
   return <DashboardLayout pageTitle="Domain Details" userEmail={user.email ?? null}>
-    <div className="mb-5 flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <Link href="/dashboard/domains" className="text-sm font-bold text-blue-600 hover:text-blue-700">← My Domains</Link>
+    <div className="mb-5 mt-4 flex flex-col gap-3 rounded-2xl border bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div><div className="flex items-center gap-3"><h1 className="text-xl font-black text-gray-900">{domain.domain_name}</h1><StatusBadge status={domain.status} /></div><p className="mt-1 text-sm text-gray-500">Registration: {domain.registered_at ? new Date(domain.registered_at).toLocaleDateString() : "—"} · Expiry: {domain.expires_at ? new Date(domain.expires_at).toLocaleDateString() : "—"}</p></div>
       <div className="flex flex-wrap gap-2"><Link href={`/dashboard/domains/${id}/txt`} className="rounded-xl border px-4 py-2 text-sm font-bold">Add TXT Record</Link><Link href="/domains/search" className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white">Add New Domain</Link></div>
     </div>

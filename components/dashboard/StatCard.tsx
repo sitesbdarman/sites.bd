@@ -6,17 +6,26 @@ interface StatCardProps {
   value: number | string;
   description?: string;
   icon: ComponentType<SVGProps<SVGSVGElement>>;
+  /** Icon accent color — lets stat cards be told apart at a glance instead of all sharing one blue tone. */
+  tone?: "blue" | "emerald" | "amber" | "violet";
 }
+
+const TONE_STYLES: Record<NonNullable<StatCardProps["tone"]>, string> = {
+  blue: "bg-blue-50 text-blue-600",
+  emerald: "bg-emerald-50 text-emerald-600",
+  amber: "bg-amber-50 text-amber-600",
+  violet: "bg-violet-50 text-violet-600",
+};
 
 /**
  * A single dashboard statistic. Purely presentational — the caller
  * decides where `value` comes from, so this same component works for
  * today's placeholder zeros and tomorrow's real counts.
  */
-export function StatCard({ title, value, description, icon: Icon }: StatCardProps) {
+export function StatCard({ title, value, description, icon: Icon, tone = "blue" }: StatCardProps) {
   return (
-    <div className="flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${TONE_STYLES[tone]}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">

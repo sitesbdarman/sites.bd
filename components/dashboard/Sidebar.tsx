@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import { LogoutButton } from "@/app/dashboard/logout-button";
-import { CloseIcon, DashboardIcon, GlobeIcon, InvoiceIcon, ServerIcon, TicketIcon } from "./icons";
+import { CloseIcon, DashboardIcon, GlobeIcon, InvoiceIcon, ServerIcon, SettingsIcon, TicketIcon } from "./icons";
+import { BrandMark } from "@/components/BrandMark";
 
 interface NavItem {
   label: string;
@@ -18,7 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "My Services", href: "/dashboard/services", icon: ServerIcon },
   { label: "My Invoices", href: "/dashboard/invoices", icon: InvoiceIcon },
   { label: "Support Tickets", href: "/dashboard/tickets", icon: TicketIcon },
-  { label: "Settings", href: "/profile", icon: DashboardIcon },
+  { label: "Settings", href: "/profile", icon: SettingsIcon },
 ];
 
 interface SidebarProps {
@@ -43,7 +44,10 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-gray-200 px-5">
-        <span className="text-lg font-bold tracking-tight text-gray-900">DomainHost</span>
+        <span className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
+          <BrandMark className="h-6 w-6 text-blue-600" />
+          SITES<span className="text-blue-600">.BD</span>
+        </span>
         {onClose && (
           <button
             type="button"

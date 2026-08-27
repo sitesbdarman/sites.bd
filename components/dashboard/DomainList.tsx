@@ -30,6 +30,30 @@ function formatDate(value: string | null): string | null {
   });
 }
 
+function daysUntil(value: string | null): number | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return Math.ceil((date.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+}
+
+/** Small colored "X days left" chip — only rendered when a domain is genuinely close to expiring. */
+function ExpiryChip({ expiresAt, status }: { expiresAt: string | null; status: string }) {
+  if (status !== "active") return null;
+  const days = daysUntil(expiresAt);
+  if (days === null || days < 0 || days > 30) return null;
+  const urgent = days <= 7;
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold ${
+        urgent ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-700"
+      }`}
+    >
+      {days === 0 ? "Expires today" : `${days}d left`}
+    </span>
+  );
+}
+
 /**
  * Client-side search + status filter over a domain list that was already
  * loaded server-side. Deliberately simple: no server round-trips, no new
@@ -156,7 +180,10 @@ function DomainRow({ domain }: { domain: Domain }) {
         {registered ?? "—"}
       </td>
       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-        {expires ?? "—"}
+        <span className="flex items-center gap-2">
+          {expires ?? "—"}
+          <ExpiryChip expiresAt={domain.expires_at} status={domain.status} />
+        </span>
       </td>
       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
         {domain.auto_renew ? "On" : "Off"}
@@ -190,7 +217,10 @@ function DomainCard({ domain }: { domain: Domain }) {
         </div>
         <div>
           <dt className="text-gray-400">Expires</dt>
-          <dd className="mt-0.5 text-gray-600">{expires ?? "—"}</dd>
+          <dd className="mt-0.5 flex items-center gap-2 text-gray-600">
+            {expires ?? "—"}
+            <ExpiryChip expiresAt={domain.expires_at} status={domain.status} />
+          </dd>
         </div>
         <div>
           <dt className="text-gray-400">Auto-renew</dt>
