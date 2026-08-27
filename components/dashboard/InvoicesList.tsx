@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { InvoiceIcon } from "@/components/dashboard/icons";
+import { StatusBadge, type DashboardStatus } from "@/components/dashboard/StatusBadge";
 
 interface Invoice {
   id: string;
@@ -16,6 +17,14 @@ interface Invoice {
 }
 
 const STATUS_OPTIONS = ["all", "unpaid", "paid", "cancelled", "refunded"];
+
+/** Maps this table's raw invoice-status strings onto StatusBadge's shared status set. */
+function toStatus(value: string): DashboardStatus {
+  if (value === "unpaid") return "pending";
+  if (value === "cancelled" || value === "refunded") return "closed";
+  const known: DashboardStatus[] = ["active", "pending", "processing", "expired", "suspended", "paid", "overdue", "closed"];
+  return (known as string[]).includes(value) ? (value as DashboardStatus) : "pending";
+}
 
 export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
   const [query, setQuery] = useState("");
@@ -32,7 +41,7 @@ export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
 
   if (invoices.length === 0) {
     return (
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <EmptyState icon={InvoiceIcon} message="You don't have any invoices yet." />
       </div>
     );
@@ -62,52 +71,90 @@ export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
         </select>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        {filtered.length === 0 ? (
-          <p className="px-5 py-6 text-center text-sm text-gray-500">No invoices match your search.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-                <tr>
-                  <th className="px-5 py-3">Invoice</th>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3">Amount</th>
-                  <th className="px-5 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.map((invoice) => (
-                  <tr key={invoice.id}>
-                    <td className="px-5 py-4 font-medium text-gray-900">
-                      <Link className="text-blue-600 hover:underline" href={`/dashboard/invoices/${invoice.id}`}>
-                        {invoice.invoice_number}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-4 text-gray-500">{new Date(invoice.created_at).toLocaleDateString()}</td>
-                    <td className="px-5 py-4 text-gray-900">
-                      {invoice.currency} {Number(invoice.total).toFixed(2)}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                          invoice.status === "paid"
-                            ? "bg-green-50 text-green-700"
-                            : invoice.status === "cancelled"
-                              ? "bg-gray-100 text-gray-600"
-                              : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        {invoice.status}
-                      </span>
-                    </td>
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
+          No invoices match your search.
+        </div>
+      ) : (
+        <>
+          {/* Desktop: table */}
+          <div className="hidden overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                  <tr>
+                    <th className="px-5 py-3">Invoice</th>
+                    <th className="px-5 py-3">Date</th>
+                    <th className="px-5 py-3">Amount</th>
+                    <th className="px-5 py-3">Status</th>
+                    <th className="px-5 py-3 text-right"><span className="sr-only">Actions</span></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filtered.map((invoice) => (
+                    <tr key={invoice.id} className="hover:bg-gray-50">
+                      <td className="px-5 py-4 font-medium text-gray-900">
+                        <Link className="text-blue-600 hover:underline" href={`/dashboard/invoices/${invoice.id}`}>
+                          {invoice.invoice_number}
+                        </Link>
+                      </td>
+                      <td className="px-5 py-4 text-gray-500">{new Date(invoice.created_at).toLocaleDateString()}</td>
+                      <td className="px-5 py-4 text-gray-900">
+                        {invoice.currency} {Number(invoice.total).toFixed(2)}
+                      </td>
+                      <td className="px-5 py-4">
+                        <StatusBadge status={toStatus(invoice.status)} />
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        {invoice.status === "unpaid" && (
+                          <Link
+                            href={`/checkout/payment?invoice=${invoice.id}`}
+                            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700"
+                          >
+                            Pay Now
+                          </Link>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Mobile: cards */}
+          <div className="flex flex-col gap-3 md:hidden">
+            {filtered.map((invoice) => (
+              <div key={invoice.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <Link href={`/dashboard/invoices/${invoice.id}`} className="truncate text-sm font-semibold text-blue-600">
+                    {invoice.invoice_number}
+                  </Link>
+                  <StatusBadge status={toStatus(invoice.status)} />
+                </div>
+                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                  <div>
+                    <dt className="text-gray-400">Date</dt>
+                    <dd className="mt-0.5 text-gray-600">{new Date(invoice.created_at).toLocaleDateString()}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-gray-400">Amount</dt>
+                    <dd className="mt-0.5 font-semibold text-gray-900">{invoice.currency} {Number(invoice.total).toFixed(2)}</dd>
+                  </div>
+                </dl>
+                {invoice.status === "unpaid" && (
+                  <Link
+                    href={`/checkout/payment?invoice=${invoice.id}`}
+                    className="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-700"
+                  >
+                    Pay Now
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

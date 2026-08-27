@@ -120,7 +120,7 @@ export function DomainList({ domains }: DomainListProps) {
       ) : (
         <>
           {/* Desktop: table */}
-          <div className="hidden overflow-hidden rounded-lg border border-gray-200 md:block">
+          <div className="hidden overflow-hidden rounded-2xl border border-gray-200 md:block">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -205,7 +205,7 @@ function DomainCard({ domain }: { domain: Domain }) {
   const expires = formatDate(domain.expires_at);
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <p className="truncate text-sm font-medium text-gray-900">{domain.domain_name}</p>
         <StatusBadge status={domain.status as DashboardStatus} />

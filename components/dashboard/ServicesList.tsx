@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { ServerIcon } from "@/components/dashboard/icons";
+import { StatusBadge, type DashboardStatus } from "@/components/dashboard/StatusBadge";
 
 interface ServiceOrder {
   id: string;
@@ -15,6 +17,16 @@ interface ServiceOrder {
 }
 
 const STATUS_OPTIONS = ["all", "active", "processing", "completed", "cancelled", "failed", "pending_payment"];
+
+/** Maps this table's raw order-status strings onto StatusBadge's shared status set. */
+function toStatus(value: string): DashboardStatus {
+  if (value === "completed") return "closed";
+  if (value === "failed") return "overdue";
+  if (value === "cancelled") return "suspended";
+  if (value === "pending_payment") return "pending";
+  const known: DashboardStatus[] = ["active", "pending", "processing", "expired", "suspended", "paid", "overdue", "closed"];
+  return (known as string[]).includes(value) ? (value as DashboardStatus) : "pending";
+}
 
 export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
   const [query, setQuery] = useState("");
@@ -34,8 +46,16 @@ export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
-        <EmptyState icon={ServerIcon} message="You don't have any hosting services yet." />
+      <div className="rounded-2xl border border-gray-200 bg-white p-5">
+        <EmptyState
+          icon={ServerIcon}
+          message="You don't have any hosting services yet."
+          action={
+            <Link href="/pricing" className="mt-1 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700">
+              Browse hosting plans
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -65,25 +85,25 @@ export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 text-center text-sm text-gray-500">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 text-center text-sm text-gray-500">
           No services match your search.
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {filtered.map((order) => (
-            <div key={order.id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <Link
+              key={order.id}
+              href={`/dashboard/services/${order.id}`}
+              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs text-gray-400">Order {order.order_number}</p>
-                  <h2 className="mt-1 text-base font-semibold text-gray-900">
-                    <a className="text-blue-600 hover:underline" href={`/dashboard/services/${order.id}`}>
-                      {order.hosting_plan_name}
-                    </a>
+                  <h2 className="mt-1 text-base font-semibold text-blue-600">
+                    {order.hosting_plan_name || "Service"}
                   </h2>
                 </div>
-                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                  {order.status}
-                </span>
+                <StatusBadge status={toStatus(order.status)} />
               </div>
               <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -95,7 +115,7 @@ export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
                   <p className="mt-1 text-gray-700">BDT {Number(order.hosting_price).toFixed(2)}</p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
