@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ProfileMenu } from "@/components/auth/ProfileMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { CartBadge } from "@/components/dashboard/CartBadge";
+import { BrandMark } from "@/components/BrandMark";
 
 interface PublicNavbarProps {
   loggedIn?: boolean;
@@ -56,15 +57,14 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
     { href: "/#features", label: "Features" },
     { href: "/pricing", label: "Pricing" },
     { href: "/domains/search", label: "Domain Search" },
-    { href: "/domains/search", label: "Order" },
     { href: "/contact", label: "Contact" },
   ];
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/70 bg-white/95 shadow-lg backdrop-blur">
       <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-3 px-4 py-3 sm:px-5 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-tight text-blue-600 sm:text-2xl">
-          <span aria-hidden="true">🌐</span>
+        <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-xl font-extrabold tracking-tight text-blue-600 sm:text-2xl">
+          <BrandMark className="h-7 w-7 sm:h-8 sm:w-8" />
           <span>SITES<span className="text-gray-900">.BD</span></span>
         </Link>
 

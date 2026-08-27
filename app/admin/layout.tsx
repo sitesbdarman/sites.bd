@@ -2,21 +2,8 @@ import { DeveloperCredit } from "@/components/DeveloperCredit";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/auth";
 import { LanguageToggle } from "@/components/LanguageToggle";
-
-const nav = [
-  ["/admin", "Overview", "▦"],
-  ["/admin/users", "Customers", "♙"],
-  ["/admin/domains", "Domains", "◎"],
-  ["/admin/orders", "Orders & Payments", "◫"],
-  ["/admin/tickets", "Support", "◌"],
-  ["/admin/coupons", "Coupons", "%"],
-  ["/admin/pricing", "Pricing", "৳"],
-  ["/admin/notifications", "Notifications", "🔔"],
-  ["/admin/reports", "Reports", "▥"],
-  ["/admin/content", "Content", "✦"],
-  ["/admin/audit", "Audit Log", "◌"],
-  ["/admin/settings", "Settings", "⚙"],
-] as const;
+import { AdminSidebarNav, AdminMobileNav } from "@/components/admin/AdminNav";
+import { BrandMark } from "@/components/BrandMark";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await requireAdmin();
@@ -26,19 +13,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex min-h-screen">
         <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-slate-950 text-white lg:flex lg:flex-col">
           <div className="border-b border-white/10 px-6 py-6">
-            <Link href="/admin" className="group block">
-              <div className="text-xl font-black tracking-tight">SITES<span className="text-sky-400">.BD</span></div>
-              <div className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Admin Control Center</div>
+            <Link href="/admin" className="group flex items-center gap-2.5">
+              <BrandMark className="h-7 w-7 text-sky-400" />
+              <div>
+                <div className="text-xl font-black tracking-tight font-display">SITES<span className="text-sky-400">.BD</span></div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Admin Control Center</div>
+              </div>
             </Link>
           </div>
-          <nav className="flex-1 space-y-1 px-4 py-5">
-            {nav.map(([href, label, icon]) => (
-              <Link key={href} href={href} className="admin-nav-link group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white active:scale-[.98]">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm text-sky-300 transition group-hover:bg-sky-400/15">{icon}</span>
-                {label}
-              </Link>
-            ))}
-          </nav>
+          <AdminSidebarNav />
           <div className="border-t border-white/10 p-4">
             <div className="rounded-2xl bg-white/5 p-4">
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Signed in as</div>
@@ -52,8 +35,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <main className="min-w-0 flex-1 bg-slate-50">
           <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
             <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-              <div className="lg:hidden">
-                <Link href="/admin" className="text-lg font-black tracking-tight">SITES<span className="text-sky-500">.BD</span> <span className="text-xs font-semibold text-slate-400">ADMIN</span></Link>
+              <div className="flex items-center gap-3 lg:hidden">
+                <AdminMobileNav />
+                <Link href="/admin" className="text-lg font-black tracking-tight font-display">SITES<span className="text-sky-500">.BD</span> <span className="text-xs font-semibold text-slate-400">ADMIN</span></Link>
               </div>
               <div className="hidden lg:block text-sm font-semibold text-slate-500">Administration / Secure area</div>
               <div className="flex items-center gap-2">
@@ -62,12 +46,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               </div>
             </div>
           </header>
-
-          <div className="border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {nav.map(([href, label]) => <Link key={href} href={href} className="whitespace-nowrap rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-600 active:scale-[.98]">{label}</Link>)}
-            </div>
-          </div>
 
           <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</div>
         </main>

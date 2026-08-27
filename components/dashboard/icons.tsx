@@ -167,6 +167,99 @@ export function TrashIcon(props: IconProps) {
   );
 }
 
+export function PercentIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 5.25 5.25 18.75" />
+      <circle cx="7.125" cy="7.125" r="2.625" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="16.875" cy="16.875" r="2.625" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function TakaIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 3.75v9a4.5 4.5 0 0 0 4.5 4.5h.75M6.75 8.25h7.5M15.75 3.75c-1.243 0-2.348.586-3.058 1.5"
+      />
+    </svg>
+  );
+}
+
+export function BellIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6.75 9.75a5.25 5.25 0 0 1 10.5 0v3.19c0 .53.21 1.04.586 1.414l.914.914a1.125 1.125 0 0 1-.796 1.92H5.046a1.125 1.125 0 0 1-.796-1.92l.914-.914c.375-.375.586-.884.586-1.414z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 18.75a2.25 2.25 0 0 0 4.5 0" />
+    </svg>
+  );
+}
+
+export function ChartIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5h15" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 19.5v-6M12 19.5V9M16.5 19.5V6" />
+    </svg>
+  );
+}
+
+export function DocIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M7.5 3.75h6l3.75 3.75v12a1.5 1.5 0 0 1-1.5 1.5h-8.25a1.5 1.5 0 0 1-1.5-1.5V5.25a1.5 1.5 0 0 1 1.5-1.5Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 3.75V7.5h3.75M9 12.75h6M9 15.75h6" />
+    </svg>
+  );
+}
+
+export function ClipboardIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 5.25h6a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H9a1.5 1.5 0 0 1-1.5-1.5v-12A1.5 1.5 0 0 1 9 5.25Z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.75h4.5v3h-4.5z" />
+      <path strokeLinecap="round" d="M9.75 11.25h4.5M9.75 14.25h4.5" />
+    </svg>
+  );
+}
+
+export function SettingsIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="12" cy="12" r="3.25" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m4.6 9.4 1.7-.5.9-2.2-.9-1.6 1.7-1.7 1.6.9 2.2-.9.5-1.7h2.4l.5 1.7 2.2.9 1.6-.9 1.7 1.7-.9 1.6.9 2.2 1.7.5v2.4l-1.7.5-.9 2.2.9 1.6-1.7 1.7-1.6-.9-2.2.9-.5 1.7h-2.4l-.5-1.7-2.2-.9-1.6.9-1.7-1.7.9-1.6-.9-2.2-1.7-.5Z"
+      />
+    </svg>
+  );
+}
+
+export function ShieldIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75 18.75 6v5.25c0 4.5-2.925 7.6-6.75 9-3.825-1.4-6.75-4.5-6.75-9V6Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m9 12 2.1 2.1L15.75 9.5" />
+    </svg>
+  );
+}
+
 export function InboxIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
