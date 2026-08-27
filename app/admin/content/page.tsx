@@ -76,16 +76,26 @@ export default function ContentPage() {
                   <input placeholder="URL" value={item.link_url || ""} onChange={(e) => update(i, { link_url: e.target.value })} className="rounded-lg border px-3 py-2" />
                 </>}
               </div>
-              <label className="mt-3 flex items-center gap-2 text-sm font-semibold">
-                <input type="checkbox" checked={item.active} onChange={(e) => update(i, { active: e.target.checked })} />
-                Active
-              </label>
+              <div className="mt-3 flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm font-semibold">
+                  <input type="checkbox" checked={item.active} onChange={(e) => update(i, { active: e.target.checked })} />
+                  Active
+                </label>
+                <button
+                  type="button"
+                  onClick={() => { if (confirm("Remove this item? This will delete it permanently when you click Save changes.")) setItems((current) => current.filter((_, idx) => idx !== i)); }}
+                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
           <div className="flex gap-3">
             <button onClick={() => setItems((current) => [...current, { active: true, sort_order: current.length }])} className="rounded-xl border bg-white px-4 py-2 text-sm font-bold">Add item</button>
             <button onClick={save} className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Save changes</button>
           </div>
+          <p className="text-xs text-slate-500">Removed items are deleted permanently once you click &ldquo;Save changes&rdquo;.</p>
         </div>
       )}
     </section>

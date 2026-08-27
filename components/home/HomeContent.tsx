@@ -28,18 +28,6 @@ function Icon({ name, className = "h-6 w-6" }: { name: IconName; className?: str
 }
 
 const featureIcons: IconName[] = ["gift", "bolt", "server", "settings", "shield", "users"];
-const featureTones = ["blue", "green", "purple", "orange", "red", "teal"] as const;
-
-const toneClasses: Record<string, string> = {
-  blue: "from-blue-50 to-blue-100 text-blue-600",
-  green: "from-emerald-50 to-emerald-100 text-emerald-600",
-  purple: "from-violet-50 to-violet-100 text-violet-600",
-  orange: "from-orange-50 to-orange-100 text-orange-600",
-  red: "from-rose-50 to-rose-100 text-rose-600",
-  teal: "from-teal-50 to-teal-100 text-teal-600",
-};
-
-const stepColors = ["bg-blue-600", "bg-emerald-500", "bg-violet-600"];
 
 interface HomeContentProps {
   loggedIn: boolean;
@@ -53,89 +41,145 @@ export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeConten
   const t = homeText;
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-800">
+    <main className="min-h-screen overflow-x-hidden bg-[#f7f9f7] text-[#10241c]">
       <PublicNavbar loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
-      <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 pb-16 pt-32 text-center text-white lg:px-8">
-        <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -right-20 bottom-20 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="absolute left-10 top-36 opacity-20"><Icon name="globe" className="h-20 w-20" /></div>
-        <div className="absolute right-12 top-40 opacity-20"><Icon name="server" className="h-16 w-16" /></div>
-        <div className="absolute bottom-28 left-16 opacity-20"><Icon name="settings" className="h-24 w-24" /></div>
 
-        <div className="relative z-10 mx-auto w-full max-w-5xl">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">{tr(t.hero.title, language)}</h1>
-          <h2 className="mt-2 text-4xl font-extrabold sm:text-5xl">SITES.BD</h2>
-          <p className="mx-auto mt-5 max-w-4xl text-lg leading-8 text-white/90 sm:text-2xl">
+      {/* HERO — deep registry-ink background; the certificate card below is the signature element. */}
+      <section id="home" className="relative overflow-hidden bg-[#10241c] px-5 pb-0 pt-32 text-[#f2f7f3] lg:px-8">
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.05]" style={{ backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+        <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-[#e05a35]/10 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-[#157a53]/20 blur-3xl" />
+
+        <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-1.5 font-mono-data text-xs uppercase tracking-[0.2em] text-[#9fd8bd]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#3fcf8e]" /> registrar.sites.bd — status: open
+          </span>
+          <h1 className="mt-6 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+            {tr(t.hero.title, language)}
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-balance text-lg leading-8 text-[#c9d9d0] sm:text-xl">
             {tr(t.hero.lead, language)}
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="#order" className="rounded-full bg-white px-8 py-4 text-lg font-extrabold text-blue-600 shadow-2xl transition hover:-translate-y-1">
-              <Icon name="gift" className="mr-3 inline h-6 w-6" />{tr(t.hero.ctaPrimary, language)}
+        </div>
+
+        {/* Signature element: the domain lookup rendered as a registration certificate / claim ticket. */}
+        <div id="order" className="relative z-10 mx-auto mt-12 w-full max-w-3xl scroll-mt-24 pb-20">
+          <form action="/domains/search" className="relative rounded-t-2xl border border-white/10 bg-[#f7f9f7] text-[#10241c] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center justify-between border-b border-dashed border-[#c8d6cd] px-6 py-4">
+              <div>
+                <p className="font-mono-data text-[11px] uppercase tracking-[0.25em] text-[#5c7269]">Certificate of Availability</p>
+                <p className="mt-0.5 text-sm font-semibold text-[#10241c]">{tr(t.order.title, language)}</p>
+              </div>
+              <span className="hidden rounded-full border border-[#c8d6cd] px-3 py-1 font-mono-data text-[10px] uppercase tracking-[0.2em] text-[#5c7269] sm:inline-block">SITES.BD</span>
+            </div>
+
+            <div className="px-6 py-6">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex min-w-0 flex-1 items-center rounded-xl border border-[#c8d6cd] bg-white px-4 focus-within:border-[#157a53] focus-within:ring-2 focus-within:ring-[#157a53]/25">
+                  <span className="font-mono-data text-[#7c8f85]">$</span>
+                  <input
+                    name="q"
+                    required
+                    pattern="[^\s]+"
+                    placeholder={tr(t.order.placeholder, language)}
+                    className="min-w-0 flex-1 bg-transparent px-3 py-4 font-mono-data text-base text-[#10241c] outline-none placeholder:text-[#9aada2]"
+                  />
+                </div>
+                <button className="rounded-xl bg-[#e05a35] px-7 py-4 font-semibold text-white shadow-lg shadow-[#e05a35]/25 transition hover:-translate-y-0.5 hover:bg-[#c8492a]">
+                  <Icon name="search" className="mr-2 inline h-5 w-5" />{tr(t.order.button, language)}
+                </button>
+              </div>
+              <p className="mt-3 font-mono-data text-xs text-[#5c7269]">{tr(t.order.example, language)}</p>
+            </div>
+
+            {/* perforated ticket edge */}
+            <div className="relative h-6 overflow-hidden">
+              <div className="absolute -left-3 -right-3 top-0 flex justify-between px-1">
+                {Array.from({ length: 34 }).map((_, i) => (
+                  <span key={i} className="h-6 w-6 rounded-full bg-[#10241c]" />
+                ))}
+              </div>
+            </div>
+          </form>
+
+          <div className="flex flex-wrap justify-center gap-3 px-2 pt-6 sm:justify-between">
+            <Link href="#order" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-[#10241c] shadow-xl transition hover:-translate-y-0.5">
+              <Icon name="gift" className="h-4 w-4 text-[#e05a35]" />{tr(t.hero.ctaPrimary, language)}
             </Link>
-            <a href="#features" className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-lg font-extrabold backdrop-blur transition hover:-translate-y-1 hover:bg-white/15">
-              {tr(t.hero.ctaSecondary, language)} <Icon name="arrow" className="ml-2 inline h-5 w-5" />
+            <a href="#features" className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-bold text-[#f2f7f3] backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/10">
+              {tr(t.hero.ctaSecondary, language)} <Icon name="arrow" className="h-4 w-4" />
             </a>
           </div>
-          <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
-            {t.hero.stats.map((stat) => (
-              <div key={stat.label.en} className="rounded-2xl border border-white/20 bg-white/10 p-5 shadow-xl backdrop-blur-md">
-                <div className="text-3xl font-extrabold">{tr(stat.value, language)}</div><div className="mt-1 text-white/75">{tr(stat.label, language)}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      <section id="order" className="scroll-mt-24 bg-blue-50 px-5 py-20 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{tr(t.order.title, language)}</h2>
-          <p className="mt-4 text-lg text-gray-600">{tr(t.order.subtitle, language)}</p>
-          <form action="/domains/search" className="mt-9 rounded-2xl bg-white p-4 shadow-xl ring-1 ring-blue-100">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="flex min-w-0 flex-1 items-center rounded-xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
-                <input name="q" required pattern="[^\s]+" placeholder={tr(t.order.placeholder, language)} className="min-w-0 flex-1 bg-transparent px-4 py-4 text-lg outline-none" />
-              </div>
-              <button className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-7 py-4 font-extrabold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800">
-                <Icon name="search" className="mr-2 inline h-5 w-5" />{tr(t.order.button, language)}
-              </button>
+      {/* STATS — ledger row, not glass cards: encodes "these are recorded facts" rather than decoration. */}
+      <section className="border-b border-[#dbe5de] bg-white px-5 py-8 lg:px-8">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 divide-x divide-[#dbe5de] md:grid-cols-4">
+          {t.hero.stats.map((stat) => (
+            <div key={stat.label.en} className="px-4 py-2 text-center first:pl-0 last:pr-0">
+              <div className="font-mono-data text-2xl font-semibold text-[#10241c] sm:text-3xl">{tr(stat.value, language)}</div>
+              <div className="mt-1 text-xs uppercase tracking-[0.12em] text-[#5c7269] sm:text-sm">{tr(stat.label, language)}</div>
             </div>
-            <p className="mt-3 text-sm font-medium text-gray-500">{tr(t.order.example, language)}</p>
-          </form>
+          ))}
         </div>
       </section>
 
-      <section id="features" className="bg-white px-5 py-20 lg:px-8 lg:py-24">
+      {/* FEATURES */}
+      <section id="features" className="scroll-mt-24 bg-[#f7f9f7] px-5 py-20 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto mb-14 max-w-3xl text-center">
-            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl"><Icon name="star" className="mr-3 inline h-9 w-9 text-blue-600" />{tr(t.featuresHeading.title, language)}</h2>
-            <p className="mt-4 text-lg text-gray-600">{tr(t.featuresHeading.subtitle, language)}</p>
+            <span className="font-mono-data text-xs uppercase tracking-[0.25em] text-[#157a53]">What&rsquo;s included</span>
+            <h2 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">{tr(t.featuresHeading.title, language)}</h2>
+            <p className="mt-4 text-lg text-[#3f544a]">{tr(t.featuresHeading.subtitle, language)}</p>
           </div>
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {t.features.map((feature, i) => (
-              <article key={feature.title.en} className={`rounded-3xl bg-gradient-to-br p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${toneClasses[featureTones[i]!]}`}>
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/20"><Icon name={featureIcons[i]!} className="h-8 w-8" /></div>
-                <h3 className="text-2xl font-extrabold text-gray-800">{tr(feature.title, language)}</h3>
-                <p className="mt-4 leading-7 text-gray-600">{tr(feature.text, language)}</p>
-                <ul className="mt-6 space-y-2 text-gray-700">
-                  {feature.items.map((item) => <li key={item.en}>✓ <span className="ml-1">{tr(item, language)}</span></li>)}
-                </ul>
-              </article>
-            ))}
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {t.features.map((feature, i) => {
+              const highlighted = i === 0;
+              return (
+                <article
+                  key={feature.title.en}
+                  className={`rounded-2xl border p-8 transition hover:-translate-y-1 ${
+                    highlighted ? "border-[#e05a35]/30 bg-[#10241c] text-[#f2f7f3] shadow-xl" : "border-[#dbe5de] bg-white text-[#10241c] shadow-sm hover:shadow-lg"
+                  }`}
+                >
+                  <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-xl ${highlighted ? "bg-[#e05a35] text-white" : "bg-[#eaf2ee] text-[#157a53]"}`}>
+                    <Icon name={featureIcons[i]!} className="h-7 w-7" />
+                  </div>
+                  <h3 className="text-xl font-bold">{tr(feature.title, language)}</h3>
+                  <p className={`mt-3 leading-7 ${highlighted ? "text-[#c9d9d0]" : "text-[#3f544a]"}`}>{tr(feature.text, language)}</p>
+                  <ul className={`mt-5 space-y-2 text-sm ${highlighted ? "text-[#e7efe9]" : "text-[#26382f]"}`}>
+                    {feature.items.map((item) => (
+                      <li key={item.en} className="flex items-start gap-2">
+                        <span className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${highlighted ? "bg-[#e05a35]" : "bg-[#157a53]"}`} />
+                        {tr(item, language)}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      <section className="bg-gray-100 px-5 py-20 lg:px-8 lg:py-24">
+      {/* HOW IT WORKS — a real ordered process, so numbering is earned here. */}
+      <section className="bg-white px-5 py-20 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto mb-14 max-w-3xl text-center">
-            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl"><Icon name="settings" className="mr-3 inline h-9 w-9 text-blue-600" />{tr(t.howItWorks.title, language)}</h2>
-            <p className="mt-4 text-lg text-gray-600">{tr(t.howItWorks.subtitle, language)}</p>
+            <span className="font-mono-data text-xs uppercase tracking-[0.25em] text-[#157a53]">Provisioning log</span>
+            <h2 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">{tr(t.howItWorks.title, language)}</h2>
+            <p className="mt-4 text-lg text-[#3f544a]">{tr(t.howItWorks.subtitle, language)}</p>
           </div>
-          <div className="grid gap-7 md:grid-cols-3">
+          <div className="relative grid gap-8 md:grid-cols-3">
+            <div aria-hidden className="absolute left-0 right-0 top-9 hidden h-px bg-[#dbe5de] md:block" />
             {t.howItWorks.steps.map((step, i) => (
-              <div key={step.title.en} className="rounded-2xl bg-white p-8 text-center shadow-lg transition hover:-translate-y-1">
-                <div className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-3xl font-extrabold text-white ${stepColors[i]}`}>{i + 1}</div>
-                <h3 className="text-2xl font-extrabold">{tr(step.title, language)}</h3><p className="mt-4 leading-7 text-gray-600">{tr(step.text, language)}</p>
+              <div key={step.title.en} className="relative rounded-2xl border border-[#dbe5de] bg-[#f7f9f7] p-8">
+                <div className="font-mono-data flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#10241c] bg-white text-sm font-bold text-[#10241c]">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mt-5 text-xl font-bold">{tr(step.title, language)}</h3>
+                <p className="mt-3 leading-7 text-[#3f544a]">{tr(step.text, language)}</p>
               </div>
             ))}
           </div>

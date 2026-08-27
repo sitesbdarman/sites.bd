@@ -83,12 +83,22 @@ export default function AdminPricingPage() {
               </div>
               <label className="mt-4 block"><span className="text-xs font-bold text-slate-500">Description</span><textarea value={p.description} onChange={e=>update(i,{description:e.target.value})} rows={2} className="mt-1 w-full rounded-lg border px-3 py-2.5"/></label>
               <label className="mt-4 block"><span className="text-xs font-bold text-slate-500">Features — one per line</span><textarea value={p.features.join("\n")} onChange={e=>update(i,{features:e.target.value.split("\n").filter(Boolean)})} rows={5} className="mt-1 w-full rounded-lg border px-3 py-2.5"/></label>
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={()=>{ if(confirm(`Remove "${p.name}"? This will delete it permanently when you click Save pricing.`)) setPlans(old=>old.filter((_,idx)=>idx!==i)); }}
+                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50"
+                >
+                  Remove plan
+                </button>
+              </div>
             </div>
           ))}
           <div className="flex flex-wrap gap-3">
             <button onClick={()=>setPlans(p=>[...p,emptyPlan()])} className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-sky-300 hover:text-sky-700 active:scale-[.98]">+ Add pricing plan</button>
             <button onClick={save} disabled={saving} className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-600/20 transition hover:-translate-y-0.5 hover:bg-sky-500 active:scale-[.98] disabled:opacity-60">{saving ? "Saving…" : "Save pricing"}</button>
           </div>
+          <p className="text-xs text-slate-500">Removed plans are deleted permanently once you click &ldquo;Save pricing&rdquo;.</p>
         </div>
       )}
     </div>
