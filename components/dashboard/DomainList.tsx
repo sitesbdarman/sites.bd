@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Domain } from "@/lib/domains/queries";
 import { StatusBadge, type DashboardStatus } from "./StatusBadge";
 import { EmptyState } from "./EmptyState";
-import { GlobeIcon, SearchIcon } from "./icons";
+import { GlobeIcon, SearchIcon, ChevronRightIcon } from "./icons";
 
 interface DomainListProps {
   domains: Domain[];
@@ -169,31 +169,39 @@ function DomainRow({ domain }: { domain: Domain }) {
   const expires = formatDate(domain.expires_at);
 
   return (
-    <tr className="hover:bg-gray-50">
-      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
-        {domain.domain_name}
+    <tr className="group cursor-pointer transition hover:bg-blue-50/60">
+      <td className="whitespace-nowrap p-0">
+        <Link href={`/dashboard/domains/${domain.id}`} className="flex items-center gap-2 px-4 py-3.5 text-sm font-semibold text-gray-900 group-hover:text-blue-700">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100">
+            <GlobeIcon className="h-4 w-4" />
+          </span>
+          {domain.domain_name}
+        </Link>
       </td>
-      <td className="whitespace-nowrap px-4 py-3">
-        <StatusBadge status={domain.status as DashboardStatus} />
+      <td className="whitespace-nowrap px-4 py-3.5">
+        <Link href={`/dashboard/domains/${domain.id}`} className="block">
+          <StatusBadge status={domain.status as DashboardStatus} />
+        </Link>
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-        {registered ?? "—"}
+      <td className="whitespace-nowrap px-4 py-3.5 text-sm text-gray-500">
+        <Link href={`/dashboard/domains/${domain.id}`} className="block">{registered ?? "—"}</Link>
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-        <span className="flex items-center gap-2">
+      <td className="whitespace-nowrap px-4 py-3.5 text-sm text-gray-500">
+        <Link href={`/dashboard/domains/${domain.id}`} className="flex items-center gap-2">
           {expires ?? "—"}
           <ExpiryChip expiresAt={domain.expires_at} status={domain.status} />
-        </span>
+        </Link>
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-        {domain.auto_renew ? "On" : "Off"}
+      <td className="whitespace-nowrap px-4 py-3.5 text-sm text-gray-500">
+        <Link href={`/dashboard/domains/${domain.id}`} className="block">{domain.auto_renew ? "On" : "Off"}</Link>
       </td>
-      <td className="whitespace-nowrap px-4 py-3 text-right">
+      <td className="whitespace-nowrap px-4 py-3.5 text-right">
         <Link
           href={`/dashboard/domains/${domain.id}`}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:gap-1.5 group-hover:text-blue-700"
         >
-          View Details
+          View info
+          <ChevronRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </td>
     </tr>
@@ -205,9 +213,17 @@ function DomainCard({ domain }: { domain: Domain }) {
   const expires = formatDate(domain.expires_at);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+    <Link
+      href={`/dashboard/domains/${domain.id}`}
+      className="group block rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[.99]"
+    >
       <div className="flex items-start justify-between gap-3">
-        <p className="truncate text-sm font-medium text-gray-900">{domain.domain_name}</p>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100">
+            <GlobeIcon className="h-4.5 w-4.5" />
+          </span>
+          <p className="truncate text-sm font-semibold text-gray-900 group-hover:text-blue-700">{domain.domain_name}</p>
+        </div>
         <StatusBadge status={domain.status as DashboardStatus} />
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
@@ -227,12 +243,10 @@ function DomainCard({ domain }: { domain: Domain }) {
           <dd className="mt-0.5 text-gray-600">{domain.auto_renew ? "On" : "Off"}</dd>
         </div>
       </dl>
-      <Link
-        href={`/dashboard/domains/${domain.id}`}
-        className="mt-3 inline-block text-xs font-medium text-blue-600 hover:text-blue-700"
-      >
-        View Details
-      </Link>
-    </div>
+      <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:gap-1.5 group-hover:text-blue-700">
+        View info
+        <ChevronRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </div>
+    </Link>
   );
 }

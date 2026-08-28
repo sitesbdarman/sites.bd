@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { StatusBadge, type DashboardStatus } from "./StatusBadge";
+import { ChevronRightIcon } from "./icons";
 
 interface RecentRowProps {
   href: string;
@@ -21,15 +22,16 @@ export function RecentRow({ href, title, subtitle, status, meta }: RecentRowProp
   return (
     <Link
       href={href}
-      className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition hover:bg-gray-50 active:scale-[.99]"
+      className="group flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition hover:bg-blue-50/60 active:scale-[.99]"
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-semibold text-gray-900">{title}</p>
+        <p className="truncate text-sm font-semibold text-gray-900 group-hover:text-blue-700">{title}</p>
         {subtitle && <p className="truncate text-xs text-gray-500">{subtitle}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-2.5">
         {meta && <span className="text-xs text-gray-400">{meta}</span>}
         {status && <StatusBadge status={status} />}
+        <ChevronRightIcon className="h-4 w-4 text-gray-300 transition group-hover:translate-x-0.5 group-hover:text-blue-500" />
       </div>
     </Link>
   );

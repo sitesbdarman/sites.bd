@@ -1,26 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f9f7;
-  --foreground: #10241c;
+  --background: #ffffff;
+  --foreground: #0f172a;
 
-  /* --- Brand palette: registry-grade forest ink + Bangladeshi sunrise accent --- */
-  --color-brand: #e05a35;       /* sunrise coral — primary actions, links */
-  --color-brand-hover: #c8492a; /* deeper coral on hover/press */
-  --color-brand-light: #fdece4; /* warm tint for badges */
-  --color-accent: #157a53;      /* registry green — "available" / secondary accent */
-  --color-accent-hover: #0f5f41;
-  --color-ink: #10241c;         /* deep forest-navy — headings */
-  --color-surface: #ffffff;
-  --color-line: #dbe5de;        /* hairline borders */
+  /* --- Brand palette (kept: blue/sky, now centralized as tokens) --- */
+  --color-brand: #2563eb;       /* blue-600 — primary actions, links */
+  --color-brand-hover: #1d4ed8; /* blue-700 */
+  --color-brand-light: #eff6ff; /* blue-50 — tints, badges */
+  --color-accent: #0ea5e9;      /* sky-500 — admin / secondary accent */
+  --color-accent-hover: #0284c7;/* sky-600 */
 
   /* --- Status colors --- */
-  --color-success: #157a53;
-  --color-success-light: #e8f5ee;
-  --color-warning: #b9762b;
-  --color-warning-light: #fbf1e2;
-  --color-danger: #c8492a;
-  --color-danger-light: #fbeae4;
+  --color-success: #10b981;
+  --color-success-light: #ecfdf5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-danger: #ef4444;
+  --color-danger-light: #fef2f2;
 }
 
 @theme inline {
@@ -32,9 +29,6 @@
   --color-brand-light: var(--color-brand-light);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
-  --color-ink: var(--color-ink);
-  --color-surface: var(--color-surface);
-  --color-line: var(--color-line);
 
   --color-success: var(--color-success);
   --color-success-light: var(--color-success-light);
@@ -45,7 +39,6 @@
 
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
-  --font-mono: var(--font-mono);
 }
 
 html, body {
@@ -61,10 +54,6 @@ h1, h2, h3, .font-display {
   font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-.font-mono-data {
-  font-family: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
-}
-
 
 /* Consistent keyboard focus and press feedback across the application. */
 button:not(:disabled),
@@ -78,15 +67,6 @@ button:not(:disabled):active,
 a:focus-visible,
 button:focus-visible,
 [role="button"]:focus-visible {
-  outline: 2px solid rgb(224 90 53 / .55);
+  outline: 2px solid rgb(14 165 233 / .55);
   outline-offset: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }

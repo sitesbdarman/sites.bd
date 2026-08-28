@@ -63,16 +63,16 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
   return (
     <nav className="sticky top-0 z-50 border-b border-white/70 bg-white/95 shadow-lg backdrop-blur">
       <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-3 px-4 py-3 sm:px-5 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-xl font-extrabold tracking-tight text-[#e05a35] sm:text-2xl">
+        <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-xl font-extrabold tracking-tight text-blue-600 sm:text-2xl">
           <BrandMark className="h-7 w-7 sm:h-8 sm:w-8" />
-          <span>SITES<span className="text-[#10241c]">.BD</span></span>
+          <span>SITES<span className="text-gray-900">.BD</span></span>
         </Link>
 
         <div className="hidden flex-1 items-center justify-center gap-5 text-sm font-semibold lg:flex">
           {links.map((link) => {
             const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
             return (
-              <Link key={link.href} href={link.href} className={`rounded-lg px-2.5 py-2 transition hover:bg-[#eaf2ee] hover:text-[#157a53] ${active ? "text-[#e05a35]" : "text-gray-700"}`}>
+              <Link key={link.href} href={link.href} className={`rounded-lg px-2.5 py-2 transition hover:bg-blue-50 hover:text-blue-700 ${active ? "text-blue-600" : "text-gray-700"}`}>
                 {link.label}
               </Link>
             );
@@ -88,7 +88,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="public-mobile-menu"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-[#157a53]/40 hover:text-[#157a53] active:scale-95 lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-blue-300 hover:text-blue-600 active:scale-95 lg:hidden"
           >
             <span className="sr-only">Open menu</span>
             <span className="flex flex-col gap-1.5">
@@ -104,13 +104,13 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
         <div id="public-mobile-menu" className="border-t border-gray-100 bg-white px-4 py-3 shadow-lg lg:hidden">
           <div className="mx-auto max-w-7xl space-y-1">
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-[#eaf2ee] hover:text-[#157a53]">
+              <Link key={link.href} href={link.href} className="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-blue-50 hover:text-blue-700">
                 {link.label}
               </Link>
             ))}
             <div className="flex items-center justify-between border-t border-gray-100 pt-3">
               <LanguageToggle />
-              <Link href="/cart" className="rounded-xl bg-[#e05a35] px-4 py-2 text-sm font-bold text-white">Open Cart</Link>
+              <Link href="/cart" className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white">Open Cart</Link>
             </div>
           </div>
         </div>

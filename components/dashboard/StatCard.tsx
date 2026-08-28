@@ -24,13 +24,13 @@ const TONE_STYLES: Record<NonNullable<StatCardProps["tone"]>, string> = {
  */
 export function StatCard({ title, value, description, icon: Icon, tone = "blue" }: StatCardProps) {
   return (
-    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${TONE_STYLES[tone]}`}>
+    <div className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${TONE_STYLES[tone]}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">
         <p className="text-sm font-medium text-gray-500">{title}</p>
-        <p className="mt-1 text-2xl font-semibold tracking-tight text-gray-900">{value}</p>
+        <p className="mt-1 text-2xl font-bold tracking-tight text-gray-900">{value}</p>
         {description && <p className="mt-1 text-xs text-gray-400">{description}</p>}
       </div>
     </div>

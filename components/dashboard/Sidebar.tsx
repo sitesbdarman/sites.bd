@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentType, SVGProps } from "react";
 import { LogoutButton } from "@/app/dashboard/logout-button";
-import { CloseIcon, DashboardIcon, GlobeIcon, InvoiceIcon, ServerIcon, SettingsIcon, TicketIcon } from "./icons";
+import { CloseIcon, DashboardIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, SettingsIcon, TicketIcon } from "./icons";
 import { BrandMark } from "@/components/BrandMark";
 
 interface NavItem {
@@ -61,7 +61,6 @@ function SidebarContent({
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        <Link href="/" onClick={onNavigate} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900">Home</Link>
         {NAV_ITEMS.map((item) => {
           const active = isActive(pathname, item.href);
           const Icon = item.icon;
@@ -84,7 +83,11 @@ function SidebarContent({
         })}
       </nav>
 
-      <div className="shrink-0 border-t border-gray-200 p-3">
+      <div className="shrink-0 space-y-1 border-t border-gray-200 p-3">
+        <Link href="/" onClick={onNavigate} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
+          <HomeIcon className="h-5 w-5 shrink-0" />
+          Back to website
+        </Link>
         <LogoutButton variant="full" />
       </div>
     </div>
