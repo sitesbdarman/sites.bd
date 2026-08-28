@@ -1,11 +1,23 @@
-import { DomainDetailsSkeleton } from "@/components/dashboard/DomainDetailsSkeleton";
+import { DashboardSkeletonShell, Skeleton } from "@/components/dashboard/Skeleton";
 
-export default function DomainDetailsLoading() {
+/** Mirrors the real domains table: search bar + status filter + rows. */
+export default function DomainsLoading() {
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <div className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-        <DomainDetailsSkeleton />
+    <DashboardSkeletonShell>
+      <div className="mb-4 h-20 rounded-xl border border-gray-200 bg-white p-4">
+        <Skeleton className="h-full w-full" />
       </div>
-    </div>
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <Skeleton className="h-9 w-full sm:max-w-xs" />
+          <Skeleton className="h-9 w-40" />
+        </div>
+        <div className="mt-4 flex flex-col gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      </div>
+    </DashboardSkeletonShell>
   );
 }

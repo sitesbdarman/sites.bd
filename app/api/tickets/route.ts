@@ -1,4 +1,31 @@
-import { NextResponse } from "next/server"; import { z } from "zod"; import { createClient } from "@/lib/supabase/server"; import { createAdminClient } from "@/lib/supabase/admin"; import { assertSameOrigin } from "@/lib/security/csrf";
-const schema=z.object({message:z.string().trim().min(1).max(5000)});
-export async function GET(_:Request,{params}:{params:Promise<{id:string}>}){const {id}=await params;const db=await createClient();const {data:{user}}=await db.auth.getUser();if(!user)return NextResponse.json({error:"Unauthorized"},{status:401});const {data:ticket}=await db.from("support_tickets").select("*").eq("id",id).eq("customer_id",user.id).maybeSingle();if(!ticket)return NextResponse.json({error:"Ticket not found"},{status:404});const {data:replies}=await db.from("support_ticket_replies").select("*").eq("ticket_id",id).order("created_at",{ascending:true});return NextResponse.json({ticket,replies:replies||[]})}
-export async function POST(req:Request,{params}:{params:Promise<{id:string}>}){const origin=assertSameOrigin(req);if(origin)return origin;const {id}=await params;const db=await createClient();const {data:{user}}=await db.auth.getUser();if(!user)return NextResponse.json({error:"Unauthorized"},{status:401});const parsed=schema.safeParse(await req.json());if(!parsed.success)return NextResponse.json({error:"Invalid message"},{status:400});const {data:ticket}=await db.from("support_tickets").select("id,status").eq("id",id).eq("customer_id",user.id).maybeSingle();if(!ticket)return NextResponse.json({error:"Ticket not found"},{status:404});if(ticket.status==="closed")return NextResponse.json({error:"Closed tickets cannot be replied to."},{status:409});const admin=createAdminClient(); const {data,error}=await admin.from("support_ticket_replies").insert({ticket_id:id,user_id:user.id,is_admin:false,message:parsed.data.message}).select().single();if(error)return NextResponse.json({error:error.message},{status:500});await admin.from("support_tickets").update({status:"open",updated_at:new Date().toISOString()}).eq("id",id).eq("customer_id",user.id);return NextResponse.json({ok:true,reply:data})}
+import { assertSameOrigin } from "@/lib/security/csrf";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { notifyTicketCreated, notifyAdmin } from "@/lib/email/notifications";
+
+export async function POST(request: Request) {
+  const originError = assertSameOrigin(request);
+  if (originError) return originError;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ success: false, error: "Not authenticated." }, { status: 401 });
+  let body: { subject?: string; message?: string; priority?: string };
+  try { body = await request.json(); } catch { return NextResponse.json({ success: false, error: "Invalid request." }, { status: 400 }); }
+  const subject = body.subject?.trim() ?? "";
+  const message = body.message?.trim() ?? "";
+  const priority = body.priority ?? "normal";
+  if (subject.length < 3 || subject.length > 200) return NextResponse.json({ success: false, error: "Subject must be 3-200 characters." }, { status: 400 });
+  if (message.length < 5 || message.length > 5000) return NextResponse.json({ success: false, error: "Message must be 5-5000 characters." }, { status: 400 });
+  if (!["low", "normal", "high", "urgent"].includes(priority)) return NextResponse.json({ success: false, error: "Invalid priority." }, { status: 400 });
+  const admin = createAdminClient();
+  const { data: ticketNumber, error: numberError } = await admin.rpc("generate_ticket_number");
+  if (numberError || !ticketNumber) return NextResponse.json({ success: false, error: "Couldn't create ticket number." }, { status: 500 });
+  const { data, error } = await admin.from("support_tickets").insert({ customer_id: user.id, ticket_number: ticketNumber, subject, message, priority }).select("ticket_number,status").single();
+  if (error) return NextResponse.json({ success: false, error: "Couldn't create your ticket." }, { status: 500 });
+  if (user.email) {
+    void notifyTicketCreated({ email: user.email, userId: user.id, ticketNumber: data.ticket_number, subject, priority });
+  }
+  void notifyAdmin(`New support ticket ${data.ticket_number}`, `A new ${priority} support ticket was created: ${subject}`, "admin_ticket_created", { ticketNumber: data.ticket_number, customerId: user.id });
+  return NextResponse.json({ success: true, ticket: data });
+}

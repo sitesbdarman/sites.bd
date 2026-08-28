@@ -1,1 +1,0 @@
-export function SupportFloat(){return <a href="https://wa.me/" target="_blank" rel="noreferrer" aria-label="WhatsApp support" className="fixed bottom-5 right-5 z-50 rounded-full bg-emerald-500 px-5 py-3 text-sm font-black text-white shadow-xl transition hover:-translate-y-1">WhatsApp</a>}
