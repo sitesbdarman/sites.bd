@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { SiteLogo } from "./SiteLogo";
-import { getSiteSettings } from "@/lib/site-settings";
+import { BrandMark } from "./BrandMark";
 
 const columns = [
   {
@@ -30,22 +29,17 @@ const columns = [
   },
 ];
 
-export async function PublicFooter() {
-  const settings = await getSiteSettings();
+export function PublicFooter() {
   return (
     <footer className="border-t border-white/10 bg-slate-950 text-white">
       <div className="page-container py-14 sm:py-16">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr] md:gap-8">
           <div>
             <Link href="/" className="flex items-center gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
-                <SiteLogo logoUrl={settings.logo_url} className="h-6 w-6" />
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
+                <BrandMark className="h-6 w-6" />
               </span>
-              {settings.site_name ? (
-                <span className="text-xl font-black">{settings.site_name}</span>
-              ) : (
-                <span className="text-xl font-black">SITES<span className="text-sky-300">.BD</span></span>
-              )}
+              <span className="text-xl font-black">SITES<span className="text-sky-300">.BD</span></span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-7 text-slate-400">
               Domains, websites, email and DNS management — designed as one simple platform for the modern web.

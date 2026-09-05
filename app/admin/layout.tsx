@@ -2,13 +2,11 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/auth";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { AdminSidebarNav, AdminMobileNav } from "@/components/admin/AdminNav";
-import { SiteLogo } from "@/components/SiteLogo";
+import { BrandMark } from "@/components/BrandMark";
 import { LogoutButton } from "@/app/dashboard/logout-button";
-import { getSiteSettings } from "@/lib/site-settings";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await requireAdmin();
-  const settings = await getSiteSettings();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-900">
@@ -16,13 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-slate-950 text-white lg:flex lg:flex-col">
           <div className="border-b border-white/10 px-6 py-6">
             <Link href="/admin" className="group flex items-center gap-2.5">
-              <SiteLogo logoUrl={settings.logo_url} className="h-7 w-7 text-sky-400" />
+              <BrandMark className="h-7 w-7 text-sky-400" />
               <div>
-                {settings.site_name ? (
-                  <div className="text-xl font-black tracking-tight font-display">{settings.site_name}</div>
-                ) : (
-                  <div className="text-xl font-black tracking-tight font-display">SITES<span className="text-sky-400">.BD</span></div>
-                )}
+                <div className="text-xl font-black tracking-tight font-display">SITES<span className="text-sky-400">.BD</span></div>
                 <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Admin Control Center</div>
               </div>
             </Link>
