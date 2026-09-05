@@ -1,8 +1,5 @@
-import Link from "next/link";
-import { LogoutButton } from "@/app/dashboard/logout-button";
-import { CartBadge } from "./CartBadge";
-import { NotificationBell } from "./NotificationBell";
-import { MenuIcon, UserIcon } from "./icons";
+import { AccountMenu } from "@/components/AccountMenu";
+import { MenuIcon } from "./icons";
 
 interface HeaderProps {
   pageTitle: string;
@@ -28,30 +25,9 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
         {pageTitle}
       </h1>
 
-      <div className="flex items-center gap-1.5 sm:gap-3">
-        {userEmail && (
-          <Link
-            href="/profile"
-            title="Edit profile"
-            className="group flex min-w-0 items-center gap-2 rounded-xl px-1.5 py-1.5 sm:px-2 transition hover:bg-blue-50 active:scale-[.98]"
-          >
-            <span className="flex h-9 w-9 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100 transition group-hover:ring-blue-300">
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element -- avatar can come from Cloudinary or Supabase Storage; see ProfileMenu.tsx for why next/image doesn't work here.
-                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <UserIcon className="h-4 w-4" />
-              )}
-            </span>
-            <span className="hidden max-w-[8rem] truncate text-xs font-medium sm:block text-gray-600 group-hover:text-blue-700 sm:max-w-[14rem] sm:text-sm">
-              {fullName || userEmail}
-            </span>
-          </Link>
-        )}
-        <NotificationBell />
-        <CartBadge />
-        <LogoutButton variant="icon" />
-      </div>
+      {/* Everything that used to be separate icons (notifications, cart, logout) now
+          lives inside one dropdown behind the avatar, so the header stays uncluttered. */}
+      <AccountMenu loggedIn={Boolean(userEmail)} avatarUrl={avatarUrl} fullName={fullName} email={userEmail} showLabel />
     </header>
   );
 }

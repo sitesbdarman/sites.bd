@@ -1,3 +1,51 @@
-"use client";
-import {useState} from "react";
-export default function SettingsPage(){const [saved,setSaved]=useState(false);return <section className="mx-auto max-w-3xl space-y-6"><div className="rounded-3xl bg-gradient-to-br from-slate-950 to-sky-900 p-7 text-white"><p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">Account</p><h1 className="mt-2 text-3xl font-black">Settings</h1><p className="mt-2 text-sm text-slate-300">Manage your notification preferences and account experience.</p></div><div className="rounded-[--radius-surface] border border-gray-200 bg-white p-6"><div className="space-y-4"><label className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4"><span><span className="block font-bold text-slate-900">In-app notifications</span><span className="text-sm text-slate-500">Show important updates inside your dashboard.</span></span><input type="checkbox" defaultChecked className="h-5 w-5"/></label><label className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4"><span><span className="block font-bold text-slate-900">Email notifications</span><span className="text-sm text-slate-500">Order, payment, ticket and domain reminders.</span></span><input type="checkbox" defaultChecked className="h-5 w-5"/></label><label className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-4"><span><span className="block font-bold text-slate-900">Promotions</span><span className="text-sm text-slate-500">Occasional offers and discounts.</span></span><input type="checkbox" className="h-5 w-5"/></label></div><button onClick={()=>setSaved(true)} className="mt-6 rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-500">Save preferences</button>{saved&&<p className="mt-3 text-sm font-semibold text-emerald-600">Preferences saved locally. Connect these controls to the notification_preferences table for persistence.</p>}</div></section>}
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { ProfileForm } from "@/app/profile/ProfileForm";
+import { NotificationPreferences } from "./notification-preferences";
+import { IdentityVerification } from "./identity-verification";
+
+export default async function SettingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name, email, mobile_number, address, avatar_url")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const address =
+    profile?.address && typeof profile.address === "object" && "full_address" in profile.address
+      ? String((profile.address as { full_address?: unknown }).full_address ?? "")
+      : "";
+
+  return (
+    <section className="mx-auto max-w-3xl space-y-6">
+      <div className="rounded-3xl bg-gradient-to-br from-slate-950 to-sky-900 p-7 text-white">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-sky-300">Account</p>
+        <h1 className="mt-2 text-3xl font-black">Settings</h1>
+        <p className="mt-2 text-sm text-slate-300">Manage your profile details and notification preferences in one place.</p>
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-lg font-black text-slate-950">Profile</h2>
+        <ProfileForm
+          userId={user.id}
+          email={profile?.email ?? user.email ?? ""}
+          initialFullName={profile?.full_name ?? ""}
+          initialMobileNumber={profile?.mobile_number ?? ""}
+          initialAddress={address}
+          initialAvatarUrl={profile?.avatar_url ?? null}
+        />
+      </div>
+
+      <IdentityVerification />
+
+      <NotificationPreferences />
+    </section>
+  );
+}

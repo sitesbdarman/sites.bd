@@ -158,7 +158,7 @@ export default async function DashboardPage() {
               </div>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">1. Complete profile</Link>
+              <Link href="/dashboard/settings" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">1. Complete profile</Link>
               <Link href="/domains/search" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">2. Buy a domain</Link>
               <Link href="/dashboard/domains" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">3. Configure DNS</Link>
             </div>

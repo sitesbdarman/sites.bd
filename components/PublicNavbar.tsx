@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ProfileMenu } from "@/components/auth/ProfileMenu";
+import { AccountMenu } from "@/components/AccountMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
-import { CartBadge } from "@/components/dashboard/CartBadge";
 import { SiteLogo } from "@/components/SiteLogo";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { homeText, tr } from "@/lib/i18n/translations";
@@ -90,7 +89,10 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,.02)] backdrop-blur-xl">
       <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 lg:px-8">
-        <Link href="/" className="group flex shrink-0 items-center gap-2 font-display text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
+        {/* Plain <a>, not next/link's <Link>: clicking the logo/site name should always
+            do a full hard refresh straight back to the homepage, never a client-side
+            navigation that could leave stale state around. */}
+        <a href="/" className="group flex shrink-0 items-center gap-2 font-display text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
           <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-transform group-hover:scale-105">
             <SiteLogo logoUrl={logoUrl} className="h-6 w-6" />
           </span>
@@ -99,7 +101,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
           ) : (
             <span className="whitespace-nowrap">SITES<span className="text-blue-600">.BD</span></span>
           )}
-        </Link>
+        </a>
 
         <div className="hidden flex-1 items-center justify-center gap-1 text-sm font-semibold lg:flex">
           {links.map((link) => {
@@ -118,8 +120,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5">
           <LanguageToggle className="hidden sm:flex" />
-          <CartBadge />
-          <ProfileMenu loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
+          <AccountMenu loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}

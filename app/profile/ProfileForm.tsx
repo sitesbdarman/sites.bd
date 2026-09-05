@@ -221,7 +221,7 @@ export function ProfileForm({
           <button
             type="submit"
             disabled={busy}
-            className="rounded-lg bg-gray-900 px-6 py-3 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-xl bg-sky-600 px-6 py-3 text-sm font-bold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? "Saving..." : "Save changes"}
           </button>

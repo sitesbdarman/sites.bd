@@ -42,9 +42,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
     { label: "Knowledge Base", href: "/support/knowledge-base", icon: TicketIcon },
   ]},
   { label: "Account", items: [
-    { label: "Profile", href: "/profile", icon: SettingsIcon },
     { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
-    { label: "Notifications", href: "/dashboard/settings", icon: SettingsIcon },
   ]},
 ];
 
@@ -77,10 +75,12 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-[68px] shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-5">
-        <span className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
+        {/* Plain <a>, not next/link's <Link>: clicking the logo/site name should
+            always do a full hard refresh straight to the dashboard home screen. */}
+        <a href="/dashboard" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
           <SiteLogo logoUrl={logoUrl} className="h-6 w-6 text-blue-600" />
           {siteName ? siteName : <>SITES<span className="text-blue-600">.BD</span></>}
-        </span>
+        </a>
         {onClose && (
           <button
             type="button"

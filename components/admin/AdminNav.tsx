@@ -16,6 +16,7 @@ import {
   DocIcon,
   ClipboardIcon,
   SettingsIcon,
+  ShieldIcon,
   MenuIcon,
   CloseIcon,
 } from "@/components/dashboard/icons";
@@ -23,6 +24,7 @@ import {
 export const adminNav = [
   { href: "/admin", label: "Overview", Icon: DashboardIcon },
   { href: "/admin/users", label: "Customers", Icon: UserIcon },
+  { href: "/admin/verifications", label: "ID Verification", Icon: ShieldIcon },
   { href: "/admin/domains", label: "Domains", Icon: GlobeIcon },
   { href: "/admin/orders", label: "Orders & Payments", Icon: InvoiceIcon },
   { href: "/admin/tickets", label: "Support", Icon: TicketIcon },
