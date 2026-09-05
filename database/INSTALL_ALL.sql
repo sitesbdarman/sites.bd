@@ -628,6 +628,7 @@ create index if not exists idx_payments_invoice_id on public.payments(invoice_id
 alter table public.payments enable row level security;
 drop policy if exists "payments_select_own" on public.payments;
 create policy "payments_select_own" on public.payments for select using (auth.uid() = customer_id);
+drop policy if exists "payments_insert_own" on public.payments;
 create policy "payments_insert_own" on public.payments for insert with check (auth.uid() = customer_id);
 
 create or replace function public.generate_transaction_id()
@@ -1298,7 +1299,7 @@ select * from (values
  ('Business Hosting','premium',1500::numeric,'yearly','A higher-capacity package for business websites.',30),
  ('Vercel','free',0::numeric,'n_a','Deploy static and serverless projects on Vercel free tier.',40),
  ('GitHub Pages','free',0::numeric,'n_a','Host a static site directly from a GitHub repository.',50),
- ('Blogger','free',0::numeric,'n_a','Google\'s free blogging platform.',60),
+ ('Blogger','free',0::numeric,'n_a','Google''s free blogging platform.',60),
  ('Google Sites','free',0::numeric,'n_a','Simple drag-and-drop site builder from Google.',70),
  ('Custom Connection','custom',0::numeric,'n_a','Point the domain to your own server using a name server and IP address.',80)
 ) v(name,type,price,billing_cycle,description,sort_order)

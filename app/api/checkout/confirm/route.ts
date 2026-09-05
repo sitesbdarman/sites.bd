@@ -68,7 +68,7 @@ export async function POST(request: Request) {
   }
 
   const addonIds = Array.from(new Set(Array.isArray(body.addonIds) ? body.addonIds : []));
-  const addons = await Promise.all(addonIds.map(async (id:string) => (await getLiveAddonById(id)) || getAddonById(id))).filter((a): a is NonNullable<ReturnType<typeof getAddonById>> => Boolean(a));
+  const addons = (await Promise.all(addonIds.map(async (id: string) => (await getLiveAddonById(id)) || getAddonById(id)))).filter((a): a is NonNullable<ReturnType<typeof getAddonById>> => Boolean(a));
   if (addons.length !== addonIds.length) return NextResponse.json({ success: false, error: "One or more add-ons are invalid." }, { status: 400 });
 
   const domainTotal = Math.round(cartItems.reduce((s, i) => s + Number(i.price), 0) * 100) / 100;
