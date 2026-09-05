@@ -165,6 +165,52 @@ export const domainSearchText = {
   },
 } as const;
 
+export const everythingInOnePlaceText = {
+  title: { en: "Everything in One Place", bn: "সবকিছু এক জায়গায়" },
+  subtitle: {
+    en: "From your first domain to a full website — every service you need lives in one simple, connected platform.",
+    bn: "প্রথম ডোমেইন থেকে শুরু করে সম্পূর্ণ ওয়েবসাইট পর্যন্ত — প্রয়োজনীয় প্রতিটি সার্ভিস একটি সহজ, সংযুক্ত প্ল্যাটফর্মে।",
+  },
+  services: [
+    {
+      label: { en: "Domain Registration", bn: "ডোমেইন রেজিস্ট্রেশন" },
+      description: { en: "Search and register the perfect domain name for your brand.", bn: "আপনার ব্র্যান্ডের জন্য পারফেক্ট ডোমেইন নাম সার্চ করে রেজিস্টার করুন।" },
+      href: "/domains/search",
+      icon: "globe",
+    },
+    {
+      label: { en: "Free .sites.bd Subdomain", bn: "ফ্রি .sites.bd সাবডোমেইন" },
+      description: { en: "Claim a free subdomain instantly, with managed DNS included.", bn: "ম্যানেজড DNS সহ তাৎক্ষণিকভাবে একটি ফ্রি সাবডোমেইন ক্লেইম করুন।" },
+      href: "/#claim",
+      icon: "gift",
+    },
+    {
+      label: { en: "Web Hosting", bn: "ওয়েব হোস্টিং" },
+      description: { en: "Reliable hosting plans to run your website, blog or store.", bn: "আপনার ওয়েবসাইট, ব্লগ বা স্টোর চালানোর জন্য নির্ভরযোগ্য হোস্টিং প্ল্যান।" },
+      href: "/pricing",
+      icon: "server",
+    },
+    {
+      label: { en: "Professional Email", bn: "প্রফেশনাল ইমেইল" },
+      description: { en: "Set up email accounts and forwarding on your own domain.", bn: "নিজের ডোমেইনে ইমেইল অ্যাকাউন্ট ও ফরওয়ার্ডিং সেটআপ করুন।" },
+      href: "/dashboard/email",
+      icon: "mail",
+    },
+    {
+      label: { en: "DNS & Nameserver Management", bn: "DNS ও নেমসার্ভার ম্যানেজমেন্ট" },
+      description: { en: "Full control over DNS records, nameservers and domain verification.", bn: "DNS রেকর্ড, নেমসার্ভার ও ডোমেইন ভেরিফিকেশনের উপর সম্পূর্ণ নিয়ন্ত্রণ।" },
+      href: "/dashboard/domains",
+      icon: "shield",
+    },
+    {
+      label: { en: "Customer Dashboard", bn: "কাস্টমার ড্যাশবোর্ড" },
+      description: { en: "Manage orders, invoices, support tickets and services from one place.", bn: "অর্ডার, ইনভয়েস, সাপোর্ট টিকেট ও সার্ভিস এক জায়গা থেকে ম্যানেজ করুন।" },
+      href: "/dashboard",
+      icon: "grid",
+    },
+  ],
+} as const;
+
 export function tr<T extends { en: string; bn: string }>(entry: T, lang: Language): string {
   return entry[lang];
 }

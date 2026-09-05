@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CloseIcon, DashboardIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, SettingsIcon, TicketIcon } from "./icons";
-import { BrandMark } from "@/components/BrandMark";
+import { SiteLogo } from "@/components/SiteLogo";
 
 interface NavItem {
   label: string;
@@ -64,18 +64,22 @@ function SidebarContent({
   onNavigate,
   onClose,
   isAdmin = false,
+  logoUrl = null,
+  siteName = null,
 }: {
   pathname: string;
   onNavigate?: () => void;
   onClose?: () => void;
   isAdmin?: boolean;
+  logoUrl?: string | null;
+  siteName?: string | null;
 }) {
   return (
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-[68px] shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-5">
         <span className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
-          <BrandMark className="h-6 w-6 text-blue-600" />
-          SITES<span className="text-blue-600">.BD</span>
+          <SiteLogo logoUrl={logoUrl} className="h-6 w-6 text-blue-600" />
+          {siteName ? siteName : <>SITES<span className="text-blue-600">.BD</span></>}
         </span>
         {onClose && (
           <button
@@ -132,6 +136,8 @@ function SidebarContent({
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [siteName, setSiteName] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -142,11 +148,24 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public-content", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { settings?: { logo_url?: string; site_name?: string } } | null) => {
+        if (cancelled || !data) return;
+        setLogoUrl(data.settings?.logo_url ?? null);
+        setSiteName(data.settings?.site_name ?? null);
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <>
       {/* Desktop: persistent sidebar */}
       <aside className="hidden w-[272px] shrink-0 border-r border-slate-200/80 bg-white md:block">
-        <SidebarContent pathname={pathname} isAdmin={isAdmin} />
+        <SidebarContent pathname={pathname} isAdmin={isAdmin} logoUrl={logoUrl} siteName={siteName} />
       </aside>
 
       {/* Mobile: off-canvas sidebar + backdrop */}
@@ -163,7 +182,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} isAdmin={isAdmin} />
+          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} isAdmin={isAdmin} logoUrl={logoUrl} siteName={siteName} />
         </aside>
       </div>
     </>
