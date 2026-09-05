@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-import { DeveloperCredit } from "@/components/DeveloperCredit";
 
 interface DashboardLayoutProps {
   pageTitle: string;
@@ -23,7 +22,7 @@ export function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#f7f9fc]">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
@@ -33,11 +32,10 @@ export function DashboardLayout({
           fullName={fullName}
           onOpenSidebar={() => setSidebarOpen(true)}
         />
-        <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
+        <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
           {children}
         </main>
       </div>
-      <DeveloperCredit />
     </div>
   );
 }

@@ -23,7 +23,9 @@ export type AdminPermission =
   | "settings:read"
   | "settings:write"
   | "notifications:write"
-  | "audit:read";
+  | "audit:read"
+  | "catalog:read"
+  | "catalog:write";
 
 const PERMISSIONS: Record<AdminRole, Set<AdminPermission>> = {
   admin: new Set(["admin:all"]),

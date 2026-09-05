@@ -7,6 +7,7 @@ import {
   getHostingPlanById,
   type HostingPlanType,
 } from "@/lib/hosting/plans";
+import { getLiveAddonById, getLiveHostingPlanById, getLiveAddons } from "@/lib/hosting/catalog-server";
 import { getAddonById } from "@/lib/hosting/addons";
 
 /**
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
       };
     }
   } else {
-    const plan = hostingInput.planId ? getHostingPlanById(hostingInput.planId) : undefined;
+    const plan = hostingInput.planId ? (await getLiveHostingPlanById(hostingInput.planId)) || getHostingPlanById(hostingInput.planId) : undefined;
     if (!plan || plan.type !== hostingInput.type) {
       errors.push("Selected hosting plan is invalid. Please choose again.");
     } else {
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
   const uniqueAddonIds = Array.from(new Set(requestedAddonIds));
   const addons: { id: string; name: string; price: number }[] = [];
   for (const id of uniqueAddonIds) {
-    const addon = getAddonById(id);
+    const addon = (await getLiveAddonById(id)) || getAddonById(id);
     if (!addon) {
       errors.push(`Selected add-on "${id}" is no longer valid.`);
       continue;

@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+const MAP = { hosting: "hosting_plans", addons: "addons", domains: "domain_pricing" } as const;
+export async function GET(req: Request) { const kind = new URL(req.url).searchParams.get("kind") as keyof typeof MAP | null; if (!kind || !(kind in MAP)) return NextResponse.json({ error: "Invalid catalog kind." }, { status: 400 }); const db = await createClient(); const { data, error } = await db.from(MAP[kind]).select("*").eq("is_active", true).order("sort_order", { ascending: true }); if (error) return NextResponse.json({ error: error.message }, { status: 500 }); return NextResponse.json({ items: data ?? [] }, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }); }

@@ -47,3 +47,17 @@ export function getDomainPriceQuote(domain: string): DomainPriceQuote {
 
   return { domain: normalized, price, currency: DEFAULT_CURRENCY, isMock: true };
 }
+
+
+export async function getLiveDomainPriceQuote(domain: string): Promise<DomainPriceQuote> {
+  const normalized = domain.trim().toLowerCase();
+  if (normalized.endsWith(".sites.bd")) return { domain: normalized, price: 0, currency: "BDT", isMock: false };
+  const tld = normalized.split(".").pop() ?? "";
+  try {
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const db = createAdminClient();
+    const { data } = await db.from("domain_pricing").select("registration_price,currency").eq("tld", tld).eq("is_active", true).maybeSingle();
+    if (data) return { domain: normalized, price: Number(data.registration_price || 0), currency: String(data.currency || "USD"), isMock: false };
+  } catch {}
+  return getDomainPriceQuote(normalized);
+}

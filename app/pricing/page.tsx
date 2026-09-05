@@ -3,13 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicFooter } from "@/components/PublicFooter";
 
-const tlds = [
-  [".com", "৳1,299/yr"], [".net", "৳1,499/yr"], [".org", "৳1,399/yr"], [".info", "৳999/yr"],
-  [".biz", "৳1,099/yr"], [".online", "৳899/yr"], [".site", "৳999/yr"], [".store", "৳1,499/yr"],
-  [".tech", "৳1,599/yr"], [".dev", "৳1,699/yr"], [".app", "৳1,699/yr"], [".me", "৳1,299/yr"],
-  [".co", "৳1,799/yr"], [".xyz", "৳799/yr"], [".cloud", "৳1,299/yr"], [".website", "৳899/yr"],
-  [".shop", "৳1,199/yr"], [".pro", "৳1,399/yr"], [".live", "৳999/yr"], [".world", "৳999/yr"],
-];
+
 
 export default async function PricingPage() {
   const supabase = await createClient();
@@ -27,6 +21,12 @@ export default async function PricingPage() {
   const { data: plans } = await supabase
     .from("pricing_plans")
     .select("id,name,price,currency,billing_period,description,features,badge,cta_text")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+
+  const { data: domainPrices } = await supabase
+    .from("domain_pricing")
+    .select("id,tld,registration_price,renewal_price,currency")
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
 
@@ -68,7 +68,7 @@ export default async function PricingPage() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">Popular domain extensions</h2><p className="mt-3 text-gray-600">Prices shown are starting annual prices and can vary by registration, renewal, or registry fees.</p></div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {tlds.map(([tld, price]) => <div key={tld} className="surface p-6 transition-colors hover:border-gray-300"><div className="text-2xl font-extrabold text-blue-600">{tld}</div><div className="mt-3 text-2xl font-extrabold">{price}</div><div className="mt-1 text-sm text-gray-500">Registration / year</div><Link href={`/domains/search?q=example${tld}`} className="mt-5 block rounded-xl bg-blue-50 py-3 text-center font-bold text-blue-700 hover:bg-blue-100">Search {tld}</Link></div>)}
+            {(domainPrices ?? []).map((item: any) => <div key={item.id} className="surface p-6 transition-colors hover:border-gray-300"><div className="text-2xl font-extrabold text-blue-600">.{item.tld}</div><div className="mt-3 text-2xl font-extrabold">{item.currency} {Number(item.registration_price).toLocaleString()}</div><div className="mt-1 text-sm text-gray-500">Registration / year · Renewal {item.currency} {Number(item.renewal_price).toLocaleString()}</div><Link href={`/domains/search?q=example.${item.tld}`} className="mt-5 block rounded-xl bg-blue-50 py-3 text-center font-bold text-blue-700 hover:bg-blue-100">Search .{item.tld}</Link></div>)}
           </div>
         </div>
       </section>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { addonServices, formatBDT, type AddonService } from "@/lib/hosting/addons";
@@ -39,6 +39,8 @@ function AddonCard({
 
 export function AddonsSelectionContent() {
   const router = useRouter();
+  const [catalog, setCatalog] = useState<AddonService[]>(addonServices);
+  useEffect(() => { fetch("/api/catalog?kind=addons", { cache: "no-store" }).then(r=>r.json()).then(d=>{ if(Array.isArray(d.items)&&d.items.length) setCatalog(d.items.map((a:any)=>({id:String(a.id),name:a.name,description:a.description||"",price:Number(a.price||0)}))); }).catch(()=>{}); }, []);
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
     const saved = loadAddonsSelection();
     return saved?.addonIds ?? [];
@@ -89,7 +91,7 @@ export function AddonsSelectionContent() {
           <p className="text-xs text-gray-500">Continue with just your domain and hosting.</p>
         </button>
 
-        {addonServices.map((addon) => (
+        {catalog.map((addon) => (
           <AddonCard
             key={addon.id}
             addon={addon}

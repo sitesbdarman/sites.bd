@@ -61,10 +61,10 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/70 bg-white/95 shadow-lg backdrop-blur">
-      <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-3 px-4 py-3 sm:px-5 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-display text-xl font-extrabold tracking-tight text-blue-600 sm:text-2xl">
-          <BrandMark className="h-7 w-7 sm:h-8 sm:w-8" />
+    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,.02)] backdrop-blur-xl">
+      <div className="mx-auto flex min-h-[70px] max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-5 lg:px-8">
+        <Link href="/" className="group flex shrink-0 items-center gap-2 font-display text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20"><BrandMark className="h-6 w-6" /></span>
           <span>SITES<span className="text-gray-900">.BD</span></span>
         </Link>
 
@@ -72,7 +72,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
           {links.map((link) => {
             const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
             return (
-              <Link key={link.href} href={link.href} className={`rounded-lg px-2.5 py-2 transition hover:bg-blue-50 hover:text-blue-700 ${active ? "text-blue-600" : "text-gray-700"}`}>
+              <Link key={link.href} href={link.href} className={`rounded-lg px-3 py-2 transition hover:bg-blue-50 hover:text-blue-700 ${active ? "bg-blue-50 text-blue-700" : "text-slate-600"}`}>
                 {link.label}
               </Link>
             );
@@ -88,7 +88,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="public-mobile-menu"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-blue-300 hover:text-blue-600 active:scale-95 lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-blue-300 hover:text-blue-600 active:scale-95 lg:hidden"
           >
             <span className="sr-only">Open menu</span>
             <span className="flex flex-col gap-1.5">

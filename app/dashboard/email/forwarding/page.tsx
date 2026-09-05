@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+export default async function EmailForwardingPage(){ const db = await createClient(); const { data: { user } } = await db.auth.getUser();return <DashboardLayout pageTitle="Email Forwarding" userEmail={user?.email ?? null}><div className="rounded-2xl border border-gray-200 bg-white p-6"><h2 className="text-xl font-black">Forwarding & Aliases</h2><p className="mt-2 text-sm text-gray-500">Create forwarding rules after a domain is connected to an email provider.</p><div className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">No forwarding rules yet.</div><Link href="/dashboard/email" className="mt-4 inline-block font-bold text-blue-600">← Back to Email</Link></div></DashboardLayout>}

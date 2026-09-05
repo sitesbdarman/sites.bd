@@ -175,57 +175,47 @@ export function CartContent() {
         </div>
       )}
 
-      <ul className="flex flex-col gap-3">
-        {items.map((item) => (
-          <li
-            key={item.id}
-            className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-          >
-            <div className="min-w-0">
-              <p className="truncate font-medium text-gray-900">{item.domain_name}</p>
-              <p className="mt-0.5 text-xs text-gray-500">
-                {item.validity_years} {item.validity_years === 1 ? "year" : "years"} registration
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-900">
-                {formatPrice(item.price, item.currency)}
-              </span>
-              <button
-                type="button"
-                onClick={() => handleRemove(item.id)}
-                disabled={removingId === item.id}
-                title="Remove"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {removingId === item.id ? (
-                  <span
-                    aria-hidden="true"
-                    className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"
-                  />
-                ) : (
-                  <TrashIcon className="h-4 w-4" />
-                )}
-                <span className="sr-only">Remove {item.domain_name} from cart</span>
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
+        <section className="rounded-[--radius-surface] border border-gray-200 bg-white p-4 sm:p-5">
+          <div className="mb-4">
+            <p className="text-xs font-black uppercase tracking-[.16em] text-blue-600">Order</p>
+            <h2 className="mt-1 text-xl font-black text-slate-900">Your cart</h2>
+          </div>
+          <ul className="divide-y divide-gray-100">
+            {items.map((item) => (
+              <li key={item.id} className="flex items-center justify-between gap-3 py-4 first:pt-1">
+                <div className="min-w-0">
+                  <p className="truncate font-bold text-gray-900">{item.domain_name}</p>
+                  <p className="mt-1 text-xs text-gray-500">{item.validity_years} {item.validity_years === 1 ? "year" : "years"} registration · Renewal pricing shown before checkout</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="text-sm font-bold text-gray-900">{formatPrice(item.price, item.currency)}</span>
+                  <button type="button" onClick={() => handleRemove(item.id)} disabled={removingId === item.id} title="Remove"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-60">
+                    {removingId === item.id ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" /> : <TrashIcon className="h-4 w-4" />}
+                    <span className="sr-only">Remove {item.domain_name} from cart</span>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <span className="text-sm font-medium text-gray-700">Total</span>
-        <span className="text-lg font-semibold text-gray-900">
-          {formatPrice(total, items[0]?.currency ?? "USD")}
-        </span>
+        <aside className="h-fit rounded-[--radius-surface] border border-gray-200 bg-white p-5 lg:sticky lg:top-20">
+          <h2 className="text-base font-black text-gray-900">Order Summary</h2>
+          <div className="mt-4 space-y-3 text-sm">
+            {items.map(item => <div key={item.id} className="flex justify-between gap-3"><span className="truncate text-gray-600">{item.domain_name}</span><span className="font-semibold">{formatPrice(item.price, item.currency)}</span></div>)}
+            <div className="flex justify-between border-t border-gray-100 pt-3 text-gray-500"><span>Subtotal</span><span>{formatPrice(total, items[0]?.currency ?? "USD")}</span></div>
+            <div className="flex justify-between text-gray-500"><span>Tax / fees</span><span>Calculated at checkout</span></div>
+            <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-black text-gray-900"><span>Total</span><span>{formatPrice(total, items[0]?.currency ?? "USD")}</span></div>
+          </div>
+          <p className="mt-4 rounded-lg bg-slate-50 p-3 text-xs leading-5 text-slate-500">Secure checkout. Any applicable taxes or payment fees are shown before you place the order.</p>
+          <Link href="/checkout/hosting" className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-800">Continue to Checkout →</Link>
+        </aside>
       </div>
-
-      <Link
-        href="/checkout/hosting"
-        className="inline-flex items-center justify-center self-end rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-      >
-        Continue to Checkout
-      </Link>
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 p-3 shadow-[0_-10px_30px_-20px_rgba(15,23,42,.35)] backdrop-blur md:hidden">
+        <Link href="/checkout/hosting" className="flex min-h-11 items-center justify-center rounded-xl bg-gray-900 px-4 py-2 text-sm font-black text-white">Checkout · {formatPrice(total, items[0]?.currency ?? "USD")} →</Link>
+      </div>
     </div>
   );
 }

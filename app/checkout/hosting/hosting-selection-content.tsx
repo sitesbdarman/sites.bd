@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -90,8 +90,12 @@ export function HostingSelectionContent() {
   const [ipAddress, setIpAddress] = useState(initial?.custom?.ipAddress ?? "");
   const [touchedCustom, setTouchedCustom] = useState(false);
 
-  const premiumPlans = useMemo(() => getHostingPlansByType("premium"), []);
-  const freePlans = useMemo(() => getHostingPlansByType("free"), []);
+  const [livePlans, setLivePlans] = useState<HostingPlan[]>(() => []);
+  useEffect(() => { fetch("/api/catalog?kind=hosting", { cache: "no-store" }).then(r=>r.json()).then(d=>{ if(Array.isArray(d.items)&&d.items.length) setLivePlans(d.items.map((p:any)=>({id:String(p.id),type:p.type,name:p.name,price:Number(p.price||0),billingCycle:p.billing_cycle,description:p.description||"",configurable:true}))); }).catch(()=>{}); }, []);
+  const fallbackPlans = useMemo(() => getHostingPlansByType("premium").concat(getHostingPlansByType("free")), []);
+  const catalogPlans = livePlans.length ? livePlans : fallbackPlans;
+  const premiumPlans = catalogPlans.filter(p=>p.type === "premium");
+  const freePlans = catalogPlans.filter(p=>p.type === "free");
 
   const customValid =
     nameServer.trim().length > 0 && ipAddress.trim().length > 0 && isLikelyValidIp(ipAddress);
@@ -117,7 +121,7 @@ export function HostingSelectionContent() {
         custom: { nameServer: nameServer.trim(), ipAddress: ipAddress.trim() },
       });
     } else {
-      const plan = selectedPlanId ? getHostingPlanById(selectedPlanId) : undefined;
+      const plan = selectedPlanId ? (livePlans.find(p=>p.id===selectedPlanId) || getHostingPlanById(selectedPlanId)) : undefined;
       if (!plan) return;
       saveHostingSelection({
         type: plan.type,

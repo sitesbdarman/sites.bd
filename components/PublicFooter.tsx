@@ -1,29 +1,4 @@
 import Link from "next/link";
+import { BrandMark } from "./BrandMark";
 
-export function PublicFooter() {
-  return (
-    <footer className="bg-blue-950 px-5 py-12 text-white lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
-        <div>
-          <h2 className="text-2xl font-extrabold">SITES.BD</h2>
-          <p className="mt-4 max-w-sm leading-7 text-gray-400">A simple home for free subdomains, domains, hosting, DNS management and support.</p>
-          <p className="mt-4 text-sm text-gray-400">
-            Developed by{" "}
-            <Link
-              href="https://www.facebook.com/rafahimn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-extrabold text-sky-400 no-underline transition-colors hover:text-sky-300"
-            >
-              RA Fahim
-            </Link>
-          </p>
-        </div>
-        <div><h3 className="font-extrabold">Services</h3><div className="mt-4 space-y-2 text-gray-400"><Link className="block hover:text-white" href="/domains/search">Domain Search</Link><Link className="block hover:text-white" href="/pricing">Pricing</Link><Link className="block hover:text-white" href="/cart">Cart</Link></div></div>
-        <div><h3 className="font-extrabold">Support</h3><div className="mt-4 space-y-2 text-gray-400"><Link className="block hover:text-white" href="/contact">Contact Us</Link><Link className="block hover:text-white" href="/dashboard/tickets">Support Tickets</Link><Link className="block hover:text-white" href="/login">Customer Login</Link></div></div>
-        <div><h3 className="font-extrabold">Platform</h3><div className="mt-4 space-y-2 text-gray-400"><Link className="block hover:text-white" href="/dashboard">Dashboard</Link><Link className="block hover:text-white" href="/domains/search">Domains</Link><Link className="block hover:text-white" href="/pricing">Pricing</Link></div></div>
-      </div>
-      <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-8 text-center text-sm text-gray-400">© {new Date().getFullYear()} SITES.BD. All rights reserved.</div>
-    </footer>
-  );
-}
+export function PublicFooter(){return <footer className="bg-slate-950 px-5 py-14 text-white lg:px-8"><div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]"><div><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-600"><BrandMark className="h-6 w-6"/></span><span className="text-xl font-black">SITES<span className="text-sky-300">.BD</span></span></div><p className="mt-5 max-w-sm text-sm leading-7 text-slate-400">Domains, websites, email and DNS management — designed as one simple platform for the modern web.</p><p className="mt-5 text-xs font-semibold text-slate-500">Developed by <Link href="https://www.facebook.com/rafahimn" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white">RA Fahim</Link></p></div><div><h3 className="text-sm font-black">Products</h3><div className="mt-4 space-y-3 text-sm text-slate-400"><Link className="block hover:text-white" href="/domains/search">Domain Search</Link><Link className="block hover:text-white" href="/pricing">Hosting & Pricing</Link><Link className="block hover:text-white" href="/#claim">Free .sites.bd</Link></div></div><div><h3 className="text-sm font-black">Company</h3><div className="mt-4 space-y-3 text-sm text-slate-400"><Link className="block hover:text-white" href="/contact">Contact</Link><Link className="block hover:text-white" href="/support/knowledge-base">Knowledge Base</Link><Link className="block hover:text-white" href="/login">Customer Login</Link></div></div><div><h3 className="text-sm font-black">Account</h3><div className="mt-4 space-y-3 text-sm text-slate-400"><Link className="block hover:text-white" href="/dashboard">Dashboard</Link><Link className="block hover:text-white" href="/cart">Cart</Link><Link className="block hover:text-white" href="/dashboard/invoices">Invoices</Link></div></div></div><div className="mx-auto mt-12 flex max-w-7xl flex-col gap-3 border-t border-white/10 pt-7 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between"><span>© {new Date().getFullYear()} SITES.BD. All rights reserved.</span><span>Simple infrastructure for the web.</span></div></footer>}

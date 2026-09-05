@@ -37,7 +37,7 @@ export default async function DomainsPage() {
         <div><h2 className="font-bold text-gray-900">Need another domain?</h2><p className="mt-1 text-sm text-gray-600">Search and purchase a new domain or get a free SITES.BD subdomain.</p></div>
         <Link href="/domains/search" className="shrink-0 rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-extrabold text-white transition hover:bg-blue-700">+ Buy / Add New Domain</Link>
       </div>
-      <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-5">
+      <div className="surface overflow-hidden p-3 sm:p-5">
         {hasError ? (
           <EmptyState
             icon={GlobeIcon}

@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { checkDomainsAvailability } from "@/lib/domains/search-service";
-import { getDomainPriceQuote } from "@/lib/domains/pricing";
+import { getLiveDomainPriceQuote } from "@/lib/domains/pricing";
 import { addCartItem, type CartItem } from "./queries";
 
 /** Cart/claim service layer: API route -> here -> queries/provider. Keeps
@@ -39,7 +39,7 @@ export async function claimDomainForUser(
     return { status: "unavailable", item: null };
   }
 
-  const quote = getDomainPriceQuote(domain);
+  const quote = await getLiveDomainPriceQuote(domain);
   const added = await addCartItem(
     supabase,
     userId,

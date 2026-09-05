@@ -1,68 +1,36 @@
 "use client";
-
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PublicNavbar } from "@/components/PublicNavbar";
 import { PublicFooter } from "@/components/PublicFooter";
 
-interface HomeContentProps { loggedIn:boolean; avatarUrl?:string|null; fullName?:string|null; email?:string|null; }
-
-const benefits=[
-  ["Free .sites.bd", "Claim a lifetime-free address for your next project."],
-  ["Fast domain search", "Search popular extensions and discover alternatives without dead ends."],
-  ["Simple management", "Domains, DNS, billing and support in one clear dashboard."],
-  ["Built for every screen", "A mobile-first experience that feels native on phones and powerful on desktop."],
-  ["Transparent pricing", "Registration, renewal and service costs stay easy to understand."],
-  ["Security controls", "Protect important account and domain actions with clear safeguards."],
+interface HomeContentProps{loggedIn:boolean;avatarUrl?:string|null;fullName?:string|null;email?:string|null}
+const pillars=[
+  ["Domains","Search, register and manage the domain names that power your brand.","01"],
+  ["Websites","Bring your domain online with hosting and a simple management layer.","02"],
+  ["Business email","Create professional addresses and keep communication under your own domain.","03"],
+  ["DNS & security","Control the technical side without digging through confusing interfaces.","04"],
+  ["Billing","Clear prices, invoices and renewals with no mystery steps.","05"],
+  ["Support","Get help when you need it from one account and one support history.","06"],
 ];
-
 export function HomeContent({loggedIn,avatarUrl,fullName,email}:HomeContentProps){
-  const router=useRouter();
-  const [domain,setDomain]=useState("");
-  const [subdomain,setSubdomain]=useState("");
-  const [claiming,setClaiming]=useState(false);
-  const [claimMessage,setClaimMessage]=useState<string|null>(null);
-  const search=(e:FormEvent)=>{e.preventDefault(); const q=domain.trim(); if(q) router.push(`/domains/search?q=${encodeURIComponent(q)}`)};
-  const claim=async(e:FormEvent)=>{
-    e.preventDefault(); const label=subdomain.trim().toLowerCase(); if(!label) return setClaimMessage("Enter the name you want before .sites.bd.");
-    setClaiming(true); setClaimMessage(null);
-    try{ const r=await fetch('/api/subdomains/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label})}); const d=await r.json();
-      if(r.status===401){router.push(`/login?next=${encodeURIComponent('/?claim='+label)}`);return}
-      setClaimMessage(d.success?`🎉 ${d.domain} is now yours.`:(d.error||'Could not claim this address.'));
-      if(d.success) setSubdomain("");
-    }catch{setClaimMessage('Network error. Please try again.')} finally{setClaiming(false)}
-  };
-  return <main className="min-h-screen bg-slate-50 text-slate-900">
-    <PublicNavbar loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email}/>
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 px-4 pb-20 pt-24 text-white sm:pt-28">
-      <div className="absolute inset-0 opacity-[.12]" style={{backgroundImage:'radial-gradient(circle at 1px 1px,#fff 1px,transparent 0)',backgroundSize:'32px 32px'}} />
-      <div className="page-container relative grid items-center gap-12 lg:grid-cols-[1.15fr_.85fr]">
-        <div>
-          <div className="mb-5 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold tracking-wide backdrop-blur">YOUR ONLINE IDENTITY STARTS HERE</div>
-          <h1 className="max-w-4xl text-4xl font-black tracking-tight sm:text-6xl lg:text-7xl">Find it. Claim it.<br/><span className="text-sky-100">Make it yours.</span></h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-50 sm:text-xl">Search for a premium domain, or start today with your own free <strong>.sites.bd</strong> address — then manage everything from one beautiful control center.</p>
-          <form onSubmit={search} className="mt-8 rounded-[22px] bg-white p-2 shadow-2xl shadow-blue-950/20">
-            <div className="flex flex-col gap-2 sm:flex-row"><input value={domain} onChange={e=>setDomain(e.target.value)} placeholder="Search your next domain" className="min-h-14 flex-1 rounded-2xl px-5 text-base font-semibold text-slate-900 outline-none"/><button className="btn-signature min-h-14 rounded-2xl bg-slate-950 px-7 font-black text-white">Search domain →</button></div>
-          </form>
-          <div className="mt-4 flex flex-wrap gap-2 text-sm font-bold text-blue-50"><span className="rounded-full bg-white/10 px-3 py-1.5">.com</span><span className="rounded-full bg-white/10 px-3 py-1.5">.net</span><span className="rounded-full bg-white/10 px-3 py-1.5">.org</span><span className="rounded-full bg-white/10 px-3 py-1.5">.io</span></div>
-        </div>
-        <form onSubmit={claim} className="free-domain-shell rounded-[24px] p-5 text-slate-900 shadow-2xl shadow-blue-950/10 sm:p-7">
-          <div className="flex items-center gap-2"><span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">FREE FOREVER</span><span className="text-xs font-bold text-slate-500">No renewal fee</span></div>
-          <h2 className="mt-5 text-2xl font-black sm:text-3xl">Claim your <span className="text-blue-600">.sites.bd</span></h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">Your free address can be used as the starting point for your website, portfolio or project.</p>
-          <div className="free-domain-input mt-6"><input value={subdomain} onChange={e=>setSubdomain(e.target.value.replace(/[^a-zA-Z0-9-]/g,''))} placeholder="your-name" aria-label="Free subdomain name"/><span>.sites.bd</span></div>
-          <button disabled={claiming} className="btn-signature mt-3 min-h-14 w-full rounded-xl bg-blue-600 px-5 font-black text-white disabled:opacity-60">{claiming?'Claiming…':'Claim free address'}</button>
-          {claimMessage&&<p role="status" className="mt-3 rounded-xl bg-white p-3 text-sm font-bold text-slate-700">{claimMessage}</p>}
-          <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs font-bold text-slate-500"><div>✓ Free</div><div>✓ Instant</div><div>✓ Managed</div></div>
-        </form>
-      </div>
-    </section>
-    <section className="page-container py-14 sm:py-20">
-      <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-sm font-black uppercase tracking-[.18em] text-blue-600">Built around the customer</p><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">Everything important. Nothing confusing.</h2></div><Link href="/domains/search" className="font-bold text-blue-600">Explore domain search →</Link></div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{benefits.map(([title,text],i)=><article key={title} className="surface accent-bar p-6 pl-8 transition hover:border-blue-200"><div className="text-sm font-black text-blue-600">0{i+1}</div><h3 className="mt-3 text-xl font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{text}</p></article>)}</div>
-    </section>
-    <section className="border-y border-slate-200 bg-white"><div className="page-container grid gap-8 py-14 lg:grid-cols-3"><div><p className="text-sm font-black text-blue-600">A SIMPLE JOURNEY</p><h2 className="mt-2 text-3xl font-black">From search to launch.</h2></div>{[['01','Search','Find a premium domain or check your preferred name.'],['02','Claim or buy','Start free with .sites.bd or purchase the domain you want.'],['03','Manage','Control DNS, services, security, invoices and support.']].map(([n,t,d])=><div key={n}><span className="text-sm font-black text-slate-400">{n}</span><h3 className="mt-2 text-xl font-black">{t}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{d}</p></div>)}</div></section>
-    <PublicFooter/>
-  </main>
+ const router=useRouter(); const [domain,setDomain]=useState(""); const [cms,setCms]=useState<any>({banners:[],faq:[],social:[],settings:{}}); useEffect(()=>{fetch("/api/public-content",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>d&&setCms(d)).catch(()=>{});},[]); const [subdomain,setSubdomain]=useState(""); const [claiming,setClaiming]=useState(false); const [claimMessage,setClaimMessage]=useState<string|null>(null);
+ const search=(e:FormEvent)=>{e.preventDefault();const q=domain.trim();if(q)router.push(`/domains/search?q=${encodeURIComponent(q)}`)};
+ const claim=async(e:FormEvent)=>{e.preventDefault();const label=subdomain.trim().toLowerCase();if(!label)return setClaimMessage("Enter the name you want before .sites.bd.");setClaiming(true);setClaimMessage(null);try{const r=await fetch('/api/subdomains/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label})});const d=await r.json();if(r.status===401){router.push(`/login?next=${encodeURIComponent('/?claim='+label)}`);return}if(d.success){router.push(`/subdomains/success?domain=${encodeURIComponent(d.domain)}`)}else setClaimMessage(d.error||'Could not claim this address.')}catch{setClaimMessage('Network error. Please try again.')}finally{setClaiming(false)}};
+ return <main className="min-h-screen bg-[#f7f9fc] text-slate-900"><PublicNavbar loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email}/>
+ <section className="relative overflow-hidden border-b border-blue-900/10 bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 text-white"><div className="absolute inset-0 opacity-15" style={{backgroundImage:'radial-gradient(circle at 1px 1px,#fff 1px,transparent 0)',backgroundSize:'34px 34px'}}/><div className="page-container relative grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-[1.08fr_.92fr] lg:py-24">
+  <div><div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[.16em] backdrop-blur"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300"/> Built for the modern web</div><h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.02] tracking-[-.04em] sm:text-6xl lg:text-7xl">Your domain is the<br/><span className="text-sky-100">start of everything.</span></h1><p className="mt-6 max-w-2xl text-base leading-7 text-blue-50 sm:text-lg">Find your perfect name, launch your website, create professional email and manage it all from one calm, powerful control center.</p>
+   <form onSubmit={search} className="mt-8 max-w-2xl rounded-2xl bg-white p-2 shadow-2xl shadow-blue-950/20"><div className="flex flex-col gap-2 sm:flex-row"><input value={domain} onChange={e=>setDomain(e.target.value)} placeholder="Search a domain name" aria-label="Search a domain name" className="min-h-14 flex-1 rounded-xl px-4 text-base font-semibold text-slate-900 outline-none"/><button className="btn-signature min-h-14 rounded-xl bg-slate-950 px-7 text-white">Search domains <span aria-hidden>→</span></button></div></form>
+   <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-blue-50"><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">.com</span><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">.net</span><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">.org</span><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">.io</span><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">+ more</span></div>
+  </div>
+  <div id="claim" className="lg:pl-6"><form onSubmit={claim} className="free-domain-shell rounded-[26px] p-6 text-slate-900 sm:p-8"><div className="flex items-center justify-between gap-3"><span className="rounded-full bg-emerald-100 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-emerald-700">Free forever</span><span className="text-xs font-bold text-slate-500">.sites.bd</span></div><h2 className="mt-5 text-3xl font-black tracking-tight">Start free. Build something real.</h2><p className="mt-3 text-sm leading-6 text-slate-600">Claim your own free address and manage it with the same dashboard as your paid domains.</p><div className="free-domain-input mt-6"><input value={subdomain} onChange={e=>setSubdomain(e.target.value.replace(/[^a-zA-Z0-9-]/g,''))} placeholder="your-name" aria-label="Free subdomain name"/><span>.sites.bd</span></div><button disabled={claiming} className="btn-signature mt-3 min-h-14 w-full rounded-xl bg-blue-600 px-5 text-white disabled:opacity-60">{claiming?'Checking…':'Claim free address'} <span aria-hidden>→</span></button>{claimMessage&&<p role="status" className="mt-3 rounded-xl bg-white p-3 text-sm font-bold text-slate-700">{claimMessage}</p>}<div className="mt-6 grid grid-cols-3 border-t border-slate-200 pt-5 text-center text-xs font-bold text-slate-500"><div>Instant</div><div>No renewal fee</div><div>Managed DNS</div></div></form></div>
+ </div></section>
+ {cms.banners?.length>0&&<section className="border-b border-blue-100 bg-blue-50"><div className="page-container grid gap-3 py-4 sm:grid-cols-2 lg:grid-cols-3">{cms.banners.slice(0,3).map((b:any)=><Link key={b.id} href={b.link_url||"#"} className="rounded-xl border border-blue-100 bg-white px-4 py-3 shadow-sm"><p className="text-sm font-black text-slate-900">{b.title}</p>{b.description&&<p className="mt-1 text-xs text-slate-500">{b.description}</p>}</Link>)}</div></section>}
+ <section className="border-b border-slate-200 bg-white"><div className="page-container grid gap-6 py-7 sm:grid-cols-3"><div><p className="text-xs font-black uppercase tracking-[.18em] text-slate-400">One platform</p><p className="mt-1 text-sm font-bold text-slate-800">Domains, websites and email together.</p></div><div><p className="text-xs font-black uppercase tracking-[.18em] text-slate-400">Designed to scale</p><p className="mt-1 text-sm font-bold text-slate-800">From your first domain to a growing portfolio.</p></div><div><p className="text-xs font-black uppercase tracking-[.18em] text-slate-400">Simple by default</p><p className="mt-1 text-sm font-bold text-slate-800">Clear actions without dashboard clutter.</p></div></div></section>
+ <section id="features" className="page-container py-16 sm:py-24"><div className="max-w-3xl"><p className="text-xs font-black uppercase tracking-[.2em] text-blue-600">Everything in one place</p><h2 className="mt-3 text-3xl font-black tracking-[-.03em] sm:text-5xl">Powerful infrastructure without the complicated feeling.</h2><p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">Every screen is built around one question: what does the customer need to do next?</p></div><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{pillars.map(([title,text,num])=><article key={title} className="group surface p-6 transition duration-200 hover:-translate-y-0.5 hover:border-blue-200"><div className="flex items-center justify-between"><span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-sm font-black text-blue-600">{num}</span><span className="text-slate-300 transition group-hover:text-blue-500">↗</span></div><h3 className="mt-7 text-xl font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-600">{text}</p></article>)}</div></section>
+ <section className="bg-slate-950 text-white"><div className="page-container grid gap-10 py-16 lg:grid-cols-[.9fr_1.1fr] lg:py-20"><div><p className="text-xs font-black uppercase tracking-[.2em] text-sky-300">A better workflow</p><h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Search. Launch. Manage.</h2><p className="mt-4 max-w-lg text-sm leading-7 text-slate-300">No matter where a customer starts, the next step should always be obvious.</p><Link href="/domains/search" className="mt-7 inline-flex rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-950">Explore domains →</Link></div><div className="grid gap-3">{[['01','Search','Find a name that fits your brand.'],['02','Choose','Register a domain or claim your free .sites.bd address.'],['03','Launch','Connect hosting, DNS and professional email.'],['04','Manage','Renew, secure and monitor everything from one account.']].map(([n,t,d])=><div key={n} className="grid grid-cols-[48px_1fr] gap-4 rounded-2xl border border-white/10 bg-white/[.04] p-5"><span className="text-sm font-black text-sky-300">{n}</span><div><h3 className="font-black">{t}</h3><p className="mt-1 text-sm text-slate-300">{d}</p></div></div>)}</div></div></section>
+ {cms.faq?.length>0&&<section id="faq" className="border-y border-slate-200 bg-white"><div className="page-container py-16 sm:py-20"><div className="max-w-2xl"><p className="text-xs font-black uppercase tracking-[.2em] text-blue-600">FAQ</p><h2 className="mt-2 text-3xl font-black tracking-tight">Questions, answered.</h2></div><div className="mt-8 grid gap-3 md:grid-cols-2">{cms.faq.slice(0,8).map((f:any)=><details key={f.id} className="group rounded-2xl border border-slate-200 bg-slate-50 p-5"><summary className="cursor-pointer list-none font-black text-slate-900">{f.question}<span className="float-right text-blue-600">+</span></summary><p className="mt-3 text-sm leading-6 text-slate-600">{f.answer}</p></details>)}</div></div></section>}
+ <section className="page-container py-16 sm:py-20"><div className="rounded-[28px] border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-7 sm:p-10"><div className="flex flex-col items-start justify-between gap-7 md:flex-row md:items-center"><div><p className="text-xs font-black uppercase tracking-[.18em] text-blue-600">Ready when you are</p><h2 className="mt-2 text-3xl font-black tracking-tight">Find the name your next idea deserves.</h2></div><Link href="/domains/search" className="btn-signature inline-flex rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-black text-white">Search domains →</Link></div></div></section>
+ <PublicFooter/></main>
 }

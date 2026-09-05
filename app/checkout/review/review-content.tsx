@@ -7,58 +7,16 @@ import { formatBDT, type HostingPlanType } from "@/lib/hosting/plans";
 import { loadHostingSelection, type HostingSelection } from "@/lib/hosting/selection";
 import { loadAddonsSelection } from "@/lib/hosting/addons-selection";
 
-interface ReviewCartItem {
-  id: string;
-  domain_name: string;
-  price: number;
-  currency: string;
-  validity_years: number;
-}
-
-interface ReviewHosting {
-  type: string;
-  planId: string;
-  planName: string;
-  price: number;
-  billingCycle: string;
-  custom?: { nameServer: string; ipAddress: string };
-}
-
-interface ReviewAddon {
-  id: string;
-  name: string;
-  price: number;
-}
-
-interface ReviewTotals {
-  domainTotal: number;
-  hostingPrice: number;
-  addonsTotal: number;
-  finalTotal: number;
-  couponDiscount?: number;
-  subtotal?: number;
-}
-
-interface ReviewResponse {
-  success: boolean;
-  errors?: string[];
-  cart?: ReviewCartItem[];
-  hosting?: ReviewHosting | null;
-  addons?: ReviewAddon[];
-  totals?: ReviewTotals;
-  error?: string;
-}
-
+interface ReviewCartItem { id: string; domain_name: string; price: number; currency: string; validity_years: number; }
+interface ReviewHosting { type: string; planId: string; planName: string; price: number; billingCycle: string; custom?: { nameServer: string; ipAddress: string }; }
+interface ReviewAddon { id: string; name: string; price: number; }
+interface ReviewTotals { domainTotal: number; hostingPrice: number; addonsTotal: number; finalTotal: number; couponDiscount?: number; subtotal?: number; }
+interface ReviewResponse { success: boolean; errors?: string[]; cart?: ReviewCartItem[]; hosting?: ReviewHosting | null; addons?: ReviewAddon[]; totals?: ReviewTotals; error?: string; }
 type LoadState = "loading" | "error" | "invalid" | "valid";
 
 function formatDomainPrice(item: ReviewCartItem): string {
-  try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: item.currency }).format(
-      item.price,
-    );
-  } catch {
-    return `${item.currency} ${item.price.toFixed(2)}`;
-  }
+  try { return new Intl.NumberFormat("en-US", { style: "currency", currency: item.currency }).format(item.price); }
+  catch { return `${item.currency} ${item.price.toFixed(2)}`; }
 }
 
 export function ReviewContent() {
@@ -74,7 +32,6 @@ export function ReviewContent() {
   const [confirming, setConfirming] = useState(false);
   const [confirmError, setConfirmError] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
-  const [invoiceId, setInvoiceId] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponMessage, setCouponMessage] = useState("");
@@ -82,289 +39,68 @@ export function ReviewContent() {
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadReview() {
-      setState("loading");
-
       const savedHosting: HostingSelection | null = loadHostingSelection();
       const savedAddons = loadAddonsSelection();
-
-      if (!savedHosting) {
-        if (!cancelled) {
-          setErrors(["No hosting plan selected. Please complete Step 1 first."]);
-          setState("invalid");
-        }
-        return;
-      }
-
+      if (!savedHosting) { if (!cancelled) { setErrors(["No hosting plan selected. Please go back and choose a plan."]); setState("invalid"); } return; }
       try {
-        const response = await fetch("/api/checkout/review", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            hosting: {
-              type: savedHosting.type,
-              planId: savedHosting.planId,
-              custom: savedHosting.custom,
-            },
-            addonIds: savedAddons?.addonIds ?? [],
-          }),
-        });
+        const response = await fetch("/api/checkout/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hosting: { type: savedHosting.type, planId: savedHosting.planId, custom: savedHosting.custom }, addonIds: savedAddons?.addonIds ?? [] }) });
         const data: ReviewResponse = await response.json();
-
         if (cancelled) return;
-
-        if (!response.ok && response.status !== 200) {
-          setErrors([data.error ?? "Couldn't validate your order. Please try again."]);
-          setState("error");
-          return;
-        }
-
-        setCart(data.cart ?? []);
-        setHosting(data.hosting ?? null);
-        setAddons(data.addons ?? []);
-        setTotals(data.totals ?? null);
-
-        if (!data.success) {
-          setErrors(data.errors ?? ["Some checkout data is invalid."]);
-          setState("invalid");
-        } else {
-          setErrors([]);
-          setState("valid");
-        }
-      } catch {
-        if (!cancelled) {
-          setErrors(["Couldn't reach the server. Please try again."]);
-          setState("error");
-        }
-      }
+        if (!response.ok) { setErrors([data.error ?? "Couldn't validate your order. Please try again."]); setState("error"); return; }
+        setCart(data.cart ?? []); setHosting(data.hosting ?? null); setAddons(data.addons ?? []); setTotals(data.totals ?? null);
+        setErrors(data.success ? [] : data.errors ?? ["Some checkout data is invalid."]); setState(data.success ? "valid" : "invalid");
+      } catch { if (!cancelled) { setErrors(["Couldn't reach the server. Please try again."]); setState("error"); } }
     }
-
-    loadReview();
-    return () => {
-      cancelled = true;
-    };
+    loadReview(); return () => { cancelled = true; };
   }, []);
-
-  if (state === "loading") {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white py-16">
-        <span
-          aria-hidden="true"
-          className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"
-        />
-        <p className="text-sm text-gray-500">Validating your order...</p>
-      </div>
-    );
-  }
-
-  const canConfirm = state === "valid" && termsAccepted && !confirmed && !confirming;
 
   async function applyCoupon() {
     if (!couponCode.trim() || !hosting) return;
     setCouponBusy(true); setCouponMessage("");
     try {
-      const savedHosting = loadHostingSelection();
-      const savedAddons = loadAddonsSelection();
-      const response = await fetch("/api/coupons/validate", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({code:couponCode, hosting:savedHosting ? {type:savedHosting.type,planId:savedHosting.planId} : undefined, addonIds:savedAddons?.addonIds ?? []})});
+      const savedHosting = loadHostingSelection(); const savedAddons = loadAddonsSelection();
+      const response = await fetch("/api/coupons/validate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: couponCode, hosting: savedHosting ? { type: savedHosting.type, planId: savedHosting.planId } : undefined, addonIds: savedAddons?.addonIds ?? [] }) });
       const data = await response.json();
       if (!response.ok || !data.success) { setCouponDiscount(0); setCouponMessage(data.message || data.error || "Coupon is not valid."); return; }
-      setCouponCode(data.code || couponCode.toUpperCase()); setCouponDiscount(Number(data.discount||0)); setCouponMessage(data.message || "Coupon applied.");
-      setTotals(prev => prev ? {...prev, finalTotal:Number(data.total), couponDiscount:Number(data.discount||0), subtotal:Number(data.subtotal)} : prev);
+      setCouponCode(data.code || couponCode.toUpperCase()); setCouponDiscount(Number(data.discount || 0)); setCouponMessage(data.message || "Coupon applied.");
+      setTotals(prev => prev ? { ...prev, finalTotal: Number(data.total), couponDiscount: Number(data.discount || 0), subtotal: Number(data.subtotal) } : prev);
     } catch { setCouponDiscount(0); setCouponMessage("Could not check coupon."); } finally { setCouponBusy(false); }
   }
 
   async function confirmOrder() {
-    if (!canConfirm) return;
-    setConfirming(true);
-    setConfirmError("");
+    if (!(state === "valid" && termsAccepted && !confirmed && !confirming)) return;
+    setConfirming(true); setConfirmError("");
     try {
-      const response = await fetch("/api/checkout/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          hosting: hosting ? { type: hosting.type as HostingPlanType, planId: hosting.planId, custom: hosting.custom } : undefined,
-          addonIds: addons.map((addon) => addon.id),
-          termsAccepted: true,
-          couponCode: couponCode.trim() || undefined,
-        }),
-      });
+      const response = await fetch("/api/checkout/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hosting: hosting ? { type: hosting.type as HostingPlanType, planId: hosting.planId, custom: hosting.custom } : undefined, addonIds: addons.map(a => a.id), termsAccepted: true, couponCode: couponCode.trim() || undefined }) });
       const data = await response.json();
-      if (!response.ok || !data.success) {
-        setConfirmError(data.error ?? "Could not create your order.");
-        return;
-      }
-      setOrderNumber(data.order.orderNumber);
-      setInvoiceId(data.invoiceId ?? "");
-      setConfirmed(true);
-      if (data.nextStep === "payment" && data.invoiceId) {
-        router.push(`/checkout/payment?invoice=${encodeURIComponent(data.invoiceId)}`);
-      }
-    } catch {
-      setConfirmError("Could not reach the server. Please try again.");
-    } finally {
-      setConfirming(false);
-    }
+      if (!response.ok || !data.success) { setConfirmError(data.error ?? "Could not create your order."); return; }
+      setOrderNumber(data.order.orderNumber); setConfirmed(true);
+      if (data.nextStep === "payment" && data.invoiceId) router.push(`/checkout/payment?invoice=${encodeURIComponent(data.invoiceId)}`);
+    } catch { setConfirmError("Could not reach the server. Please try again."); } finally { setConfirming(false); }
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">Step 3 of 4</p>
-        <h1 className="mt-1 text-lg font-semibold text-gray-900">Order review</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Double-check everything before confirming your order.
-        </p>
+  if (state === "loading") return <div className="surface flex min-h-56 flex-col items-center justify-center gap-3"><span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600"/><p className="text-sm font-semibold text-slate-500">Preparing your order…</p></div>;
+
+  const canConfirm = state === "valid" && termsAccepted && !confirmed && !confirming;
+  return <div className="space-y-5">
+    <div><p className="text-xs font-black uppercase tracking-[.18em] text-blue-600">Final review</p><h1 className="mt-2 text-3xl font-black tracking-[-.03em] text-slate-950 sm:text-4xl">Ready to place your order?</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Review your domains, services and total. You’ll see the available payment options on the next step.</p></div>
+    {(state === "error" || state === "invalid") && errors.length > 0 && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700"><ul className="list-inside list-disc">{errors.map(e => <li key={e}>{e}</li>)}</ul></div>}
+    <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+      <div className="space-y-4">
+        <section className="surface p-5 sm:p-6"><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Domains</p><h2 className="mt-1 text-lg font-black text-slate-950">Your online identity</h2></div><Link href="/cart" className="text-xs font-black text-blue-600 hover:text-blue-700">Edit cart</Link></div><div className="mt-5 space-y-2">{cart.length ? cart.map(item => <div key={item.id} className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-black text-slate-900">{item.domain_name}</p><p className="mt-0.5 text-xs text-slate-500">{item.validity_years} year registration</p></div><span className="shrink-0 text-sm font-black text-slate-900">{formatDomainPrice(item)}</span></div>) : <p className="text-sm text-slate-500">No domains in cart.</p>}</div></section>
+        <section className="surface p-5 sm:p-6"><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Hosting</p><div className="mt-3 flex items-center justify-between gap-4"><div><h2 className="font-black text-slate-950">{hosting?.planName ?? "No hosting plan"}</h2><p className="mt-1 text-xs text-slate-500">{hosting?.billingCycle ?? "Not selected"}</p></div>{hosting && <span className="font-black text-slate-900">{formatBDT(hosting.price)}</span>}</div></section>
+        <section className="surface p-5 sm:p-6"><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Add-ons</p>{addons.length ? <div className="mt-3 space-y-2">{addons.map(addon => <div key={addon.id} className="flex justify-between gap-4 text-sm"><span className="font-semibold text-slate-700">{addon.name}</span><span className="font-bold text-slate-900">{addon.price > 0 ? formatBDT(addon.price) : "Custom"}</span></div>)}</div> : <p className="mt-2 text-sm text-slate-500">No additional services selected.</p>}</section>
       </div>
-
-      {(state === "error" || state === "invalid") && errors.length > 0 && (
-        <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          <ul className="list-inside list-disc">
-            {errors.map((err) => (
-              <li key={err}>{err}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Domains */}
-      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-gray-900">Domain(s)</h2>
-        {cart.length === 0 ? (
-          <p className="mt-2 text-sm text-gray-500">No domains in cart.</p>
-        ) : (
-          <ul className="mt-3 flex flex-col gap-2">
-            {cart.map((item) => (
-              <li key={item.id} className="flex items-center justify-between text-sm">
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-gray-900">{item.domain_name}</p>
-                  <p className="text-xs text-gray-500">Validity: {item.validity_years} year</p>
-                </div>
-                <span className="shrink-0 font-medium text-gray-900">{formatDomainPrice(item)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Hosting */}
-      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-gray-900">Hosting</h2>
-        {hosting ? (
-          <div className="mt-3 flex items-center justify-between text-sm">
-            <div>
-              <p className="font-medium text-gray-900">{hosting.planName}</p>
-              {hosting.custom && (
-                <p className="text-xs text-gray-500">
-                  NS: {hosting.custom.nameServer} · IP: {hosting.custom.ipAddress}
-                </p>
-              )}
-            </div>
-            <span className="font-medium text-gray-900">{formatBDT(hosting.price)}</span>
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-gray-500">No hosting plan selected.</p>
-        )}
-      </section>
-
-      {/* Add-ons */}
-      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-gray-900">Add-on services</h2>
-        {addons.length === 0 ? (
-          <p className="mt-2 text-sm text-gray-500">No additional services selected.</p>
-        ) : (
-          <ul className="mt-3 flex flex-col gap-2">
-            {addons.map((addon) => (
-              <li key={addon.id} className="flex items-center justify-between text-sm">
-                <span className="text-gray-900">{addon.name}</span>
-                <span className="font-medium text-gray-900">
-                  {addon.price > 0 ? formatBDT(addon.price) : "Custom"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-gray-900">Coupon</h2>
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-          <input value={couponCode} onChange={e=>setCouponCode(e.target.value.toUpperCase())} disabled={confirmed || couponBusy} placeholder="Enter coupon code" className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm" />
-          <button type="button" onClick={applyCoupon} disabled={confirmed || couponBusy || !couponCode.trim()} className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40">{couponBusy?"Checking...":"Apply Coupon"}</button>
-        </div>
-        {couponMessage && <p className={`mt-2 text-sm ${couponDiscount>0 ? "text-green-700":"text-red-600"}`}>{couponMessage}</p>}
-      </section>
-
-      {/* Totals */}
-      {totals && (
-        <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-900">Price summary</h2>
-          <dl className="mt-3 flex flex-col gap-1.5 text-sm">
-            <div className="flex items-center justify-between">
-              <dt className="text-gray-500">Domain price</dt>
-              <dd className="text-gray-900">{formatBDT(totals.domainTotal)}</dd>
-            </div>
-            <div className="flex items-center justify-between">
-              <dt className="text-gray-500">Hosting price</dt>
-              <dd className="text-gray-900">{formatBDT(totals.hostingPrice)}</dd>
-            </div>
-            <div className="flex items-center justify-between">
-              <dt className="text-gray-500">Add-on total</dt>
-              <dd className="text-gray-900">{formatBDT(totals.addonsTotal)}</dd>
-            </div>
-            {couponDiscount > 0 && <div className="flex items-center justify-between text-green-700"><dt>Coupon discount</dt><dd>-{formatBDT(couponDiscount)}</dd></div>}
-          </dl>
-          <div className="mt-3 flex items-center justify-between border-t border-gray-200 pt-3">
-            <span className="text-sm font-medium text-gray-700">Final Total</span>
-            <span className="text-lg font-semibold text-gray-900">{formatBDT(totals.finalTotal)}</span>
-          </div>
-        </section>
-      )}
-
-      {/* Terms */}
-      <label className="flex items-start gap-2 text-sm text-gray-700">
-        <input
-          type="checkbox"
-          checked={termsAccepted}
-          onChange={(e) => setTermsAccepted(e.target.checked)}
-          disabled={confirmed}
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300"
-        />
-        <span>I have read and accept the Terms &amp; Conditions.</span>
-      </label>
-
-      {confirmed && (
-        <div
-          role="status"
-          className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800"
-        >
-          {orderNumber ? `Order ${orderNumber} has been created successfully.` : "Your order has been created successfully."}
-        </div>
-      )}
-
-      {confirmError && (
-        <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {confirmError}
-        </div>
-      )}
-
-      {/* Navigation */}
-      <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-        <Link
-          href="/checkout/addons"
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-        >
-          Back
-        </Link>
-        <button
-          type="button"
-          onClick={confirmOrder}
-          disabled={!canConfirm}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {confirming ? "Creating Order..." : confirmed ? "Order Created" : "Confirm Order"}
-        </button>
-      </div>
+      <aside className="surface h-fit p-5 sm:p-6 lg:sticky lg:top-24"><p className="text-xs font-black uppercase tracking-[.15em] text-blue-600">Order summary</p><h2 className="mt-1 text-xl font-black text-slate-950">Your total</h2>{totals && <dl className="mt-5 space-y-3 text-sm"><div className="flex justify-between gap-3"><dt className="text-slate-500">Domains</dt><dd className="font-bold">{formatBDT(totals.domainTotal)}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Hosting</dt><dd className="font-bold">{formatBDT(totals.hostingPrice)}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Add-ons</dt><dd className="font-bold">{formatBDT(totals.addonsTotal)}</dd></div>{couponDiscount > 0 && <div className="flex justify-between gap-3 text-emerald-700"><dt>Discount</dt><dd className="font-bold">-{formatBDT(couponDiscount)}</dd></div>}<div className="border-t border-slate-200 pt-4"><div className="flex items-end justify-between gap-3"><dt className="font-black text-slate-700">Total</dt><dd className="text-2xl font-black tracking-tight text-slate-950">{formatBDT(totals.finalTotal)}</dd></div></div></dl>}
+        <div className="mt-5 flex gap-2"><input value={couponCode} onChange={e=>setCouponCode(e.target.value.toUpperCase())} disabled={confirmed || couponBusy} placeholder="Coupon code" className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm font-semibold outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50"/><button type="button" onClick={applyCoupon} disabled={confirmed || couponBusy || !couponCode.trim()} className="rounded-xl bg-slate-900 px-4 text-xs font-black text-white disabled:opacity-40">{couponBusy ? "…" : "Apply"}</button></div>{couponMessage && <p className={`mt-2 text-xs font-semibold ${couponDiscount > 0 ? "text-emerald-600" : "text-red-600"}`}>{couponMessage}</p>}
+        <div className="mt-5 rounded-xl bg-slate-50 p-3 text-xs leading-5 text-slate-500">🔒 Secure checkout · No hidden charges. Applicable taxes and payment fees are shown before payment.</div>
+        <label className="mt-5 flex items-start gap-3 text-sm font-semibold text-slate-700"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} disabled={confirmed} className="mt-1 h-4 w-4 rounded border-slate-300"/><span>I accept the Terms &amp; Conditions.</span></label>
+        {confirmError && <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700">{confirmError}</div>}
+        {confirmed && <div role="status" className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-bold text-emerald-800">Order {orderNumber || "created"}. Taking you to payment…</div>}
+        <button type="button" onClick={confirmOrder} disabled={!canConfirm} className="btn-signature mt-5 min-h-12 w-full rounded-xl bg-blue-600 px-5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-40">{confirming ? "Creating order…" : confirmed ? "Order created" : "Continue to payment →"}</button>
+        <Link href="/checkout/addons" className="mt-3 flex justify-center text-xs font-bold text-slate-500 hover:text-slate-900">← Back to add-ons</Link>
+      </aside>
     </div>
-  );
+  </div>;
 }

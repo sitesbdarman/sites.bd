@@ -132,28 +132,28 @@ export default async function DashboardPage() {
       fullName={fullName}
       avatarUrl={avatarUrl}
     >
-      <div className="flex flex-col gap-6">
+      <div className="mx-auto flex max-w-[1320px] flex-col gap-6">
         <ExpiryBanner domains={expiringDomains} />
 
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-gray-900">
+          <h2 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
             Welcome back, {welcomeName}
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
             Here&apos;s an overview of your domains, services, invoices, and support tickets.
           </p>
           {contactLine && <p className="mt-1 text-xs text-gray-400">{contactLine}</p>}
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             <Link
               href="/dashboard/settings"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
             >
               Settings
             </Link>
             {isAdmin && (
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+                className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800"
               >
                 Admin Panel
               </Link>
@@ -163,9 +163,9 @@ export default async function DashboardPage() {
 
         {/* Quick actions — the handful of things a customer does most
             often, surfaced above the fold instead of buried in the sidebar. */}
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <QuickAction href="/domains/search" label="Buy a domain" icon={SearchIcon} />
-          <QuickAction href="/#home" label="Claim free .sites.bd" icon={GlobeIcon} />
+          <QuickAction href="/#claim" label="Claim free .sites.bd" icon={GlobeIcon} />
           <QuickAction href="/pricing" label="Order hosting" icon={ServerIcon} />
           <QuickAction href="/dashboard/tickets" label="Open a ticket" icon={TicketIcon} />
           <QuickAction href="/dashboard/invoices" label="View invoices" icon={InvoiceIcon} />
@@ -191,7 +191,7 @@ export default async function DashboardPage() {
 
         {/* Statistics cards. Each count comes from the same query used for
             the matching "Recent ..." section below, so they can't drift. */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard title="Total Domains" value={domainCount} icon={GlobeIcon} description="Domains registered to your account" tone="blue" />
           <StatCard title="Active Services" value={serviceCount} icon={ServerIcon} description="Hosting and other active services" tone="emerald" />
           <StatCard title="Pending Invoices" value={invoiceCount} icon={InvoiceIcon} description="Invoices awaiting payment" tone="amber" />

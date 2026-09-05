@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCartItems } from "@/lib/cart/queries";
 import { getHostingPlanById, CUSTOM_CONNECTION_PLAN_ID, type HostingPlanType } from "@/lib/hosting/plans";
+import { getLiveAddonById, getLiveHostingPlanById, getLiveAddons } from "@/lib/hosting/catalog-server";
 import { getAddonById } from "@/lib/hosting/addons";
 import { notifyOrderCreated, notifyAdmin } from "@/lib/email/notifications";
 import { checkCoupon } from "@/lib/coupons/service";
@@ -61,13 +62,13 @@ export async function POST(request: Request) {
     }
     hosting = { planId: CUSTOM_CONNECTION_PLAN_ID, planName: "Custom Connection", price: 0, billingCycle: "n_a", custom: { nameServer, ipAddress } };
   } else {
-    const plan = input.planId ? getHostingPlanById(input.planId) : undefined;
+    const plan = input.planId ? (await getLiveHostingPlanById(input.planId)) || getHostingPlanById(input.planId) : undefined;
     if (!plan || plan.type !== input.type) return NextResponse.json({ success: false, error: "Selected hosting plan is invalid." }, { status: 400 });
     hosting = { planId: plan.id, planName: plan.name, price: plan.price, billingCycle: plan.billingCycle };
   }
 
   const addonIds = Array.from(new Set(Array.isArray(body.addonIds) ? body.addonIds : []));
-  const addons = addonIds.map(getAddonById).filter((a): a is NonNullable<ReturnType<typeof getAddonById>> => Boolean(a));
+  const addons = (await Promise.all(addonIds.map(async (id:string) => (await getLiveAddonById(id)) || getAddonById(id)))).filter((a): a is NonNullable<ReturnType<typeof getAddonById>> => Boolean(a));
   if (addons.length !== addonIds.length) return NextResponse.json({ success: false, error: "One or more add-ons are invalid." }, { status: 400 });
 
   const domainTotal = Math.round(cartItems.reduce((s, i) => s + Number(i.price), 0) * 100) / 100;

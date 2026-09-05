@@ -28,10 +28,12 @@ export const adminNav = [
   { href: "/admin/tickets", label: "Support", Icon: TicketIcon },
   { href: "/admin/coupons", label: "Coupons", Icon: PercentIcon },
   { href: "/admin/pricing", label: "Pricing", Icon: TakaIcon },
+  { href: "/admin/catalog", label: "Service Catalog", Icon: GlobeIcon },
   { href: "/admin/notifications", label: "Notifications", Icon: BellIcon },
   { href: "/admin/reports", label: "Reports", Icon: ChartIcon },
   { href: "/admin/content", label: "Content", Icon: DocIcon },
   { href: "/admin/audit", label: "Audit Log", Icon: ClipboardIcon },
+  { href: "/admin/integrations", label: "Integrations", Icon: SettingsIcon },
   { href: "/admin/settings", label: "Settings", Icon: SettingsIcon },
 ] as const;
 

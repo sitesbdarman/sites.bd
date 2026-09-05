@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSidebar }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-[68px] shrink-0 items-center gap-3 border-b border-slate-200/80 bg-white/90 px-4 backdrop-blur-xl sm:px-6">
       <button
         type="button"
         onClick={onOpenSidebar}
@@ -25,16 +25,16 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
         <span className="sr-only">Open menu</span>
       </button>
 
-      <h1 className="min-w-0 flex-1 truncate text-base font-semibold text-gray-900 sm:text-lg">
+      <h1 className="min-w-0 flex-1 truncate text-base font-black tracking-tight text-slate-950 sm:text-lg">
         {pageTitle}
       </h1>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3">
         {userEmail && (
           <Link
             href="/profile"
             title="Edit profile"
-            className="group flex min-w-0 items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-blue-50 active:scale-[.98]"
+            className="group flex min-w-0 items-center gap-2 rounded-xl px-1.5 py-1.5 sm:px-2 transition hover:bg-blue-50 active:scale-[.98]"
           >
             <span className="flex h-9 w-9 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100 transition group-hover:ring-blue-300">
               {avatarUrl ? (
@@ -43,7 +43,7 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
                 <UserIcon className="h-4 w-4" />
               )}
             </span>
-            <span className="max-w-[8rem] truncate text-xs font-medium text-gray-600 group-hover:text-blue-700 sm:max-w-[14rem] sm:text-sm">
+            <span className="hidden max-w-[8rem] truncate text-xs font-medium sm:block text-gray-600 group-hover:text-blue-700 sm:max-w-[14rem] sm:text-sm">
               {fullName || userEmail}
             </span>
           </Link>

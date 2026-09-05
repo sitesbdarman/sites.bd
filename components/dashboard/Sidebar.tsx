@@ -13,14 +13,40 @@ interface NavItem {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
-  { label: "My Domains", href: "/dashboard/domains", icon: GlobeIcon },
-  { label: "My Services", href: "/dashboard/services", icon: ServerIcon },
-  { label: "My Invoices", href: "/dashboard/invoices", icon: InvoiceIcon },
-  { label: "Support Tickets", href: "/dashboard/tickets", icon: TicketIcon },
-  { label: "Settings", href: "/profile", icon: SettingsIcon },
+const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
+  { label: "Overview", items: [{ label: "Dashboard", href: "/dashboard", icon: DashboardIcon }] },
+  { label: "Domains", items: [
+    { label: "My Domains", href: "/dashboard/domains", icon: GlobeIcon },
+    { label: "Search Domain", href: "/domains/search", icon: GlobeIcon },
+    { label: "Transfers", href: "/dashboard/domains/transfers", icon: GlobeIcon },
+  ]},
+  { label: "Hosting", items: [
+    { label: "My Hosting", href: "/dashboard/services", icon: ServerIcon },
+  ]},
+  { label: "Email", items: [
+    { label: "Email Accounts", href: "/dashboard/email", icon: InvoiceIcon },
+    { label: "Email Forwarding", href: "/dashboard/email/forwarding", icon: InvoiceIcon },
+  ]},
+  { label: "Free .sites.bd", items: [
+    { label: "My Subdomains", href: "/dashboard/subdomains", icon: GlobeIcon },
+    { label: "Claim Subdomain", href: "/#claim", icon: GlobeIcon },
+  ]},
+  { label: "Billing", items: [
+    { label: "Cart", href: "/cart", icon: InvoiceIcon },
+    { label: "Orders", href: "/dashboard/orders", icon: InvoiceIcon },
+    { label: "Invoices", href: "/dashboard/invoices", icon: InvoiceIcon },
+  ]},
+  { label: "Support", items: [
+    { label: "Tickets", href: "/dashboard/tickets", icon: TicketIcon },
+    { label: "Knowledge Base", href: "/support/knowledge-base", icon: TicketIcon },
+  ]},
+  { label: "Account", items: [
+    { label: "Profile", href: "/profile", icon: SettingsIcon },
+    { label: "Security", href: "/dashboard/settings", icon: SettingsIcon },
+    { label: "Notifications", href: "/dashboard/settings", icon: SettingsIcon },
+  ]},
 ];
+
 
 interface SidebarProps {
   /** Mobile off-canvas open state. Ignored (always visible) on desktop. */
@@ -42,8 +68,8 @@ function SidebarContent({
   onClose?: () => void;
 }) {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-gray-200 px-5">
+    <div className="flex h-full flex-col bg-white">
+      <div className="flex h-[68px] shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-5">
         <span className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
           <BrandMark className="h-6 w-6 text-blue-600" />
           SITES<span className="text-blue-600">.BD</span>
@@ -60,30 +86,28 @@ function SidebarContent({
         )}
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-        {NAV_ITEMS.map((item) => {
-          const active = isActive(pathname, item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={`relative flex items-center gap-3 rounded-md py-2 pl-4 pr-3 text-sm font-medium transition-colors ${
-                active
-                  ? "text-blue-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              {active && (
-                <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-blue-600" aria-hidden="true" />
-              )}
-              <Icon className="h-5 w-5 shrink-0" />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label}>
+            <p className="px-3 pb-1.5 text-[10px] font-black uppercase tracking-[.16em] text-slate-400">{group.label}</p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = isActive(pathname, item.href);
+                const Icon = item.icon;
+                return (
+                  <Link key={`${group.label}-${item.label}`} href={item.href} onClick={onNavigate}
+                    aria-current={active ? "page" : undefined}
+                    className={`relative flex items-center gap-3 rounded-xl py-2.5 pl-4 pr-3 text-sm font-bold transition-colors ${
+                      active ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+                    }`}>
+                    {active && <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-blue-600" aria-hidden="true" />}
+                    <Icon className="h-4.5 w-4.5 shrink-0" />{item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="shrink-0 space-y-1 border-t border-gray-200 p-3">
@@ -103,7 +127,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop: persistent sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-gray-200 bg-white md:block">
+      <aside className="hidden w-[272px] shrink-0 border-r border-slate-200/80 bg-white md:block">
         <SidebarContent pathname={pathname} />
       </aside>
 
@@ -117,7 +141,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           }`}
         />
         <aside
-          className={`absolute inset-y-0 left-0 w-72 max-w-[80vw] bg-white shadow-xl transition-transform duration-200 ease-out ${
+          className={`absolute inset-y-0 left-0 w-80 max-w-[86vw] bg-white shadow-2xl transition-transform duration-200 ease-out ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >

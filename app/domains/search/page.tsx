@@ -205,6 +205,21 @@ export default function DomainSearchPage() {
 
     setClaiming(true);
     try {
+      if (claimTarget.endsWith(`.${FREE_SUBDOMAIN_TLD}`)) {
+        const response = await fetch("/api/subdomains/claim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ label: claimTarget.slice(0, -(`.${FREE_SUBDOMAIN_TLD}`).length) }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          router.push(`/subdomains/success?domain=${encodeURIComponent(data.domain)}`);
+          return;
+        }
+        setClaimOutcomes((prev) => ({ ...prev, [claimTarget]: { kind: "error", message: data.error ?? "Couldn't claim that address." } }));
+        setClaimTarget(null);
+        return;
+      }
       const response = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -255,16 +270,16 @@ export default function DomainSearchPage() {
   return (
     <>
       <PublicNavbar />
-      <main className="flex flex-1 flex-col items-center p-6 py-16">
-      <div className="w-full max-w-2xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">{tr(st.title, language)}</h1>
-          <p className="mt-2 text-gray-500">
-            {tr(st.subtitle, language)}
-          </p>
-        </div>
+      <main className="min-h-screen bg-[#f7f9fc] px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mx-auto w-full max-w-[980px]">
+        <div className="rounded-[28px] bg-slate-950 px-5 py-8 text-white shadow-[var(--shadow-float)] sm:px-8 sm:py-10">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[.2em] text-sky-300">Find your next identity</p>
+            <h1 className="mt-2 text-3xl font-black tracking-[-.035em] sm:text-5xl">{tr(st.title, language)}</h1>
+            <p className="mt-3 text-sm leading-6 text-slate-300 sm:text-base">{tr(st.subtitle, language)}</p>
+          </div>
 
-        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-2 sm:flex-row">
+        <form onSubmit={handleSubmit} noValidate className="mt-7 flex flex-col gap-2 sm:flex-row">
           <div ref={inputWrapperRef} className="relative flex-1">
             <label htmlFor="domain-query" className="sr-only">
               Domain name
@@ -279,7 +294,7 @@ export default function DomainSearchPage() {
               onChange={(event) => setQuery(event.target.value)}
               onFocus={() => setShowTldSuggestions(true)}
               disabled={state === "loading"}
-              className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm outline-none transition-colors focus:border-gray-900 focus:ring-2 focus:ring-gray-200"
+              className="w-full rounded-xl border border-white/10 bg-white px-4 py-3.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-300 focus:ring-4 focus:ring-sky-400/20"
             />
 
             {showTldSuggestions && tldSuggestions.length > 0 && (
@@ -306,7 +321,7 @@ export default function DomainSearchPage() {
           <button
             type="submit"
             disabled={state === "loading"}
-            className="flex items-center justify-center gap-2 rounded-md bg-gray-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-signature flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-black text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {state === "loading" && (
               <span
@@ -317,15 +332,15 @@ export default function DomainSearchPage() {
             {state === "loading" ? tr(st.searching, language) : tr(st.searchButton, language)}
           </button>
         </form>
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="mt-3 text-xs text-slate-400">
           {tr(st.helperText, language)}
         </p>
-        <div className="mt-3 text-center text-sm">
-          <Link href="/" className="font-semibold text-blue-600 hover:text-blue-700">{tr(st.backToHome, language)}</Link>
+        <div className="mt-4 text-sm">
+          <Link href="/" className="font-bold text-slate-500 hover:text-blue-600">{tr(st.backToHome, language)}</Link>
         </div>
 
         {recentSearches.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="text-xs text-gray-400">{tr(st.recent, language)}</span>
             {recentSearches.map((recent) => (
               <button
@@ -335,7 +350,7 @@ export default function DomainSearchPage() {
                   setQuery(recent);
                   runSearch(recent);
                 }}
-                className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 transition hover:border-blue-300 hover:bg-blue-50"
               >
                 {recent}
               </button>
@@ -346,30 +361,30 @@ export default function DomainSearchPage() {
         {state === "error" && errorMessage && (
           <div
             role="alert"
-            className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700"
           >
             {errorMessage}
           </div>
         )}
 
         {isMock && state === "success" && (
-          <div className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
             {tr(st.mockNotice, language)}
           </div>
         )}
 
         {state === "success" && results.length > 0 && (
-          <ul className="mt-6 flex flex-col gap-3">
+          <ul className="mt-6 grid gap-3">
             {results.map((result) => {
               const outcome = claimOutcomes[result.domain];
               return (
                 <li
                   key={result.domain}
-                  className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:border-blue-200 sm:p-5"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="font-medium text-gray-900">{result.domain}</span>
+                      <span className="break-all text-sm font-black text-slate-950 sm:text-base">{result.domain}</span>
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           result.available
@@ -389,7 +404,7 @@ export default function DomainSearchPage() {
                         <button
                           type="button"
                           onClick={() => setClaimTarget(result.domain)}
-                          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                          className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                         >
                           {tr(st.claim, language)}
                         </button>
@@ -400,7 +415,7 @@ export default function DomainSearchPage() {
                         onClick={() =>
                           router.push(`/domains/whois?domain=${encodeURIComponent(result.domain)}`)
                         }
-                        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                        className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-black text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
                       >
                         {tr(st.whois, language)}
                       </button>
@@ -454,6 +469,7 @@ export default function DomainSearchPage() {
           onConfirm={handleClaimConfirm}
         />
       )}
+      </div>
       </main>
       <PublicFooter />
     </>
@@ -461,66 +477,36 @@ export default function DomainSearchPage() {
 }
 
 function AlternativeSuggestions({
-  domain,
-  language,
-  loading,
-  alternatives,
-  onReveal,
-  onPick,
-  onClaim,
+  domain, language, loading, alternatives, onReveal, onPick, onClaim,
 }: {
-  domain: string;
-  language: Language;
-  loading: boolean;
-  alternatives?: DomainResult[];
-  onReveal: () => void;
-  onPick: (domain: string) => void;
-  onClaim: (domain: string) => void;
+  domain: string; language: Language; loading: boolean; alternatives?: DomainResult[];
+  onReveal: () => void; onPick: (domain: string) => void; onClaim: (domain: string) => void;
 }) {
   const st = domainSearchText;
-
-  if (!alternatives && !loading) {
-    return (
-      <button
-        type="button"
-        onClick={onReveal}
-        className="self-start text-xs font-medium text-blue-600 hover:text-blue-700"
-      >
-        {tr(st.seeSimilar, language)}
-      </button>
-    );
-  }
-
-  if (loading) {
-    return <p className="text-xs text-gray-400">{tr(st.checkingSimilar, language)} {domain}…</p>;
-  }
+  if (!alternatives && !loading) return (
+    <button type="button" onClick={onReveal} className="text-xs font-bold text-blue-600 hover:text-blue-700">
+      {tr(st.seeSimilar, language)}
+    </button>
+  );
+  if (loading) return <p className="text-xs text-gray-400">{tr(st.checkingSimilar, language)} {domain}…</p>;
 
   const available = (alternatives ?? []).filter((a) => a.available);
   const freeSubdomain = `${baseNameOf(domain)}.${FREE_SUBDOMAIN_TLD}`;
-
   return (
-    <div className="flex flex-wrap gap-2 pt-1">
-      <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 py-1 pl-3 pr-1 text-xs">
-        <button type="button" onClick={() => onPick(freeSubdomain)} className="font-semibold text-blue-800 hover:underline">{freeSubdomain} <span className="text-blue-600">FREE</span></button>
-        <button type="button" onClick={() => onClaim(freeSubdomain)} className="rounded-full bg-blue-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-blue-700">Claim</button>
-      </div>
-      {available.map((alt) => (
-        <div
-          key={alt.domain}
-          className="flex items-center gap-2 rounded-full border border-green-200 bg-green-50 py-1 pl-3 pr-1 text-xs"
-        >
-          <button type="button" onClick={() => onPick(alt.domain)} className="font-medium text-green-800 hover:underline">
-            {alt.domain}
-          </button>
-          <button
-            type="button"
-            onClick={() => onClaim(alt.domain)}
-            className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-green-700 shadow-sm hover:bg-green-100"
-          >
-            {tr(st.claim, language)}
-          </button>
+    <div className="mt-3 space-y-2">
+      <p className="text-[11px] font-black uppercase tracking-[.14em] text-gray-400">Recommended alternatives</p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50/70 p-3">
+          <div className="min-w-0"><button type="button" onClick={() => onPick(freeSubdomain)} className="block truncate text-sm font-bold text-blue-900 hover:underline">{freeSubdomain}</button><p className="text-[11px] font-semibold text-blue-600">Free forever</p></div>
+          <button type="button" onClick={() => onClaim(freeSubdomain)} className="shrink-0 rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-black text-white hover:bg-blue-700">Claim Free</button>
         </div>
-      ))}
+        {available.map((alt) => (
+          <div key={alt.domain} className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-3">
+            <div className="min-w-0"><button type="button" onClick={() => onPick(alt.domain)} className="block truncate text-sm font-bold text-gray-900 hover:text-blue-700 hover:underline">{alt.domain}</button><p className="text-[11px] font-semibold text-emerald-600">Available</p></div>
+            <button type="button" onClick={() => onClaim(alt.domain)} className="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-[11px] font-bold text-gray-700 hover:bg-gray-50">Add to Cart</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
