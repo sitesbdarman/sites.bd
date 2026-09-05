@@ -50,7 +50,7 @@ export default async function PricingPage() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {(plans ?? []).map((plan: any) => (
-              <article key={plan.id} className="relative rounded-3xl bg-white p-7 shadow-sm ring-1 ring-gray-100 transition hover:-translate-y-1 hover:shadow-xl">
+              <article key={plan.id} className="surface relative p-7 transition-colors hover:border-gray-300">
                 {plan.badge && <span className="absolute right-5 top-5 rounded-full bg-blue-50 px-3 py-1 text-xs font-extrabold text-blue-700">{plan.badge}</span>}
                 <h3 className="text-2xl font-extrabold text-gray-900">{plan.name}</h3>
                 <p className="mt-2 min-h-12 text-sm text-gray-500">{plan.description}</p>
@@ -60,7 +60,7 @@ export default async function PricingPage() {
               </article>
             ))}
           </div>
-          {(!plans || plans.length === 0) && <div className="rounded-2xl bg-emerald-50 p-8 text-center"><h3 className="text-xl font-bold text-emerald-800">SITES.BD Free Subdomain</h3><p className="mt-2 text-emerald-700">Run database/0017_admin_pricing.sql to enable admin-managed pricing.</p></div>}
+          {(!plans || plans.length === 0) && <div className="rounded-[--radius-surface] bg-emerald-50 p-8 text-center"><h3 className="text-xl font-bold text-emerald-800">SITES.BD Free Subdomain</h3><p className="mt-2 text-emerald-700">Run database/0017_admin_pricing.sql to enable admin-managed pricing.</p></div>}
         </div>
       </section>
 
@@ -68,12 +68,12 @@ export default async function PricingPage() {
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 text-center"><h2 className="text-3xl font-extrabold sm:text-4xl">Popular domain extensions</h2><p className="mt-3 text-gray-600">Prices shown are starting annual prices and can vary by registration, renewal, or registry fees.</p></div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {tlds.map(([tld, price]) => <div key={tld} className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition hover:-translate-y-1 hover:shadow-lg"><div className="text-2xl font-extrabold text-blue-600">{tld}</div><div className="mt-3 text-2xl font-extrabold">{price}</div><div className="mt-1 text-sm text-gray-500">Registration / year</div><Link href={`/domains/search?q=example${tld}`} className="mt-5 block rounded-xl bg-blue-50 py-3 text-center font-bold text-blue-700 hover:bg-blue-100">Search {tld}</Link></div>)}
+            {tlds.map(([tld, price]) => <div key={tld} className="surface p-6 transition-colors hover:border-gray-300"><div className="text-2xl font-extrabold text-blue-600">{tld}</div><div className="mt-3 text-2xl font-extrabold">{price}</div><div className="mt-1 text-sm text-gray-500">Registration / year</div><Link href={`/domains/search?q=example${tld}`} className="mt-5 block rounded-xl bg-blue-50 py-3 text-center font-bold text-blue-700 hover:bg-blue-100">Search {tld}</Link></div>)}
           </div>
         </div>
       </section>
 
-      <section className="bg-white px-5 py-16 lg:px-8"><div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3"><div className="rounded-2xl bg-blue-50 p-7"><h3 className="text-xl font-extrabold">Easy search</h3><p className="mt-2 text-gray-600">Search your preferred name before adding it to your order.</p></div><div className="rounded-2xl bg-blue-50 p-7"><h3 className="text-xl font-extrabold">DNS management</h3><p className="mt-2 text-gray-600">Manage supported DNS records from your dashboard after setup.</p></div><div className="rounded-2xl bg-blue-50 p-7"><h3 className="text-xl font-extrabold">One dashboard</h3><p className="mt-2 text-gray-600">Keep domains, hosting, invoices and support in one account.</p></div></div></section>
+      <section className="bg-white px-5 py-16 lg:px-8"><div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3"><div className="rounded-[--radius-surface] bg-blue-50 p-7"><h3 className="text-xl font-extrabold">Easy search</h3><p className="mt-2 text-gray-600">Search your preferred name before adding it to your order.</p></div><div className="rounded-[--radius-surface] bg-blue-50 p-7"><h3 className="text-xl font-extrabold">DNS management</h3><p className="mt-2 text-gray-600">Manage supported DNS records from your dashboard after setup.</p></div><div className="rounded-[--radius-surface] bg-blue-50 p-7"><h3 className="text-xl font-extrabold">One dashboard</h3><p className="mt-2 text-gray-600">Keep domains, hosting, invoices and support in one account.</p></div></div></section>
       <PublicFooter />
     </main>
   );

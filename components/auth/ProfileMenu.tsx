@@ -28,7 +28,7 @@ export function ProfileMenu({ loggedIn, avatarUrl, fullName, email }: ProfileMen
       href={loggedIn ? "/dashboard" : "/login"}
       aria-label={label}
       title={label}
-      className="group flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white px-1.5 py-1.5 text-gray-800 shadow-sm ring-1 ring-blue-100 transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[.98]"
+      className="group flex min-w-0 items-center gap-2 rounded-full border border-gray-200 bg-white px-1.5 py-1.5 text-gray-800 transition-colors hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[.98]"
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-50 to-blue-100 text-blue-600 ring-1 ring-blue-200/80 sm:h-10 sm:w-10">
         {avatarUrl ? (

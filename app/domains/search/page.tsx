@@ -436,7 +436,7 @@ export default function DomainSearchPage() {
       </div>
 
       {cartAddedRecently && (
-        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-gray-950 px-4 py-3 text-sm font-semibold text-white shadow-2xl ring-1 ring-white/10">
+        <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-[--radius-surface] bg-gray-950 px-4 py-3 text-sm font-semibold text-white shadow-[--shadow-float] ring-1 ring-white/10">
           <span className="text-emerald-300">{cartAddedRecently}</span> added to cart.
           <Link href="/cart" className="rounded-lg bg-blue-600 px-3 py-1.5 font-bold text-white transition hover:bg-blue-500 active:scale-95">Go to Cart</Link>
           <button type="button" onClick={() => setCartAddedRecently(null)} className="text-gray-400 hover:text-white" aria-label="Dismiss">×</button>

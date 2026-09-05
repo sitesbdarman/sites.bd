@@ -121,7 +121,7 @@ export function ProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+    <form onSubmit={handleSubmit} className="rounded-[--radius-surface] border border-gray-200 bg-white p-6 sm:p-8">
       <div className="flex flex-col gap-8">
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
           <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-blue-50 text-blue-600 shadow ring-1 ring-gray-200">

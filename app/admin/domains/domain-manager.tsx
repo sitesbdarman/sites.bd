@@ -129,8 +129,8 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
 
       <div className="mt-6 overflow-x-auto rounded-xl border bg-white">
         <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-            <tr>
+          <thead className="text-xs font-medium text-gray-500">
+            <tr className="border-b border-gray-200">
               {["Domain", "Owner", "Status", "Auto Renew", "Registered", "Expires", "Actions"].map((x) => (
                 <th key={x} className="px-5 py-3">
                   {x}

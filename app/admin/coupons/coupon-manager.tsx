@@ -204,8 +204,8 @@ export function CouponManager({ initialCoupons }: { initialCoupons: Coupon[] }) 
 
       <div className="overflow-x-auto rounded-[--radius-surface] border border-gray-200 bg-white">
         <table className="w-full min-w-[900px] text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>{["Code", "Discount", "Minimum", "Usage", "Status", "Actions"].map((x) => <th key={x} className="px-5 py-3">{x}</th>)}</tr>
+          <thead>
+            <tr className="border-b border-gray-200 text-xs font-medium text-slate-500">{["Code", "Discount", "Minimum", "Usage", "Status", "Actions"].map((x) => <th key={x} className="px-5 py-3">{x}</th>)}</tr>
           </thead>
           <tbody className="divide-y">
             {filtered.map((c) => (

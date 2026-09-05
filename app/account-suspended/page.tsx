@@ -5,7 +5,7 @@ export default function AccountSuspendedPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="flex min-h-[calc(100vh-170px)] items-center justify-center px-5">
-      <div className="w-full max-w-md rounded-2xl border bg-white p-8 text-center shadow-sm">
+      <div className="w-full max-w-md rounded-[--radius-surface] border border-gray-200 bg-white p-8 text-center">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-2xl text-red-600">!</div>
         <h1 className="mt-5 text-xl font-black">Your account has been suspended</h1>
         <p className="mt-3 text-sm text-gray-500">

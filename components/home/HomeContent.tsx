@@ -30,16 +30,14 @@ function Icon({ name, className = "h-6 w-6" }: { name: IconName; className?: str
 const featureIcons: IconName[] = ["gift", "bolt", "server", "settings", "shield", "users"];
 const featureTones = ["blue", "green", "purple", "orange", "red", "teal"] as const;
 
-const toneClasses: Record<string, string> = {
-  blue: "from-blue-50 to-blue-100 text-blue-600",
-  green: "from-emerald-50 to-emerald-100 text-emerald-600",
-  purple: "from-violet-50 to-violet-100 text-violet-600",
-  orange: "from-orange-50 to-orange-100 text-orange-600",
-  red: "from-rose-50 to-rose-100 text-rose-600",
-  teal: "from-teal-50 to-teal-100 text-teal-600",
+const toneText: Record<string, string> = {
+  blue: "text-blue-600",
+  green: "text-emerald-600",
+  purple: "text-violet-600",
+  orange: "text-orange-600",
+  red: "text-rose-600",
+  teal: "text-teal-600",
 };
-
-const stepColors = ["bg-blue-600", "bg-emerald-500", "bg-violet-600"];
 
 interface HomeContentProps {
   loggedIn: boolean;
@@ -56,11 +54,18 @@ export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeConten
     <main className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-800">
       <PublicNavbar loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
       <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-5 pb-16 pt-32 text-center text-white lg:px-8">
-        <div className="absolute -left-20 top-32 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -right-20 bottom-20 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="absolute left-10 top-36 opacity-20"><Icon name="globe" className="h-20 w-20" /></div>
-        <div className="absolute right-12 top-40 opacity-20"><Icon name="server" className="h-16 w-16" /></div>
-        <div className="absolute bottom-28 left-16 opacity-20"><Icon name="settings" className="h-24 w-24" /></div>
+        {/* Subtle lattice motif echoing the brand mark, instead of blurry decorative orbs. */}
+        <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.07]" aria-hidden="true">
+          <defs>
+            <pattern id="lattice" width="56" height="56" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1.5" fill="currentColor" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#lattice)" />
+        </svg>
+        <div className="absolute -right-24 top-1/2 h-[32rem] w-[32rem] -translate-y-1/2 opacity-[0.08]" aria-hidden="true">
+          <Icon name="globe" className="h-full w-full" />
+        </div>
 
         <div className="relative z-10 mx-auto w-full max-w-5xl">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">{tr(t.hero.title, language)}</h1>
@@ -69,16 +74,16 @@ export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeConten
             {tr(t.hero.lead, language)}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="#order" className="rounded-full bg-white px-8 py-4 text-lg font-extrabold text-blue-600 shadow-2xl transition hover:-translate-y-1">
+            <Link href="#order" className="rounded-full bg-white px-8 py-4 text-lg font-extrabold text-blue-600 transition-transform active:scale-[.98]">
               <Icon name="gift" className="mr-3 inline h-6 w-6" />{tr(t.hero.ctaPrimary, language)}
             </Link>
-            <a href="#features" className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-lg font-extrabold backdrop-blur transition hover:-translate-y-1 hover:bg-white/15">
+            <a href="#features" className="rounded-full border border-white/30 bg-white/10 px-8 py-4 text-lg font-extrabold backdrop-blur transition-colors hover:bg-white/15 active:scale-[.98]">
               {tr(t.hero.ctaSecondary, language)} <Icon name="arrow" className="ml-2 inline h-5 w-5" />
             </a>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4">
             {t.hero.stats.map((stat) => (
-              <div key={stat.label.en} className="rounded-2xl border border-white/20 bg-white/10 p-5 shadow-xl backdrop-blur-md">
+              <div key={stat.label.en} className="rounded-[--radius-surface] border border-white/20 bg-white/10 p-5 backdrop-blur-md">
                 <div className="text-3xl font-extrabold">{tr(stat.value, language)}</div><div className="mt-1 text-white/75">{tr(stat.label, language)}</div>
               </div>
             ))}
@@ -90,12 +95,12 @@ export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeConten
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{tr(t.order.title, language)}</h2>
           <p className="mt-4 text-lg text-gray-600">{tr(t.order.subtitle, language)}</p>
-          <form action="/domains/search" className="mt-9 rounded-2xl bg-white p-4 shadow-xl ring-1 ring-blue-100">
+          <form action="/domains/search" className="mt-9 rounded-[--radius-surface] border border-blue-100 bg-white p-4">
             <div className="flex flex-col gap-3 sm:flex-row">
               <div className="flex min-w-0 flex-1 items-center rounded-xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500">
                 <input name="q" required pattern="[^\s]+" placeholder={tr(t.order.placeholder, language)} className="min-w-0 flex-1 bg-transparent px-4 py-4 text-lg outline-none" />
               </div>
-              <button className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-7 py-4 font-extrabold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:from-blue-700 hover:to-blue-800">
+              <button className="rounded-xl bg-blue-600 px-7 py-4 font-extrabold text-white transition-colors hover:bg-blue-700 active:scale-[.98]">
                 <Icon name="search" className="mr-2 inline h-5 w-5" />{tr(t.order.button, language)}
               </button>
             </div>
@@ -110,11 +115,11 @@ export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeConten
             <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl"><Icon name="star" className="mr-3 inline h-9 w-9 text-blue-600" />{tr(t.featuresHeading.title, language)}</h2>
             <p className="mt-4 text-lg text-gray-600">{tr(t.featuresHeading.subtitle, language)}</p>
           </div>
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {t.features.map((feature, i) => (
-              <article key={feature.title.en} className={`rounded-3xl bg-gradient-to-br p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl ${toneClasses[featureTones[i]!]}`}>
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/20"><Icon name={featureIcons[i]!} className="h-8 w-8" /></div>
-                <h3 className="text-2xl font-extrabold text-gray-800">{tr(feature.title, language)}</h3>
+              <article key={feature.title.en} className={`surface accent-bar p-8 pl-9 transition-colors hover:border-gray-300 ${toneText[featureTones[i]!]}`}>
+                <Icon name={featureIcons[i]!} className="h-8 w-8" />
+                <h3 className="mt-5 text-2xl font-extrabold text-gray-800">{tr(feature.title, language)}</h3>
                 <p className="mt-4 leading-7 text-gray-600">{tr(feature.text, language)}</p>
                 <ul className="mt-6 space-y-2 text-gray-700">
                   {feature.items.map((item) => <li key={item.en}>✓ <span className="ml-1">{tr(item, language)}</span></li>)}
@@ -131,11 +136,17 @@ export function HomeContent({ loggedIn, avatarUrl, fullName, email }: HomeConten
             <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl"><Icon name="settings" className="mr-3 inline h-9 w-9 text-blue-600" />{tr(t.howItWorks.title, language)}</h2>
             <p className="mt-4 text-lg text-gray-600">{tr(t.howItWorks.subtitle, language)}</p>
           </div>
-          <div className="grid gap-7 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-3">
             {t.howItWorks.steps.map((step, i) => (
-              <div key={step.title.en} className="rounded-2xl bg-white p-8 text-center shadow-lg transition hover:-translate-y-1">
-                <div className={`mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-3xl font-extrabold text-white ${stepColors[i]}`}>{i + 1}</div>
-                <h3 className="text-2xl font-extrabold">{tr(step.title, language)}</h3><p className="mt-4 leading-7 text-gray-600">{tr(step.text, language)}</p>
+              <div key={step.title.en} className="relative text-center">
+                {i < t.howItWorks.steps.length - 1 && (
+                  <div className="absolute left-1/2 top-6 hidden h-px w-full bg-gray-300 md:block" aria-hidden="true" />
+                )}
+                <div className="relative mx-auto flex h-12 w-12 items-center justify-center rounded-full border-2 border-blue-600 bg-white text-lg font-extrabold text-blue-600">
+                  {i + 1}
+                </div>
+                <h3 className="mt-5 text-2xl font-extrabold">{tr(step.title, language)}</h3>
+                <p className="mt-3 leading-7 text-gray-600">{tr(step.text, language)}</p>
               </div>
             ))}
           </div>

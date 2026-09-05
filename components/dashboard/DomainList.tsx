@@ -120,26 +120,26 @@ export function DomainList({ domains }: DomainListProps) {
       ) : (
         <>
           {/* Desktop: table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-gray-200 md:block">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+          <div className="hidden overflow-hidden rounded-[--radius-surface] border border-gray-200 md:block">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     Domain
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     Registered
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     Expires
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     Auto-renew
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500">
                     <span className="sr-only">Actions</span>
                   </th>
                 </tr>
@@ -215,7 +215,7 @@ function DomainCard({ domain }: { domain: Domain }) {
   return (
     <Link
       href={`/dashboard/domains/${domain.id}`}
-      className="group block rounded-[--radius-surface] border border-gray-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[.99]"
+      className="group block rounded-[--radius-surface] border border-gray-200 bg-white p-4 transition-colors hover:border-blue-300 active:scale-[.99]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">

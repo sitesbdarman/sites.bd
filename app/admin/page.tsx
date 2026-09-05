@@ -4,15 +4,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 function Card({ label, value, detail, href, icon }: { label: string; value: string | number; detail: string; href: string; icon: string }) {
   return (
-    <Link href={href} className="group rounded-[--radius-surface] border border-slate-200 bg-white p-5 transition-colors hover:border-sky-300 active:scale-[.99]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-black tracking-tight text-slate-950">{value}</p>
-          <p className="mt-1 text-xs text-slate-400">{detail}</p>
-        </div>
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-lg text-sky-600 transition group-hover:scale-110">{icon}</span>
+    <Link href={href} className="surface accent-bar group block overflow-hidden p-5 pl-6 text-sky-600 transition-colors hover:border-sky-300">
+      <div className="flex items-center gap-2 text-slate-500">
+        <span aria-hidden="true" className="text-sm">{icon}</span>
+        <p className="text-sm font-semibold">{label}</p>
       </div>
+      <p className="tabular mt-2 text-3xl font-black tracking-tight text-slate-950">{value}</p>
+      <p className="mt-1 text-xs text-slate-400">{detail}</p>
     </Link>
   );
 }
@@ -42,7 +40,7 @@ export default async function AdminPage() {
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Manage customers, domains, orders, manual payments, support and platform settings from one place.</p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex">
-            <Link href="/admin/domains" className="rounded-xl bg-sky-500 px-4 py-3 text-center text-sm font-bold text-white shadow-lg shadow-sky-500/20 transition hover:-translate-y-0.5 hover:bg-sky-400 active:scale-[.98]">Manage Domains</Link>
+            <Link href="/admin/domains" className="rounded-xl bg-sky-500 px-4 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-sky-400 active:scale-[.98]">Manage Domains</Link>
             <Link href="/admin/orders" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-white/10 active:scale-[.98]">Review Payments</Link>
           </div>
         </div>
@@ -72,7 +70,7 @@ export default async function AdminPage() {
         <div className="rounded-[--radius-surface] border border-slate-200 bg-white p-6">
           <h2 className="text-lg font-black text-slate-950">Quick actions</h2>
           <div className="mt-4 grid gap-2">
-            {[['/admin/users','Customer management'],['/admin/domains','Domain management'],['/admin/orders','Payment approvals'],['/admin/tickets','Support tickets'],['/admin/settings','Payment settings']].map(([href,label]) => <Link key={href} href={href} className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 active:scale-[.99]"><span>{label}</span><span>→</span></Link>)}
+            {[['/admin/users','Customer management'],['/admin/domains','Domain management'],['/admin/orders','Payment approvals'],['/admin/tickets','Support tickets'],['/admin/settings','Payment settings']].map(([href,label]) => <Link key={href} href={href} className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700 active:scale-[.99]"><span>{label}</span><span>→</span></Link>)}
           </div>
         </div>
       </section>

@@ -67,7 +67,7 @@ export default function AdminPricingPage() {
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Edit the pricing cards shown on the public pricing page. Changes are saved to Supabase.</p>
       </section>
       {message && <div className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-800">{message}</div>}
-      {loading ? <div className="rounded-2xl bg-white p-8 text-slate-500">Loading pricing…</div> : (
+      {loading ? <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-8 text-slate-500">Loading pricing…</div> : (
         <div className="space-y-5">
           {plans.map((p, i) => (
             <div key={p.id ?? i} className="rounded-[--radius-surface] border border-slate-200 bg-white p-6 transition-colors hover:border-gray-300">
@@ -95,8 +95,8 @@ export default function AdminPricingPage() {
             </div>
           ))}
           <div className="flex flex-wrap gap-3">
-            <button onClick={()=>setPlans(p=>[...p,emptyPlan()])} className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-sky-300 hover:text-sky-700 active:scale-[.98]">+ Add pricing plan</button>
-            <button onClick={save} disabled={saving} className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-600/20 transition hover:-translate-y-0.5 hover:bg-sky-500 active:scale-[.98] disabled:opacity-60">{saving ? "Saving…" : "Save pricing"}</button>
+            <button onClick={()=>setPlans(p=>[...p,emptyPlan()])} className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:border-sky-300 hover:text-sky-700 active:scale-[.98]">+ Add pricing plan</button>
+            <button onClick={save} disabled={saving} className="rounded-xl bg-sky-600 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-sky-500 active:scale-[.98] disabled:opacity-60">{saving ? "Saving…" : "Save pricing"}</button>
           </div>
           <p className="text-xs text-slate-500">Removed plans are deleted permanently once you click &ldquo;Save pricing&rdquo;.</p>
         </div>

@@ -81,8 +81,8 @@ export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
           <div className="hidden overflow-hidden rounded-[--radius-surface] border border-gray-200 bg-white md:block">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-                  <tr>
+                <thead className="text-xs font-medium text-gray-500">
+                  <tr className="border-b border-gray-200">
                     <th className="px-5 py-3">Invoice</th>
                     <th className="px-5 py-3">Date</th>
                     <th className="px-5 py-3">Amount</th>
