@@ -13,7 +13,7 @@ export default async function ServicesPage() {
 
   return <DashboardLayout pageTitle="My Services" userEmail={user?.email ?? null}>
     {error ? (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5">
+      <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-5">
         <EmptyState icon={ServerIcon} message="We couldn't load your services right now." />
       </div>
     ) : (

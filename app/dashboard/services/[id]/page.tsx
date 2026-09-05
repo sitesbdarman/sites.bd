@@ -28,7 +28,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
   return (
     <DashboardLayout pageTitle="Service Details" userEmail={user.email ?? null}>
       <Link href="/dashboard/services" className="text-sm font-bold text-blue-600 hover:text-blue-700">← My Services</Link>
-      <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-[--radius-surface] border border-gray-200 bg-white p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs text-gray-400">{order.order_number}</p>
@@ -60,7 +60,7 @@ export default async function ServiceDetailsPage({ params }: { params: Promise<{
         </form>
       )}
 
-      <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mt-5 rounded-[--radius-surface] border border-gray-200 bg-white p-5">
         <h2 className="font-bold text-gray-900">Service Messages</h2>
         <div className="mt-4 space-y-3">
           {!messages?.length ? (

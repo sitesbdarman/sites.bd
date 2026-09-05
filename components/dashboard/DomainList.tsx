@@ -215,7 +215,7 @@ function DomainCard({ domain }: { domain: Domain }) {
   return (
     <Link
       href={`/dashboard/domains/${domain.id}`}
-      className="group block rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[.99]"
+      className="group block rounded-[--radius-surface] border border-gray-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[.99]"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">

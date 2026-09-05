@@ -9,7 +9,7 @@ export function DomainDetailsSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-gray-200 bg-white p-5">
         <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
         <div className="mt-4 space-y-3">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -21,7 +21,7 @@ export function DomainDetailsSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-gray-200 bg-white p-5">
         <div className="h-4 w-28 animate-pulse rounded bg-gray-200" />
         <div className="mt-4 h-16 animate-pulse rounded bg-gray-100" />
       </div>

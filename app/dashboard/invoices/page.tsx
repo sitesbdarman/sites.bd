@@ -14,7 +14,7 @@ export default async function InvoicesPage() {
   return (
     <DashboardLayout pageTitle="My Invoices" userEmail={user?.email ?? null}>
       {error ? (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[--radius-surface] border border-gray-200 bg-white">
           <EmptyState icon={InvoiceIcon} message="We couldn't load your invoices right now." />
         </div>
       ) : (

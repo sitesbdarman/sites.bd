@@ -70,7 +70,7 @@ export default function AdminPricingPage() {
       {loading ? <div className="rounded-2xl bg-white p-8 text-slate-500">Loading pricing…</div> : (
         <div className="space-y-5">
           {plans.map((p, i) => (
-            <div key={p.id ?? i} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+            <div key={p.id ?? i} className="rounded-[--radius-surface] border border-slate-200 bg-white p-6 transition-colors hover:border-gray-300">
               <div className="grid gap-4 md:grid-cols-4">
                 <label className="md:col-span-2"><span className="text-xs font-bold text-slate-500">Plan name</span><input value={p.name} onChange={e=>update(i,{name:e.target.value})} className="mt-1 w-full rounded-lg border px-3 py-2.5"/></label>
                 <label><span className="text-xs font-bold text-slate-500">Price</span><input type="number" min="0" step="0.01" value={p.price} onChange={e=>update(i,{price:Number(e.target.value)})} className="mt-1 w-full rounded-lg border px-3 py-2.5"/></label>

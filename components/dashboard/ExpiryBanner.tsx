@@ -53,7 +53,7 @@ export function ExpiryBanner({ domains, withinDays = 30 }: ExpiryBannerProps) {
       </div>
       <Link
         href="/dashboard/domains"
-        className={`shrink-0 rounded-xl px-5 py-3 text-center text-sm font-extrabold text-white shadow-sm transition ${
+        className={`shrink-0 rounded-xl px-5 py-3 text-center text-sm font-extrabold text-white transition ${
           urgent ? "bg-red-600 hover:bg-red-700" : "bg-amber-600 hover:bg-amber-700"
         }`}
       >

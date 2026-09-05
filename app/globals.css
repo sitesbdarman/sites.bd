@@ -18,6 +18,25 @@
   --color-warning-light: #fffbeb;
   --color-danger: #ef4444;
   --color-danger-light: #fef2f2;
+
+  /* --- Structural tokens ---
+     A deliberate radius/elevation scale so containers are told apart by
+     ROLE (surface vs. interactive vs. status chip) instead of every box
+     defaulting to the same rounded-2xl + drop-shadow treatment. */
+  --radius-field: 0.5rem;    /* inputs, buttons, small controls */
+  --radius-surface: 0.625rem; /* cards, panels — restrained, not "bubble" */
+  --radius-sheet: 1rem;       /* modals, drawers, large floating panels */
+
+  --border-hairline: #e5e7eb;  /* gray-200 — the primary structural line */
+  --border-hairline-strong: #d1d5db; /* gray-300 — hover / emphasis */
+
+  /* Elevation is reserved for things that float above content (sticky
+     header, dropdowns, drawers). Resting cards use a hairline border,
+     not a shadow — shadow-on-every-card is the generic tell. */
+  --shadow-float: 0 8px 24px -8px rgb(15 23 42 / 0.12);
+  --shadow-float-lg: 0 24px 48px -12px rgb(15 23 42 / 0.22);
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 @theme inline {
@@ -39,6 +58,10 @@
 
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
+
+  --radius-field: var(--radius-field);
+  --radius-surface: var(--radius-surface);
+  --radius-sheet: var(--radius-sheet);
 }
 
 html, body {
@@ -69,4 +92,41 @@ button:focus-visible,
 [role="button"]:focus-visible {
   outline: 2px solid rgb(14 165 233 / .55);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- Shared structural primitives ---
+   The system's one recurring "signature" device is a 3px accent bar
+   used consistently for: the active nav item, the emphasized edge of a
+   stat card, and a highlighted table row. One motif, reused everywhere,
+   instead of a different decoration invented per screen. */
+.surface {
+  background: #fff;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-surface);
+}
+
+.accent-bar {
+  position: relative;
+}
+.accent-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }

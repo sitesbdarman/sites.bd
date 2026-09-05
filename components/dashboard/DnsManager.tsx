@@ -135,7 +135,7 @@ export function DnsManager({ domainId }: { domainId: string }) {
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-sm font-semibold text-gray-900">DNS Records</h2>

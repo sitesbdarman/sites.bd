@@ -60,7 +60,7 @@ function SidebarContent({
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {NAV_ITEMS.map((item) => {
           const active = isActive(pathname, item.href);
           const Icon = item.icon;
@@ -70,12 +70,15 @@ function SidebarContent({
               href={item.href}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`relative flex items-center gap-3 rounded-md py-2 pl-4 pr-3 text-sm font-medium transition-colors ${
                 active
-                  ? "bg-blue-50 text-blue-700"
+                  ? "text-blue-700"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
+              {active && (
+                <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-blue-600" aria-hidden="true" />
+              )}
               <Icon className="h-5 w-5 shrink-0" />
               {item.label}
             </Link>

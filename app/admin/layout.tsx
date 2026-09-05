@@ -46,7 +46,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <div className="hidden lg:block text-sm font-semibold text-slate-500">Administration / Secure area</div>
               <div className="flex items-center gap-2">
                 <LanguageToggle />
-                <Link href="/" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:text-sky-600 active:scale-[.98]">View site</Link>
+                <Link href="/" className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 transition hover:-translate-y-0.5 hover:border-sky-200 hover:text-sky-600 active:scale-[.98]">View site</Link>
                 <div className="lg:hidden">
                   <LogoutButton variant="icon" />
                 </div>

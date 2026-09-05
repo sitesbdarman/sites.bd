@@ -43,7 +43,7 @@ function isActive(pathname: string, href: string) {
 export function AdminSidebarNav() {
   const pathname = usePathname();
   return (
-    <nav className="flex-1 space-y-1 px-4 py-5">
+    <nav className="flex-1 space-y-0.5 px-4 py-5">
       {adminNav.map(({ href, label, Icon }) => {
         const active = isActive(pathname, href);
         return (
@@ -51,17 +51,14 @@ export function AdminSidebarNav() {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[.98] ${
-              active ? "bg-sky-400/15 text-white" : "text-slate-300 hover:bg-white/10 hover:text-white"
+            className={`relative flex items-center gap-3 rounded-lg py-2.5 pl-4 pr-3 text-sm font-semibold transition-colors active:scale-[.98] ${
+              active ? "text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"
             }`}
           >
-            <span
-              className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
-                active ? "bg-sky-400/25 text-sky-300" : "bg-white/5 text-sky-300 group-hover:bg-sky-400/15"
-              }`}
-            >
-              <Icon className="h-4.5 w-4.5" />
-            </span>
+            {active && (
+              <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-sky-400" aria-hidden="true" />
+            )}
+            <Icon className={`h-4.5 w-4.5 shrink-0 ${active ? "text-sky-300" : "text-slate-400"}`} />
             {label}
           </Link>
         );
@@ -89,7 +86,7 @@ export function AdminMobileNav() {
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls="admin-mobile-drawer"
-        className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-sky-200 hover:text-sky-600 active:scale-95 lg:hidden"
+        className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:text-sky-600 active:scale-95 lg:hidden"
       >
         <span className="sr-only">Open admin menu</span>
         <MenuIcon className="h-5 w-5" />
@@ -123,7 +120,7 @@ export function AdminMobileNav() {
                 <CloseIcon className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-5">
+            <nav className="flex-1 space-y-0.5 overflow-y-auto px-4 py-5">
               {adminNav.map(({ href, label, Icon }) => {
                 const active = isActive(pathname, href);
                 return (
@@ -131,13 +128,14 @@ export function AdminMobileNav() {
                     key={href}
                     href={href}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[.98] ${
-                      active ? "bg-sky-400/15 text-white" : "text-slate-300 hover:bg-white/10 hover:text-white"
+                    className={`relative flex items-center gap-3 rounded-lg py-2.5 pl-4 pr-3 text-sm font-semibold transition-colors active:scale-[.98] ${
+                      active ? "text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"
                     }`}
                   >
-                    <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${active ? "bg-sky-400/25 text-sky-300" : "bg-white/5 text-sky-300"}`}>
-                      <Icon className="h-4.5 w-4.5" />
-                    </span>
+                    {active && (
+                      <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-sky-400" aria-hidden="true" />
+                    )}
+                    <Icon className={`h-4.5 w-4.5 shrink-0 ${active ? "text-sky-300" : "text-slate-400"}`} />
                     {label}
                   </Link>
                 );

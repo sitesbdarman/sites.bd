@@ -28,7 +28,7 @@ export default async function InvoiceDetails({ params }: { params: Promise<{ id:
   return (
     <DashboardLayout pageTitle="Invoice Details" userEmail={user.email ?? null}>
       <Link href="/dashboard/invoices" className="text-sm font-bold text-blue-600 hover:text-blue-700">← My Invoices</Link>
-      <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mt-4 rounded-[--radius-surface] border border-gray-200 bg-white p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs text-gray-400">Invoice</p>
@@ -57,7 +57,7 @@ export default async function InvoiceDetails({ params }: { params: Promise<{ id:
             <p className="text-sm text-amber-800">This invoice is awaiting payment. Pay now to keep your service uninterrupted.</p>
             <Link
               href={`/checkout/payment?invoice=${id}`}
-              className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 active:scale-[.98]"
+              className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700 active:scale-[.98]"
             >
               Pay Now
             </Link>

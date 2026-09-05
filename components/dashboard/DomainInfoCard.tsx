@@ -41,7 +41,7 @@ export function DomainInfoCard({ domain }: DomainInfoCardProps) {
   const expires = formatDate(domain.expires_at);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-5">
       <h2 className="text-sm font-semibold text-gray-900">Domain Information</h2>
       <dl className="mt-2 divide-y divide-gray-100 sm:mt-1">
         <InfoRow label="Domain Name" value={domain.domain_name} />

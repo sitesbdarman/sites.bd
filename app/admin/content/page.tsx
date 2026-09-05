@@ -57,10 +57,10 @@ export default function ContentPage() {
 
       {msg && <div className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">{msg}</div>}
 
-      {loading ? <div className="rounded-2xl border bg-white p-8 text-slate-500">Loading…</div> : (
+      {loading ? <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-8 text-slate-500">Loading…</div> : (
         <div className="space-y-4">
           {items.map((item, i) => (
-            <div key={item.id || i} className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div key={item.id || i} className="rounded-[--radius-surface] border border-gray-200 bg-white p-5">
               <div className="grid gap-3 md:grid-cols-2">
                 {tab === "banners" && <>
                   <input placeholder="Title" value={item.title || ""} onChange={(e) => update(i, { title: e.target.value })} className="rounded-lg border px-3 py-2" />

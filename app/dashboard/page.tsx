@@ -146,14 +146,14 @@ export default async function DashboardPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/dashboard/settings"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
             >
               Settings
             </Link>
             {isAdmin && (
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-800"
+                className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
               >
                 Admin Panel
               </Link>
@@ -171,7 +171,7 @@ export default async function DashboardPage() {
         </div>
 
         {showGettingStarted && (
-          <div className="rounded-2xl border border-sky-100 bg-sky-50 p-5 shadow-sm">
+          <div className="rounded-[--radius-surface] border border-sky-100 bg-sky-50 p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-sky-700">Getting started</p>
@@ -181,9 +181,9 @@ export default async function DashboardPage() {
               <Link href="/domains/search" className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Find a domain</Link>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:shadow-sm">1. Complete profile</Link>
-              <Link href="/domains/search" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:shadow-sm">2. Buy a domain</Link>
-              <Link href="/dashboard/domains" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:shadow-sm">3. Configure DNS</Link>
+              <Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:">1. Complete profile</Link>
+              <Link href="/domains/search" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:">2. Buy a domain</Link>
+              <Link href="/dashboard/domains" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:">3. Configure DNS</Link>
             </div>
           </div>
         )}
@@ -270,7 +270,7 @@ export default async function DashboardPage() {
           </SectionCard>
 
           {recentTickets.length === 0 ? (
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-5">
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                   <InboxIcon className="h-5 w-5" />

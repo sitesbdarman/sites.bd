@@ -26,7 +26,7 @@ export default async function TicketDetails({ params }: { params: Promise<{ id: 
   return (
     <DashboardLayout pageTitle="Ticket Details" userEmail={user.email ?? null}>
       <Link href="/dashboard/tickets" className="text-sm font-bold text-blue-600 hover:text-blue-700">← Support Tickets</Link>
-      <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mt-4 rounded-[--radius-surface] border border-gray-200 bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs text-gray-400">{ticket.ticket_number}</p>

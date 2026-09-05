@@ -46,7 +46,7 @@ export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5">
+      <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-5">
         <EmptyState
           icon={ServerIcon}
           message="You don't have any hosting services yet."
@@ -85,7 +85,7 @@ export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 text-center text-sm text-gray-500">
+        <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-5 text-center text-sm text-gray-500">
           No services match your search.
         </div>
       ) : (
@@ -94,7 +94,7 @@ export function ServicesList({ orders }: { orders: ServiceOrder[] }) {
             <Link
               key={order.id}
               href={`/dashboard/services/${order.id}`}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md"
+              className="rounded-[--radius-surface] border border-gray-200 bg-white p-5 transition hover:border-blue-200 hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

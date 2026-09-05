@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 function Card({ label, value, detail, href, icon }: { label: string; value: string | number; detail: string; href: string; icon: string }) {
   return (
-    <Link href={href} className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl active:scale-[.99]">
+    <Link href={href} className="group rounded-[--radius-surface] border border-slate-200 bg-white p-5 transition-colors hover:border-sky-300 active:scale-[.99]">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-slate-500">{label}</p>
@@ -58,7 +58,7 @@ export default async function AdminPage() {
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-[--radius-surface] border border-slate-200 bg-white p-6">
           <div className="flex items-center justify-between gap-4">
             <div><h2 className="text-lg font-black text-slate-950">Business snapshot</h2><p className="mt-1 text-sm text-slate-500">A quick view of the commercial side of SITES.BD.</p></div>
             <Link href="/admin/orders" className="text-sm font-bold text-sky-600 hover:text-sky-700">View orders →</Link>
@@ -69,7 +69,7 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-[--radius-surface] border border-slate-200 bg-white p-6">
           <h2 className="text-lg font-black text-slate-950">Quick actions</h2>
           <div className="mt-4 grid gap-2">
             {[['/admin/users','Customer management'],['/admin/domains','Domain management'],['/admin/orders','Payment approvals'],['/admin/tickets','Support tickets'],['/admin/settings','Payment settings']].map(([href,label]) => <Link key={href} href={href} className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700 active:scale-[.99]"><span>{label}</span><span>→</span></Link>)}
@@ -77,7 +77,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-center justify-between"><div><h2 className="text-lg font-black">Recent activity</h2><p className="mt-1 text-sm text-slate-500">The latest operational changes in the platform.</p></div><Link href="/admin/audit" className="text-sm font-bold text-sky-600">Full audit log →</Link></div><div className="mt-4 space-y-2">{(activity.data||[]).map((a:any)=><div key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3"><div><div className="font-semibold text-slate-800">{a.action}</div><div className="text-xs text-slate-500">{a.entity_type}{a.entity_id?` · ${a.entity_id}`:''}</div></div><time className="text-xs text-slate-400">{new Date(a.created_at).toLocaleString()}</time></div>)}{!(activity.data||[]).length&&<p className="text-sm text-slate-500">No recent activity yet.</p>}</div></section>
+      <section className="rounded-[--radius-surface] border border-slate-200 bg-white p-6"><div className="flex items-center justify-between"><div><h2 className="text-lg font-black">Recent activity</h2><p className="mt-1 text-sm text-slate-500">The latest operational changes in the platform.</p></div><Link href="/admin/audit" className="text-sm font-bold text-sky-600">Full audit log →</Link></div><div className="mt-4 space-y-2">{(activity.data||[]).map((a:any)=><div key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3"><div><div className="font-semibold text-slate-800">{a.action}</div><div className="text-xs text-slate-500">{a.entity_type}{a.entity_id?` · ${a.entity_id}`:''}</div></div><time className="text-xs text-slate-400">{new Date(a.created_at).toLocaleString()}</time></div>)}{!(activity.data||[]).length&&<p className="text-sm text-slate-500">No recent activity yet.</p>}</div></section>
     </div>
   );
 }

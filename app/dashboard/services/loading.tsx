@@ -11,7 +11,7 @@ export default function ServicesLoading() {
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div key={i} className="rounded-xl border border-gray-200 bg-white p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <Skeleton className="h-3 w-20" />

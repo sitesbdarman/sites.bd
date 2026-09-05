@@ -20,7 +20,7 @@ interface NameserverSectionProps {
 
 export function NameserverSection({ nameservers = [] }: NameserverSectionProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-5">
       <h2 className="text-sm font-semibold text-gray-900">Nameservers</h2>
 
       {nameservers.length === 0 ? (

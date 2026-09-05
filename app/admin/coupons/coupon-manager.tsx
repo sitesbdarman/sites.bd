@@ -141,7 +141,7 @@ export function CouponManager({ initialCoupons }: { initialCoupons: Coupon[] }) 
       </div>
 
       {showForm && (
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
+        <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-5">
           <h2 className="text-sm font-black uppercase tracking-wide text-slate-500">New coupon</h2>
           {formError && <div className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600">{formError}</div>}
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -193,7 +193,7 @@ export function CouponManager({ initialCoupons }: { initialCoupons: Coupon[] }) 
         </div>
       )}
 
-      <div className="rounded-2xl border bg-white p-4 shadow-sm grid gap-3 sm:grid-cols-2">
+      <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-4 grid gap-3 sm:grid-cols-2">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search coupon code" className="rounded-xl border px-4 py-3" />
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-xl border px-4 py-3">
           <option value="all">All</option>
@@ -202,7 +202,7 @@ export function CouponManager({ initialCoupons }: { initialCoupons: Coupon[] }) 
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-[--radius-surface] border border-gray-200 bg-white">
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>{["Code", "Discount", "Minimum", "Usage", "Status", "Actions"].map((x) => <th key={x} className="px-5 py-3">{x}</th>)}</tr>

@@ -16,11 +16,9 @@ export function QuickAction({ href, label, icon: Icon }: QuickActionProps) {
   return (
     <Link
       href={href}
-      className="group flex flex-1 items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[.98]"
+      className="group flex flex-1 items-center gap-3 rounded-[--radius-surface] border border-gray-200 bg-white px-4 py-3.5 transition-colors hover:border-blue-300 active:scale-[.98]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
-        <Icon className="h-4.5 w-4.5" />
-      </span>
+      <Icon className="h-4.5 w-4.5 shrink-0 text-blue-600 transition-transform group-hover:scale-110" />
       <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-700">{label}</span>
     </Link>
   );

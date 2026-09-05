@@ -41,7 +41,7 @@ export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
 
   if (invoices.length === 0) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-[--radius-surface] border border-gray-200 bg-white">
         <EmptyState icon={InvoiceIcon} message="You don't have any invoices yet." />
       </div>
     );
@@ -72,13 +72,13 @@ export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
+        <div className="rounded-[--radius-surface] border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
           No invoices match your search.
         </div>
       ) : (
         <>
           {/* Desktop: table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-[--radius-surface] border border-gray-200 bg-white md:block">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500">
@@ -125,7 +125,7 @@ export function InvoicesList({ invoices }: { invoices: Invoice[] }) {
           {/* Mobile: cards */}
           <div className="flex flex-col gap-3 md:hidden">
             {filtered.map((invoice) => (
-              <div key={invoice.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div key={invoice.id} className="rounded-[--radius-surface] border border-gray-200 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <Link href={`/dashboard/invoices/${invoice.id}`} className="truncate text-sm font-semibold text-blue-600">
                     {invoice.invoice_number}

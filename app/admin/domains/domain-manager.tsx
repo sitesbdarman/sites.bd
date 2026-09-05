@@ -97,7 +97,7 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
       <h1 className="text-2xl font-bold">Domains</h1>
       <p className="mt-1 text-sm text-gray-500">Assign a domain to any customer, or suspend / expire / remove an existing one.</p>
 
-      <div className="mt-6 rounded-xl border bg-white p-5 shadow-sm">
+      <div className="mt-6 rounded-xl border bg-white p-5">
         <h2 className="text-lg font-semibold">Add domain to a customer</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <select className="rounded-md border px-3 py-2 lg:col-span-2" value={form.ownerId} onChange={(e) => setForm({ ...form, ownerId: e.target.value })}>
@@ -125,9 +125,9 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
         </button>
       </div>
 
-      <div className="mt-6 rounded-xl border bg-white p-4 shadow-sm"><div className="grid gap-3 sm:grid-cols-2"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search domain or owner ID" className="rounded-xl border px-4 py-3"/><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="rounded-xl border px-4 py-3"><option value="all">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="suspended">Suspended</option><option value="expired">Expired</option></select></div></div>
+      <div className="mt-6 rounded-xl border bg-white p-4"><div className="grid gap-3 sm:grid-cols-2"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search domain or owner ID" className="rounded-xl border px-4 py-3"/><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="rounded-xl border px-4 py-3"><option value="all">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="suspended">Suspended</option><option value="expired">Expired</option></select></div></div>
 
-      <div className="mt-6 overflow-x-auto rounded-xl border bg-white shadow-sm">
+      <div className="mt-6 overflow-x-auto rounded-xl border bg-white">
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50 text-xs uppercase text-gray-500">
             <tr>
