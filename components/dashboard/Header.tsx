@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CartBadge } from "./CartBadge";
 import { NotificationBell } from "./NotificationBell";
@@ -38,7 +37,8 @@ export function Header({ pageTitle, userEmail, avatarUrl, fullName, onOpenSideba
           >
             <span className="flex h-9 w-9 overflow-hidden items-center justify-center rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-100 transition group-hover:ring-blue-300">
               {avatarUrl ? (
-                <Image src={avatarUrl} alt="" width={36} height={36} className="h-full w-full object-cover" />
+                // eslint-disable-next-line @next/next/no-img-element -- avatar can come from Cloudinary or Supabase Storage; see ProfileMenu.tsx for why next/image doesn't work here.
+                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
               ) : (
                 <UserIcon className="h-4 w-4" />
               )}

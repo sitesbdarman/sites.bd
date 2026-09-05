@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { formatBDT, type HostingPlanType } from "@/lib/hosting/plans";
 import { loadHostingSelection, type HostingSelection } from "@/lib/hosting/selection";
 import { loadAddonsSelection } from "@/lib/hosting/addons-selection";
+import { CheckoutProgress } from "@/components/CheckoutProgress";
 
 interface ReviewCartItem { id: string; domain_name: string; price: number; currency: string; validity_years: number; }
 interface ReviewHosting { type: string; planId: string; planName: string; price: number; billingCycle: string; custom?: { nameServer: string; ipAddress: string }; }
@@ -87,10 +88,13 @@ export function ReviewContent() {
     } catch { setConfirmError("Could not reach the server. Please try again."); } finally { setConfirming(false); }
   }
 
-  if (state === "loading") return <div className="surface flex min-h-56 flex-col items-center justify-center gap-3"><span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600"/><p className="text-sm font-semibold text-slate-500">Preparing your order…</p></div>;
+  const includePayment = !(totals && totals.finalTotal === 0);
+
+  if (state === "loading") return <div className="space-y-5"><CheckoutProgress current={3} includePayment={includePayment} /><div className="surface flex min-h-56 flex-col items-center justify-center gap-3"><span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600"/><p className="text-sm font-semibold text-slate-500">Preparing your order…</p></div></div>;
 
   const canConfirm = state === "valid" && termsAccepted && !confirmed && !confirming;
   return <div className="space-y-5">
+    <CheckoutProgress current={3} includePayment={includePayment} />
     <div><p className="text-xs font-black uppercase tracking-[.18em] text-blue-600">Final review</p><h1 className="mt-2 text-3xl font-black tracking-[-.03em] text-slate-950 sm:text-4xl">Ready to place your order?</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Review your domains, services and total. {totals && totals.finalTotal === 0 ? "This order is free — confirming activates it immediately." : "You’ll see the available payment options on the next step."}</p></div>
     {(state === "error" || state === "invalid") && errors.length > 0 && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700"><ul className="list-inside list-disc">{errors.map(e => <li key={e}>{e}</li>)}</ul></div>}
     <div className="grid gap-5 lg:grid-cols-[1fr_360px]">

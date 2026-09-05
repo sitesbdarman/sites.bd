@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 
 function UserIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
@@ -32,7 +31,8 @@ export function ProfileMenu({ loggedIn, avatarUrl, fullName, email }: ProfileMen
     >
       <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-50 to-blue-100 text-blue-600 ring-1 ring-blue-200/80 sm:h-10 sm:w-10">
         {avatarUrl ? (
-          <Image src={avatarUrl} alt="" width={40} height={40} className="h-full w-full object-cover" />
+          // eslint-disable-next-line @next/next/no-img-element -- avatar can come from Cloudinary or Supabase Storage; next/image requires every source host to be allow-listed in next.config.ts, which broke rendering whenever the host wasn't configured there.
+          <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
         ) : (
           <UserIcon className="h-5 w-5 transition group-hover:scale-105 sm:h-6 sm:w-6" />
         )}

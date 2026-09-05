@@ -82,7 +82,6 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
 
   const links = [
     { href: "/", label: tr(homeText.nav.home, language) },
-    { href: "/#features", label: tr(homeText.nav.features, language) },
     { href: "/pricing", label: tr(homeText.nav.pricing, language) },
     { href: "/domains/search", label: tr(homeText.nav.domainSearch, language) },
     { href: "/contact", label: tr(homeText.nav.contact, language) },

@@ -1,16 +1,29 @@
 import Link from "next/link";
 
-const steps = [
+const allSteps = [
   ["01", "Hosting", "/checkout/hosting"],
   ["02", "Add-ons", "/checkout/addons"],
   ["03", "Review", "/checkout/review"],
   ["04", "Payment", "/checkout/payment"],
 ] as const;
 
-export function CheckoutProgress({ current }: { current: 1 | 2 | 3 | 4 }) {
+interface CheckoutProgressProps {
+  current: 1 | 2 | 3 | 4;
+  /**
+   * Pass false once the order total is known to be ৳0 — a free order never
+   * visits /checkout/payment, so showing it as an upcoming step is
+   * misleading. Hosting/Add-ons pages don't know the total yet, so they
+   * always pass true (the default); the Review page knows it after loading
+   * totals and can turn this off.
+   */
+  includePayment?: boolean;
+}
+
+export function CheckoutProgress({ current, includePayment = true }: CheckoutProgressProps) {
+  const steps = includePayment ? allSteps : allSteps.filter(([, label]) => label !== "Payment");
   return (
     <div className="surface overflow-hidden p-3 sm:p-4">
-      <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
+      <div className={`grid gap-1.5 sm:gap-3 ${steps.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
         {steps.map(([number, label, href], index) => {
           const step = index + 1;
           const active = step === current;
