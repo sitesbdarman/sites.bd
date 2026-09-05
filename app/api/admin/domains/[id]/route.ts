@@ -20,7 +20,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const db = admin!;
-  const { data: domain } = await db.from("domains").select("id,status,domain_name,owner_id").eq("id", id).maybeSingle();
+  const { data: domain } = await db.from("domains").select("id,status,domain_name,owner_id,registered_at,info").eq("id", id).maybeSingle();
   if (!domain) return NextResponse.json({ success: false, error: "Domain not found." }, { status: 404 });
 
   const update: Record<string, unknown> = {};
@@ -29,6 +29,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ success: false, error: "Invalid status." }, { status: 400 });
     }
     update.status = body.status;
+    // Marking a pending domain active is how the admin records "I registered
+    // this domain manually" — stamp the registration date and clear the
+    // pending-reason note if one isn't set.
+    if (body.status === "active") {
+      if (!domain.registered_at) update.registered_at = new Date().toISOString();
+      if (domain.info && typeof domain.info === "object" && "registration_note" in (domain.info as Record<string, unknown>)) {
+        update.info = {};
+      }
+    }
   }
   if (body.expiresAt !== undefined) update.expires_at = body.expiresAt ? new Date(body.expiresAt).toISOString() : null;
   if (body.autoRenew !== undefined) update.auto_renew = Boolean(body.autoRenew);

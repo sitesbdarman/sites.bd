@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { deleteDnsRecord, isDeSecConfigured, listDnsRecords, upsertDnsRecord } from "@/lib/desec/client";
 
 const schema = z.object({
-  type: z.enum(["A", "AAAA", "CNAME", "MX", "TXT", "NS"]),
+  type: z.enum(["A", "AAAA", "CNAME", "MX", "TXT", "NS", "SRV", "CAA"]),
   name: z.string().trim().min(1).max(253),
   content: z.string().trim().min(1).max(4096),
   ttl: z.coerce.number().int().min(60).max(86400).default(3600),

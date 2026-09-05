@@ -55,6 +55,29 @@ export function isDeSecConfigured() {
   return Boolean(getToken());
 }
 
+// deSEC serves every zone in an account from the same two authoritative
+// nameservers, regardless of the domain — there is no per-domain NS to look
+// up after creation. See https://desec.readthedocs.io.
+export const DESEC_NAMESERVERS = ["ns1.desec.io", "ns2.desec.org"];
+
+// Creates a new zone in the deSEC account (POST /domains/). Used when a
+// domain needs its own zone — e.g. a free SITES.BD subdomain, which is
+// delegated to from the `sites.bd` zone via NS records (see
+// lib/domains/free-subdomain.ts). A zone that already exists is treated as
+// success rather than an error, since provisioning is retried on failure.
+export async function createDomain(name: string) {
+  try {
+    return await deSecFetch(`/domains/`, {
+      method: "POST",
+      body: JSON.stringify({ name: name.trim().toLowerCase() }),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.toLowerCase().includes("this field must be unique")) return null;
+    throw error;
+  }
+}
+
 export type DeSecRRset = {
   name: string;
   subname?: string;

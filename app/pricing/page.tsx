@@ -60,7 +60,7 @@ export default async function PricingPage() {
               </article>
             ))}
           </div>
-          {(!plans || plans.length === 0) && <div className="rounded-[--radius-surface] bg-emerald-50 p-8 text-center"><h3 className="text-xl font-bold text-emerald-800">SITES.BD Free Subdomain</h3><p className="mt-2 text-emerald-700">Run database/0017_admin_pricing.sql to enable admin-managed pricing.</p></div>}
+          {(!plans || plans.length === 0) && <div className="rounded-[--radius-surface] bg-emerald-50 p-8 text-center"><h3 className="text-xl font-bold text-emerald-800">SITES.BD Free Subdomain</h3><p className="mt-2 text-emerald-700">Pricing plans coming soon — check back shortly.</p></div>}
         </div>
       </section>
 

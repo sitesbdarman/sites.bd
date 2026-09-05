@@ -30,6 +30,8 @@ interface CartAddResponse {
 
 type SearchState = "idle" | "loading" | "error" | "success";
 
+const FREE_SUBDOMAIN_TLD = "sites.bd";
+
 /** Per-domain outcome of a claim attempt, shown inline on that row. */
 type ClaimOutcome = { kind: "added" } | { kind: "error"; message: string };
 
@@ -71,8 +73,9 @@ function buildAlternativeSuggestions(domain: string): string[] {
   const base = baseNameOf(domain);
   const currentTld = domain.split(".").slice(1).join(".") || "com";
   const otherTlds = POPULAR_TLDS.filter((t) => t !== currentTld).slice(0, 3).map((t) => `${base}.${t}`);
+  const freeSubdomain = `${base}.${FREE_SUBDOMAIN_TLD}`;
   const prefixed = [`get${base}.com`, `try${base}.com`, `my${base}.com`].filter((d) => d !== domain);
-  return Array.from(new Set([...otherTlds, ...prefixed])).slice(0, 5);
+  return Array.from(new Set([freeSubdomain, ...otherTlds, ...prefixed])).slice(0, 6);
 }
 
 export default function DomainSearchPage() {
@@ -116,7 +119,7 @@ export default function DomainSearchPage() {
     if (!trimmed || trimmed.includes(" ") || trimmed.includes(",")) return [];
     const base = trimmed.includes(".") ? trimmed.split(".")[0] : trimmed;
     if (!base) return [];
-    return POPULAR_TLDS.map((tld) => `${base}.${tld}`);
+    return [`${base}.${FREE_SUBDOMAIN_TLD}`, ...POPULAR_TLDS.map((tld) => `${base}.${tld}`)];
   }, [query]);
 
   async function runSearch(searchQuery: string) {
@@ -152,7 +155,7 @@ export default function DomainSearchPage() {
 
       const unavailable = nextResults.filter((item) => !item.available).slice(0, 3);
       for (const item of unavailable) {
-        const candidates = buildAlternativeSuggestions(item.domain);
+        const candidates = buildAlternativeSuggestions(item.domain).filter((candidate) => !candidate.endsWith(`.${FREE_SUBDOMAIN_TLD}`));
         setAltLoading((prev) => ({ ...prev, [item.domain]: true }));
         void fetch(`/api/domains/check?query=${encodeURIComponent(candidates.join(","))}`)
           .then((response) => response.json() as Promise<CheckResponse>)
@@ -172,7 +175,7 @@ export default function DomainSearchPage() {
   async function loadAlternatives(domain: string) {
     if (altResults[domain] || altLoading[domain]) return;
     setAltLoading((prev) => ({ ...prev, [domain]: true }));
-    const candidates = buildAlternativeSuggestions(domain);
+    const candidates = buildAlternativeSuggestions(domain).filter((candidate) => !candidate.endsWith(`.${FREE_SUBDOMAIN_TLD}`));
     try {
       const response = await fetch(`/api/domains/check?query=${encodeURIComponent(candidates.join(","))}`);
       const data: CheckResponse = await response.json();
@@ -493,12 +496,14 @@ function AlternativeSuggestions({
   }
 
   const available = (alternatives ?? []).filter((a) => a.available);
-  if (available.length === 0) {
-    return <p className="text-xs text-gray-400">{tr(st.noSimilar, language)}</p>;
-  }
+  const freeSubdomain = `${baseNameOf(domain)}.${FREE_SUBDOMAIN_TLD}`;
 
   return (
     <div className="flex flex-wrap gap-2 pt-1">
+      <div className="flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 py-1 pl-3 pr-1 text-xs">
+        <button type="button" onClick={() => onPick(freeSubdomain)} className="font-semibold text-blue-800 hover:underline">{freeSubdomain} <span className="text-blue-600">FREE</span></button>
+        <button type="button" onClick={() => onClaim(freeSubdomain)} className="rounded-full bg-blue-600 px-2 py-0.5 text-[11px] font-semibold text-white hover:bg-blue-700">Claim</button>
+      </div>
       {available.map((alt) => (
         <div
           key={alt.domain}

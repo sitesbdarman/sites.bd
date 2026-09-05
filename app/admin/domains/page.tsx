@@ -8,7 +8,7 @@ export default async function AdminDomainsPage({ searchParams }: { searchParams:
   const db = createAdminClient();
 
   const [{ data: domains }, { data: owners }] = await Promise.all([
-    db.from("domains").select("id,domain_name,status,auto_renew,registered_at,expires_at,owner_id").order("created_at", { ascending: false }),
+    db.from("domains").select("id,domain_name,status,auto_renew,registered_at,expires_at,owner_id,info").order("created_at", { ascending: false }),
     db.from("profiles").select("id,customer_id,email,full_name").order("created_at", { ascending: false }),
   ]);
 

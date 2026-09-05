@@ -165,6 +165,7 @@ export default async function DashboardPage() {
             often, surfaced above the fold instead of buried in the sidebar. */}
         <div className="flex flex-col gap-3 sm:flex-row">
           <QuickAction href="/domains/search" label="Buy a domain" icon={SearchIcon} />
+          <QuickAction href="/#home" label="Claim free .sites.bd" icon={GlobeIcon} />
           <QuickAction href="/pricing" label="Order hosting" icon={ServerIcon} />
           <QuickAction href="/dashboard/tickets" label="Open a ticket" icon={TicketIcon} />
           <QuickAction href="/dashboard/invoices" label="View invoices" icon={InvoiceIcon} />
@@ -181,9 +182,9 @@ export default async function DashboardPage() {
               <Link href="/domains/search" className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Find a domain</Link>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:">1. Complete profile</Link>
-              <Link href="/domains/search" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:">2. Buy a domain</Link>
-              <Link href="/dashboard/domains" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:">3. Configure DNS</Link>
+              <Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">1. Complete profile</Link>
+              <Link href="/domains/search" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">2. Buy a domain</Link>
+              <Link href="/dashboard/domains" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">3. Configure DNS</Link>
             </div>
           </div>
         )}

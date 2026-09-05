@@ -1,15 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Lexend } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-
-// Body/UI face: Inter — neutral, extremely legible at small sizes, the safe
-// choice for a data-dense dashboard product like a registrar/hosting panel.
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-// Display face for headings/hero: Lexend — a bit more geometric and confident
-// than Inter at large sizes, without introducing a second unrelated family.
-const lexend = Lexend({ subsets: ["latin"], variable: "--font-display", display: "swap" });
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const metadata: Metadata = {
   title: { default: "SITES.BD — Domains, Hosting & Web Services", template: "%s · SITES.BD" },
@@ -30,9 +23,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`h-full antialiased ${inter.variable} ${lexend.variable}`}>
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>{children}<MobileBottomNav /></LanguageProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

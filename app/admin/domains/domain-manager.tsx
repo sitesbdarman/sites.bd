@@ -9,6 +9,7 @@ type Domain = {
   registered_at: string | null;
   expires_at: string | null;
   owner_id: string;
+  info?: { registration_note?: string } | null;
 };
 
 type Owner = { id: string; customer_id: string; email: string; full_name: string | null };
@@ -145,6 +146,9 @@ export function DomainManager({ initialDomains, owners, defaultOwnerId }: { init
                 <td className="px-5 py-4 text-xs">{ownerLabel(d.owner_id)}</td>
                 <td className="px-5 py-4">
                   <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_STYLE[d.status] || "bg-gray-100 text-gray-600"}`}>{d.status}</span>
+                  {d.status === "pending" && d.info?.registration_note && (
+                    <p className="mt-1 max-w-xs text-xs text-gray-500">{d.info.registration_note}</p>
+                  )}
                 </td>
                 <td className="px-5 py-4">{d.auto_renew ? "Yes" : "No"}</td>
                 <td className="px-5 py-4">{d.registered_at ? new Date(d.registered_at).toLocaleDateString() : "—"}</td>

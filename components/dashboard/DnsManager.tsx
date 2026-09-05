@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type RecordItem = { id: string; type: string; name: string; content: string; ttl: number; priority: number | null; status: string };
-type RecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS";
+type RecordType = "A" | "AAAA" | "CNAME" | "MX" | "TXT" | "NS" | "SRV" | "CAA";
 
 const IPV4_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
 const IPV6_RE = /^[0-9a-fA-F:]+$/;
@@ -39,7 +39,15 @@ const TYPE_INFO: Record<RecordType, { placeholder: string; hint: string; validat
     hint: "Delegates this subdomain to another nameserver.",
     validate: (v) => (HOSTNAME_RE.test(v.trim()) ? null : "Enter a valid nameserver hostname."),
   },
+  SRV: { placeholder: "e.g. 10 5 443 target.example.com", hint: "Service location record. Enter priority weight port target." },
+  CAA: { placeholder: "e.g. 0 issue letsencrypt.org", hint: "Controls which certificate authorities may issue certificates." },
 };
+
+const QUICK_TEMPLATES = [
+  { name: "Vercel", type: "CNAME" as RecordType, host: "www", value: "cname.vercel-dns.com" },
+  { name: "Netlify", type: "CNAME" as RecordType, host: "www", value: "apex-loadbalancer.netlify.com" },
+  { name: "Shopify", type: "A" as RecordType, host: "@", value: "23.227.38.65" },
+];
 
 export function DnsManager({ domainId }: { domainId: string }) {
   const [records, setRecords] = useState<RecordItem[]>([]);
@@ -134,6 +142,11 @@ export function DnsManager({ domainId }: { domainId: string }) {
     setBusy(false);
   }
 
+  function applyTemplate(template: (typeof QUICK_TEMPLATES)[number]) {
+    setForm((prev) => ({ ...prev, type: template.type, name: template.host, content: template.value }));
+    setFieldError(null);
+  }
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -146,7 +159,18 @@ export function DnsManager({ domainId }: { domainId: string }) {
         </span>
       </div>
 
-      <form onSubmit={addRecord} className="mt-5 rounded-lg border border-gray-100 bg-gray-50 p-4">
+      <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50/60 p-4">
+        <p className="text-sm font-semibold text-gray-900">Quick setup</p>
+        <p className="mt-1 text-xs text-gray-600">Start with a common website connection, then review the generated record before saving.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {QUICK_TEMPLATES.map((template) => (
+            <button key={template.name} type="button" onClick={() => applyTemplate(template)} className="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">{template.name}</button>
+          ))}
+          <button type="button" onClick={() => setForm((prev) => ({ ...prev, type: "MX", name: "@", content: "" }))} className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-100">Connect email</button>
+        </div>
+      </div>
+
+      <form onSubmit={addRecord} className="mt-4 rounded-lg border border-gray-100 bg-gray-50 p-4">
         <div className={`grid gap-3 sm:grid-cols-2 ${isMx ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
           <div>
             <label htmlFor="dns-type" className="mb-1 block text-xs font-semibold text-gray-600">Type</label>
@@ -163,6 +187,8 @@ export function DnsManager({ domainId }: { domainId: string }) {
                 <option value="MX">MX</option>
                 <option value="TXT">TXT</option>
                 <option value="NS">NS</option>
+                <option value="SRV">SRV</option>
+                <option value="CAA">CAA</option>
               </select>
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400">
                 <path d="M5.5 7.5 10 12l4.5-4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

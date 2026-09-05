@@ -7,6 +7,7 @@ import { getHostingPlanById, CUSTOM_CONNECTION_PLAN_ID, type HostingPlanType } f
 import { getAddonById } from "@/lib/hosting/addons";
 import { notifyOrderCreated, notifyAdmin } from "@/lib/email/notifications";
 import { checkCoupon } from "@/lib/coupons/service";
+import { provisionDomain } from "@/lib/domains/registration-service";
 
 interface ConfirmBody {
   hosting?: {
@@ -142,7 +143,19 @@ export async function POST(request: Request) {
 
   if (total === 0) {
     const domainNames = cartItems.map((item) => item.domain_name);
-    const { error: domainError } = await admin.from("domains").insert(domainNames.map((domain_name) => ({ owner_id: user.id, domain_name, status: "active", registered_at: new Date().toISOString() })));
+    const nowIso = new Date().toISOString();
+    const outcomes = await Promise.all(domainNames.map((domain_name) => provisionDomain(domain_name, nowIso)));
+    const domainRows = domainNames.map((domain_name, i) => {
+      const outcome = outcomes[i]!;
+      return {
+        owner_id: user.id,
+        domain_name,
+        status: outcome.status,
+        registered_at: outcome.registeredAt,
+        info: outcome.note ? { registration_note: outcome.note } : {},
+      };
+    });
+    const { error: domainError } = await admin.from("domains").insert(domainRows);
     if (domainError && !String(domainError.message).toLowerCase().includes("duplicate")) {
       return NextResponse.json({ success: false, error: "Order created, but domain activation needs attention." }, { status: 500 });
     }
