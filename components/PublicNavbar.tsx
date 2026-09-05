@@ -88,7 +88,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,.02)] backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-6 lg:px-10 xl:px-14">
+      <div className="relative mx-auto flex min-h-[68px] max-w-[1440px] items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-6 lg:px-10 xl:px-14">
         {/* Plain <a>, not next/link's <Link>: clicking the logo/site name should always
             do a full hard refresh straight back to the homepage, never a client-side
             navigation that could leave stale state around. */}
@@ -138,35 +138,46 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
         </div>
       </div>
 
+      {/* Backdrop: closes the menu on tap and dims the page behind it instead of
+          pushing content down, which is what made opening the menu feel like the
+          whole page was sliding away. */}
+      <div
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+        className={`fixed inset-0 top-[68px] z-40 bg-slate-900/30 backdrop-blur-[1px] transition-opacity duration-200 lg:hidden ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+
       <div
         id="public-mobile-menu"
-        className={`grid overflow-hidden border-t border-slate-100 bg-white shadow-lg transition-[grid-template-rows] duration-200 ease-out lg:hidden ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr] border-t-0"}`}
+        className={`absolute inset-x-0 top-full z-50 max-h-[calc(100vh-68px)] origin-top overflow-y-auto border-t border-slate-100 bg-white shadow-lg transition-all duration-200 ease-out lg:hidden ${
+          open ? "translate-y-0 scale-y-100 opacity-100" : "pointer-events-none -translate-y-1 scale-y-95 opacity-0"
+        }`}
       >
-        <div className="min-h-0">
-          <div className="mx-auto max-w-[1440px] space-y-1 px-4 py-3">
-            {links.map((link) => {
-              const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`block rounded-xl px-4 py-3 text-sm font-semibold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"}`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-            <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
-              <LanguageToggle />
-              {!loggedIn && (
-                <Link href="/login" className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700">
-                  {language === "bn" ? "লগইন" : "Log in"}
-                </Link>
-              )}
-              <Link href="/#claim" className="btn-signature flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-center text-sm font-bold text-white">
-                {language === "bn" ? "ফ্রি সাবডোমেইন" : "Get Free Subdomain"}
+        <div className="mx-auto max-w-[1440px] space-y-1 px-4 py-3">
+          {links.map((link) => {
+            const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`block rounded-xl px-4 py-3 text-sm font-semibold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"}`}
+              >
+                {link.label}
               </Link>
-            </div>
+            );
+          })}
+          <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+            <LanguageToggle />
+            {!loggedIn && (
+              <Link href="/login" className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700">
+                {language === "bn" ? "লগইন" : "Log in"}
+              </Link>
+            )}
+            <Link href="/#claim" className="btn-signature flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-center text-sm font-bold text-white">
+              {language === "bn" ? "ফ্রি সাবডোমেইন" : "Get Free Subdomain"}
+            </Link>
           </div>
         </div>
       </div>

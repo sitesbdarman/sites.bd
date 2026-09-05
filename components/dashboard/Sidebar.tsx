@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { LogoutButton } from "@/app/dashboard/logout-button";
-import { CloseIcon, DashboardIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, SettingsIcon, TicketIcon } from "./icons";
+import { CloseIcon, DashboardIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, TicketIcon } from "./icons";
 import { SiteLogo } from "@/components/SiteLogo";
 
 interface NavItem {
@@ -41,9 +41,6 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
     { label: "Tickets", href: "/dashboard/tickets", icon: TicketIcon },
     { label: "Knowledge Base", href: "/support/knowledge-base", icon: TicketIcon },
   ]},
-  { label: "Account", items: [
-    { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
-  ]},
 ];
 
 
@@ -61,14 +58,12 @@ function SidebarContent({
   pathname,
   onNavigate,
   onClose,
-  isAdmin = false,
   logoUrl = null,
   siteName = null,
 }: {
   pathname: string;
   onNavigate?: () => void;
   onClose?: () => void;
-  isAdmin?: boolean;
   logoUrl?: string | null;
   siteName?: string | null;
 }) {
@@ -76,8 +71,8 @@ function SidebarContent({
     <div className="flex h-full flex-col bg-white">
       <div className="flex h-[68px] shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-5">
         {/* Plain <a>, not next/link's <Link>: clicking the logo/site name should
-            always do a full hard refresh straight to the dashboard home screen. */}
-        <a href="/dashboard" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
+            always do a full hard refresh straight to the public homepage. */}
+        <a href="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
           <SiteLogo logoUrl={logoUrl} className="h-6 w-6 text-blue-600" />
           {siteName ? siteName : <>SITES<span className="text-blue-600">.BD</span></>}
         </a>
@@ -112,11 +107,6 @@ function SidebarContent({
                   </Link>
                 );
               })}
-              {group.label === "Account" && isAdmin && (
-                <Link href="/admin" onClick={onNavigate} className={`relative flex items-center gap-3 rounded-xl py-2.5 pl-4 pr-3 text-sm font-bold transition-colors ${pathname.startsWith("/admin") ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}>
-                  <SettingsIcon className="h-4.5 w-4.5 shrink-0" />Admin Panel
-                </Link>
-              )}
             </div>
           </div>
         ))}
@@ -135,18 +125,8 @@ function SidebarContent({
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const [isAdmin, setIsAdmin] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [siteName, setSiteName] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/account/access", { cache: "no-store" })
-      .then((response) => response.ok ? response.json() : null)
-      .then((data) => { if (!cancelled) setIsAdmin(Boolean(data?.isAdmin)); })
-      .catch(() => undefined);
-    return () => { cancelled = true; };
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -165,7 +145,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
     <>
       {/* Desktop: persistent sidebar */}
       <aside className="hidden w-[272px] shrink-0 border-r border-slate-200/80 bg-white md:block">
-        <SidebarContent pathname={pathname} isAdmin={isAdmin} logoUrl={logoUrl} siteName={siteName} />
+        <SidebarContent pathname={pathname} logoUrl={logoUrl} siteName={siteName} />
       </aside>
 
       {/* Mobile: off-canvas sidebar + backdrop */}
@@ -182,7 +162,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} isAdmin={isAdmin} logoUrl={logoUrl} siteName={siteName} />
+          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} logoUrl={logoUrl} siteName={siteName} />
         </aside>
       </div>
     </>

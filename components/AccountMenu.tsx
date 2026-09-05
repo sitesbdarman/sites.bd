@@ -160,7 +160,9 @@ export function AccountMenu({ loggedIn, avatarUrl, fullName, email, showLabel = 
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`Account menu for ${displayName}`}
-        className="group flex min-w-0 items-center gap-2.5 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-2 shadow-sm transition-all hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[.98]"
+        className={`group flex min-w-0 items-center gap-2.5 rounded-full border border-gray-200 bg-white shadow-sm transition-all hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[.98] ${
+          showLabel ? "py-1.5 pl-1.5 pr-2" : "p-1"
+        }`}
       >
         <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-50 to-blue-100 text-blue-600 shadow-inner ring-2 ring-white transition group-hover:ring-blue-100 sm:h-11 sm:w-11">
           {avatarUrl ? (
