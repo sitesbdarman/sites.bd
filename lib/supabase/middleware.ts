@@ -4,7 +4,10 @@
  *
  * Refreshes the user's auth session on every matched request/navigation so
  * Server Components always see a valid, non-expired session, then applies
- * two guards:
+ * three guards:
+ *  - when maintenance mode is on, every customer-facing route is redirected
+ *    to /maintenance for anyone who isn't logged in with a staff role;
+ *    /admin and /api stay reachable so admins can always turn it back off
  *  - unauthenticated users are redirected away from protected app routes
  *  - authenticated users with a pending profile are redirected to
  *    /profile-completion before they can reach the rest of the app
@@ -29,6 +32,15 @@ const PROTECTED_PREFIXES = [
 
 /** Auth pages an already-signed-in (and complete) user shouldn't linger on. */
 const AUTH_PAGE_PREFIXES = ["/login", "/register", "/forgot-password"];
+
+/** Staff roles allowed to keep browsing the site while maintenance mode is on. */
+const STAFF_ROLES = new Set(["admin", "super_admin", "support_agent", "finance"]);
+
+type CachedProfile = {
+  role: string | null;
+  profile_status: string | null;
+  account_status: string | null;
+};
 
 function matchesPrefix(pathname: string, prefixes: string[]): boolean {
   return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -79,6 +91,43 @@ export async function updateSession(request: NextRequest) {
 
   const isProtectedRoute = matchesPrefix(pathname, PROTECTED_PREFIXES);
   const isAuthPage = matchesPrefix(pathname, AUTH_PAGE_PREFIXES);
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
+  const isApiPath = pathname === "/api" || pathname.startsWith("/api/");
+  const isMaintenancePage = pathname === "/maintenance";
+
+  let cachedProfile: CachedProfile | null = null;
+  let profileFetched = false;
+  async function loadProfile(): Promise<CachedProfile | null> {
+    if (profileFetched || !user) return cachedProfile;
+    profileFetched = true;
+    const { data } = await supabase
+      .from("profiles")
+      .select("role, profile_status, account_status")
+      .eq("id", user.id)
+      .maybeSingle();
+    cachedProfile = (data as CachedProfile | null) ?? null;
+    return cachedProfile;
+  }
+
+  // Maintenance mode: gate every customer-facing route, but never /admin or
+  // /api, so staff can always sign in and flip it back off.
+  if (!isAdminPath && !isApiPath && !isMaintenancePage) {
+    const { data: config } = await supabase
+      .from("app_config")
+      .select("value")
+      .eq("key", "site_settings")
+      .maybeSingle();
+    const maintenanceOn = Boolean((config?.value as { maintenance?: boolean } | null)?.maintenance);
+
+    if (maintenanceOn) {
+      const profile = await loadProfile();
+      const isStaff = Boolean(profile?.role && STAFF_ROLES.has(profile.role));
+      if (!isStaff) {
+        const redirectUrl = new URL("/maintenance", request.url);
+        return withRefreshedCookies(NextResponse.redirect(redirectUrl), supabaseResponse);
+      }
+    }
+  }
 
   if (!user) {
     if (isProtectedRoute) {
@@ -91,11 +140,7 @@ export async function updateSession(request: NextRequest) {
   // Authenticated from here on. Only fetch profile_status when a decision
   // actually depends on it, to avoid an extra query on every request.
   if (isProtectedRoute || isAuthPage) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("profile_status, account_status")
-      .eq("id", user.id)
-      .maybeSingle();
+    const profile = await loadProfile();
 
     const profileStatus = (profile?.profile_status as string | undefined) ?? "pending";
     const accountStatus = (profile?.account_status as string | undefined) ?? "active";

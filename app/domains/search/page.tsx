@@ -205,6 +205,24 @@ export default function DomainSearchPage() {
 
     setClaiming(true);
     try {
+      if (claimTarget.endsWith(`.${FREE_SUBDOMAIN_TLD}`)) {
+        // Free .sites.bd addresses provision immediately through the real
+        // deSEC-backed claim API instead of going through the paid-domain
+        // cart → checkout flow, so there's one fast, single-click path.
+        const response = await fetch("/api/subdomains/claim", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ label: claimTarget.slice(0, -(`.${FREE_SUBDOMAIN_TLD}`).length) }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          router.push(`/subdomains/success?domain=${encodeURIComponent(data.domain)}`);
+          return;
+        }
+        setClaimOutcomes((prev) => ({ ...prev, [claimTarget]: { kind: "error", message: data.error ?? "Couldn't claim that address." } }));
+        setClaimTarget(null);
+        return;
+      }
       const response = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -225,14 +243,6 @@ export default function DomainSearchPage() {
           [claimTarget]: { kind: "error", message: data.error ?? "Couldn't add that domain. Please try again." },
         }));
         setClaimTarget(null);
-        return;
-      }
-
-      if (claimTarget.endsWith(`.${FREE_SUBDOMAIN_TLD}`)) {
-        // Free subdomains go through the same checkout flow as paid domains
-        // (hosting choice → add-ons → review → instant $0 confirmation) so
-        // there's one consistent path to a completed, active order.
-        router.push("/checkout/hosting");
         return;
       }
 

@@ -55,7 +55,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: result?.error?.message ?? "Profile picture upload failed." }, { status: 502 });
     }
 
-    const avatarUrl = String(result.secure_url);
+    // Cache-bust: the public_id is fixed per user, so a re-upload returns the
+    // exact same secure_url as last time. Without a changing query string the
+    // browser (and any CDN) keeps showing the old cached image after a new
+    // upload is saved, so the picture appears not to update.
+    const avatarUrl = `${String(result.secure_url)}?v=${timestamp}`;
     // Do not update profiles here. The profile form immediately follows this
     // upload with the authenticated PATCH /api/profile request, which keeps
     // avatar + name/mobile/address updates in one consistent write path.
@@ -73,6 +77,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Profile image storage is not configured. Add the Cloudinary environment variables or create the Supabase avatars bucket." }, { status: 500 });
   }
 
-  const avatarUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+  // Same cache-busting concern as the Cloudinary branch above, plus here the
+  // upload path itself already changes per upload (Date.now()), which is
+  // enough on its own — but we still append ?v= for consistency with clients
+  // that might normalize/cache by base path.
+  const avatarUrl = `${supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl}?v=${Date.now()}`;
   return NextResponse.json({ ok: true, avatarUrl, provider: "supabase" });
 }

@@ -58,7 +58,10 @@ async function uploadBrandingAsset(file: File, kind: "logo" | "favicon"): Promis
       `Branding storage is not configured. Add the Cloudinary environment variables, or create a public "branding" bucket in Supabase Storage. (${uploadError.message})`,
     );
   }
-  return admin.storage.from("branding").getPublicUrl(path).data.publicUrl;
+  // Cache-bust here too (path already includes Date.now(), but ?v= keeps this
+  // branch consistent with the Cloudinary one above so a re-upload can never
+  // appear to "not show" because of a stale cached image).
+  return `${admin.storage.from("branding").getPublicUrl(path).data.publicUrl}?v=${Date.now()}`;
 }
 
 export async function POST(req: Request) {
@@ -71,13 +74,17 @@ export async function POST(req: Request) {
   const form = await req.formData();
   const logo = form.get("logo");
   const favicon = form.get("favicon");
+  const removeLogo = form.get("removeLogo") === "on";
+  const removeFavicon = form.get("removeFavicon") === "on";
 
   const db = createAdminClient();
   const { data: existing } = await db.from("app_config").select("value").eq("key", "site_settings").maybeSingle();
   const settings = { ...((existing?.value as Record<string, unknown>) ?? {}) };
 
   try {
-    if (logo instanceof File && logo.size > 0) {
+    if (removeLogo) {
+      settings.logo_url = null;
+    } else if (logo instanceof File && logo.size > 0) {
       if (!ALLOWED_TYPES.has(logo.type)) {
         return NextResponse.redirect(new URL("/admin/settings?brandingError=logo-type", req.url));
       }
@@ -87,7 +94,9 @@ export async function POST(req: Request) {
       settings.logo_url = await uploadBrandingAsset(logo, "logo");
     }
 
-    if (favicon instanceof File && favicon.size > 0) {
+    if (removeFavicon) {
+      settings.favicon_url = null;
+    } else if (favicon instanceof File && favicon.size > 0) {
       if (!ALLOWED_TYPES.has(favicon.type)) {
         return NextResponse.redirect(new URL("/admin/settings?brandingError=favicon-type", req.url));
       }
