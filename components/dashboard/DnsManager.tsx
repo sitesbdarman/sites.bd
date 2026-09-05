@@ -22,7 +22,7 @@ const TYPE_INFO: Record<RecordType, { placeholder: string; hint: string; validat
   },
   CNAME: {
     placeholder: "e.g. yourapp.vercel-dns.com",
-    hint: "Aliases this name to another hostname. Only one CNAME is allowed per name — adding a new one replaces the old one. Can't be used at the root (@); use A/AAAA there instead.",
+    hint: "Aliases this name to another hostname.",
     validate: (v) => (HOSTNAME_RE.test(v.trim()) ? null : "Enter a valid hostname, e.g. yourapp.vercel-dns.com."),
   },
   MX: {
@@ -77,10 +77,9 @@ export function DnsManager({ domainId }: { domainId: string }) {
   const isApexCname = form.type === "CNAME" && isApexName;
 
   const liveError = useMemo(() => {
-    if (isApexCname) return "A CNAME can't be used at the root domain (@) — that name always needs NS records for the domain to work. Use an A or AAAA record for the root, or add the CNAME on a subdomain (e.g. `www`) instead.";
     if (!form.content.trim() || !info.validate) return null;
     return info.validate(form.content);
-  }, [form.content, info, isApexCname]);
+  }, [form.content, info]);
 
   async function addRecord(event: React.FormEvent) {
     event.preventDefault();
@@ -215,7 +214,7 @@ export function DnsManager({ domainId }: { domainId: string }) {
               onChange={(e) => setForm({ ...form, content: e.target.value })}
               placeholder={info.placeholder}
               aria-label="Record content"
-              className={`w-full rounded-md border bg-white px-3 py-2 text-sm ${liveError ? "border-red-300" : "border-gray-200"}`}
+              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
               required
             />
           </div>
@@ -258,9 +257,7 @@ export function DnsManager({ domainId }: { domainId: string }) {
           </div>
         </div>
         <p className="mt-3 text-xs text-gray-500">{info.hint}</p>
-        {(fieldError || liveError) && (
-          <p className="mt-1 text-xs font-medium text-red-600">{fieldError ?? liveError}</p>
-        )}
+        {fieldError && <p role="alert" className="mt-1 text-xs font-medium text-red-600">{fieldError}</p>}
       </form>
 
       {feedback && (

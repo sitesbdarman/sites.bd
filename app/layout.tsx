@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const metadata: Metadata = {
   title: { default: "SITES.BD — Domains, Hosting & Web Services", template: "%s · SITES.BD" },
@@ -25,7 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
-        <LanguageProvider>{children}<MobileBottomNav /></LanguageProvider>
+        <LanguageProvider>{children}</LanguageProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

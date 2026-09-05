@@ -26,7 +26,7 @@ export default function ContactPage() {
           </div>
           <div className="space-y-5">
             <div className="rounded-3xl bg-blue-600 p-8 text-white shadow-xl"><h2 className="text-2xl font-extrabold">Support</h2><p className="mt-3 text-white/85">Use your account dashboard to create and track tickets.</p><Link href="/dashboard/tickets" className="mt-6 inline-block rounded-full bg-white px-6 py-3 font-bold text-blue-600">Support Tickets</Link></div>
-            <div className="rounded-3xl bg-white p-8 shadow-lg ring-1 ring-gray-100"><h3 className="text-xl font-extrabold">Email</h3><p className="mt-2 text-gray-600">help@sites.bd</p><h3 className="mt-7 text-xl font-extrabold">Need a domain?</h3><p className="mt-2 text-gray-600">Search an extension and continue to checkout.</p><Link href="/domains/search" className="mt-5 inline-block font-bold text-blue-600">Search domains →</Link></div>
+            <div className="rounded-3xl bg-white p-8 shadow-lg ring-1 ring-gray-100"><h3 className="text-xl font-extrabold">Email</h3><p className="mt-2 text-gray-600">help@sites.bd</p></div>
           </div>
         </div>
       </section>

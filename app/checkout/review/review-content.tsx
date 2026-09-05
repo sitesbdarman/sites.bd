@@ -14,9 +14,15 @@ interface ReviewTotals { domainTotal: number; hostingPrice: number; addonsTotal:
 interface ReviewResponse { success: boolean; errors?: string[]; cart?: ReviewCartItem[]; hosting?: ReviewHosting | null; addons?: ReviewAddon[]; totals?: ReviewTotals; error?: string; }
 type LoadState = "loading" | "error" | "invalid" | "valid";
 
+function formatMoney(price: number, currency = "BDT"): string {
+  if (currency === "BDT") return `৳${Number(price).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} BDT`;
+  try { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(price); }
+  catch { return `${currency} ${price.toFixed(2)}`; }
+}
 function formatDomainPrice(item: ReviewCartItem): string {
-  try { return new Intl.NumberFormat("en-US", { style: "currency", currency: item.currency }).format(item.price); }
-  catch { return `${item.currency} ${item.price.toFixed(2)}`; }
+  // SITES.BD's customer checkout is BDT-first. Legacy/mock USD rows are
+  // rendered as BDT here so the UI never mixes a dollar amount with a BDT total.
+  return formatMoney(item.price, "BDT");
 }
 
 export function ReviewContent() {
@@ -89,7 +95,7 @@ export function ReviewContent() {
     <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
       <div className="space-y-4">
         <section className="surface p-5 sm:p-6"><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Domains</p><h2 className="mt-1 text-lg font-black text-slate-950">Your online identity</h2></div><Link href="/cart" className="text-xs font-black text-blue-600 hover:text-blue-700">Edit cart</Link></div><div className="mt-5 space-y-2">{cart.length ? cart.map(item => <div key={item.id} className="flex items-center justify-between gap-4 rounded-xl bg-slate-50 p-3.5"><div className="min-w-0"><p className="truncate text-sm font-black text-slate-900">{item.domain_name}</p><p className="mt-0.5 text-xs text-slate-500">{item.validity_years} year registration</p></div><span className="shrink-0 text-sm font-black text-slate-900">{formatDomainPrice(item)}</span></div>) : <p className="text-sm text-slate-500">No domains in cart.</p>}</div></section>
-        <section className="surface p-5 sm:p-6"><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Hosting</p><div className="mt-3 flex items-center justify-between gap-4"><div><h2 className="font-black text-slate-950">{hosting?.planName ?? "No hosting plan"}</h2><p className="mt-1 text-xs text-slate-500">{hosting?.billingCycle ?? "Not selected"}</p></div>{hosting && <span className="font-black text-slate-900">{formatBDT(hosting.price)}</span>}</div></section>
+        <section className="surface p-5 sm:p-6"><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Hosting</p><div className="mt-3 flex items-center justify-between gap-4"><div><h2 className="font-black text-slate-950">{hosting?.planName ?? "No hosting plan"}</h2><p className="mt-1 text-xs text-slate-500">{hosting?.billingCycle ?? "Not selected"}</p></div>{hosting && <span className="font-black text-slate-900">{formatMoney(hosting.price, "BDT")}</span>}</div></section>
         <section className="surface p-5 sm:p-6"><p className="text-xs font-black uppercase tracking-[.15em] text-slate-400">Add-ons</p>{addons.length ? <div className="mt-3 space-y-2">{addons.map(addon => <div key={addon.id} className="flex justify-between gap-4 text-sm"><span className="font-semibold text-slate-700">{addon.name}</span><span className="font-bold text-slate-900">{addon.price > 0 ? formatBDT(addon.price) : "Custom"}</span></div>)}</div> : <p className="mt-2 text-sm text-slate-500">No additional services selected.</p>}</section>
       </div>
       <aside className="surface h-fit p-5 sm:p-6 lg:sticky lg:top-24"><p className="text-xs font-black uppercase tracking-[.15em] text-blue-600">Order summary</p><h2 className="mt-1 text-xl font-black text-slate-950">Your total</h2>{totals && <dl className="mt-5 space-y-3 text-sm"><div className="flex justify-between gap-3"><dt className="text-slate-500">Domains</dt><dd className="font-bold">{formatBDT(totals.domainTotal)}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Hosting</dt><dd className="font-bold">{formatBDT(totals.hostingPrice)}</dd></div><div className="flex justify-between gap-3"><dt className="text-slate-500">Add-ons</dt><dd className="font-bold">{formatBDT(totals.addonsTotal)}</dd></div>{couponDiscount > 0 && <div className="flex justify-between gap-3 text-emerald-700"><dt>Discount</dt><dd className="font-bold">-{formatBDT(couponDiscount)}</dd></div>}<div className="border-t border-slate-200 pt-4"><div className="flex items-end justify-between gap-3"><dt className="font-black text-slate-700">Total</dt><dd className="text-2xl font-black tracking-tight text-slate-950">{formatBDT(totals.finalTotal)}</dd></div></div></dl>}

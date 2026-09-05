@@ -13,8 +13,8 @@ export default async function DomainDetailsPage({ params }: { params: Promise<{ 
   const { data: domain } = await db.from("domains").select("*").eq("id", id).eq("owner_id", user.id).maybeSingle();
   if (!domain) notFound();
 
-  const money = (value: unknown, currency = "USD") => { try { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(Number(value || 0)); } catch { return `${currency} ${Number(value || 0).toFixed(2)}`; } };
-  const currency = (domain as any).currency || "USD";
+  const money = (value: unknown, currency = "BDT") => { try { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(Number(value || 0)); } catch { return `${currency} ${Number(value || 0).toFixed(2)}`; } };
+  const currency = (domain as any).currency || "BDT";
   return <DashboardLayout pageTitle="Domain Details" userEmail={user.email ?? null}>
     <div className="mx-auto max-w-[1320px]">
       <Link href="/dashboard/domains" className="text-sm font-bold text-blue-600 hover:text-blue-700">← My Domains</Link>

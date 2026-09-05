@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 import { LogoutButton } from "@/app/dashboard/logout-button";
 import { CloseIcon, DashboardIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, SettingsIcon, TicketIcon } from "./icons";
@@ -42,7 +43,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
   ]},
   { label: "Account", items: [
     { label: "Profile", href: "/profile", icon: SettingsIcon },
-    { label: "Security", href: "/dashboard/settings", icon: SettingsIcon },
+    { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
     { label: "Notifications", href: "/dashboard/settings", icon: SettingsIcon },
   ]},
 ];
@@ -62,10 +63,12 @@ function SidebarContent({
   pathname,
   onNavigate,
   onClose,
+  isAdmin = false,
 }: {
   pathname: string;
   onNavigate?: () => void;
   onClose?: () => void;
+  isAdmin?: boolean;
 }) {
   return (
     <div className="flex h-full flex-col bg-white">
@@ -105,6 +108,11 @@ function SidebarContent({
                   </Link>
                 );
               })}
+              {group.label === "Account" && isAdmin && (
+                <Link href="/admin" onClick={onNavigate} className={`relative flex items-center gap-3 rounded-xl py-2.5 pl-4 pr-3 text-sm font-bold transition-colors ${pathname.startsWith("/admin") ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}>
+                  <SettingsIcon className="h-4.5 w-4.5 shrink-0" />Admin Panel
+                </Link>
+              )}
             </div>
           </div>
         ))}
@@ -123,12 +131,22 @@ function SidebarContent({
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/account/access", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => { if (!cancelled) setIsAdmin(Boolean(data?.isAdmin)); })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <>
       {/* Desktop: persistent sidebar */}
       <aside className="hidden w-[272px] shrink-0 border-r border-slate-200/80 bg-white md:block">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent pathname={pathname} isAdmin={isAdmin} />
       </aside>
 
       {/* Mobile: off-canvas sidebar + backdrop */}
@@ -145,7 +163,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} />
+          <SidebarContent pathname={pathname} onNavigate={onClose} onClose={onClose} isAdmin={isAdmin} />
         </aside>
       </div>
     </>

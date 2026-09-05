@@ -23,7 +23,7 @@ export async function PUT(req: Request) {
     const base: any = { ...(item.id ? { id: item.id } : {}), is_active: Boolean(item.is_active), sort_order: Number.isFinite(Number(item.sort_order)) ? Number(item.sort_order) : index, updated_at: new Date().toISOString() };
     if (kind === "hosting") Object.assign(base, { name: String(item.name ?? "").trim(), type: ["premium","free","custom"].includes(item.type) ? item.type : "premium", price: Math.max(0, Number(item.price ?? 0)), billing_cycle: ["monthly","yearly","one_time","n_a"].includes(item.billing_cycle) ? item.billing_cycle : "yearly", description: String(item.description ?? "").trim() });
     if (kind === "addons") Object.assign(base, { name: String(item.name ?? "").trim(), description: String(item.description ?? "").trim(), price: Math.max(0, Number(item.price ?? 0)), billing_cycle: String(item.billing_cycle ?? "one_time"), currency: String(item.currency ?? "BDT").toUpperCase().trim() });
-    if (kind === "domains") Object.assign(base, { tld: String(item.tld ?? "").replace(/^\./, "").toLowerCase().trim(), registration_price: Math.max(0, Number(item.registration_price ?? 0)), renewal_price: Math.max(0, Number(item.renewal_price ?? item.registration_price ?? 0)), currency: String(item.currency ?? "USD").toUpperCase().trim() });
+    if (kind === "domains") Object.assign(base, { tld: String(item.tld ?? "").replace(/^\./, "").toLowerCase().trim(), registration_price: Math.max(0, Number(item.registration_price ?? 0)), renewal_price: Math.max(0, Number(item.renewal_price ?? item.registration_price ?? 0)), currency: String(item.currency ?? "BDT").toUpperCase().trim() });
     return base;
   }).filter((row: any) => kind === "domains" ? row.tld : row.name);
 

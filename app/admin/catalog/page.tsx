@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 type Kind="hosting"|"addons"|"domains";
 type Row=Record<string,any>;
-const empty={hosting:{name:"New Hosting Plan",type:"premium",price:0,billing_cycle:"yearly",description:"",is_active:true,sort_order:999},addons:{name:"New Add-on",description:"",price:0,billing_cycle:"one_time",currency:"BDT",is_active:true,sort_order:999},domains:{tld:"com",registration_price:0,renewal_price:0,currency:"USD",is_active:true,sort_order:999}};
+const empty={hosting:{name:"New Hosting Plan",type:"premium",price:0,billing_cycle:"yearly",description:"",is_active:true,sort_order:999},addons:{name:"New Add-on",description:"",price:0,billing_cycle:"one_time",currency:"BDT",is_active:true,sort_order:999},domains:{tld:"com",registration_price:0,renewal_price:0,currency:"BDT",is_active:true,sort_order:999}};
 function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="block"><span className="text-xs font-bold text-slate-500">{label}</span>{children}</label>}
 export default function CatalogPage(){const [kind,setKind]=useState<Kind>("hosting"),[items,setItems]=useState<Row[]>([]),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[msg,setMsg]=useState("");
 async function load(){setLoading(true);setMsg("");try{const r=await fetch(`/api/admin/catalog?kind=${kind}`,{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error);setItems(d.items||[])}catch(e){setMsg(e instanceof Error?e.message:"Could not load catalog.")}finally{setLoading(false)}}

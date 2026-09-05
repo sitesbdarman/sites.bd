@@ -22,16 +22,16 @@ export interface DomainPriceQuote {
  * trust a price the client sends.
  */
 const BASE_PRICE_BY_TLD: Record<string, number> = {
-  com: 12.99,
-  net: 14.99,
-  org: 13.99,
-  io: 39.99,
-  dev: 15.99,
-  co: 24.99,
-  app: 17.99,
+  com: 1299,
+  net: 1499,
+  org: 1399,
+  io: 3999,
+  dev: 1599,
+  co: 2499,
+  app: 1799,
 };
-const DEFAULT_BASE_PRICE = 19.99;
-const DEFAULT_CURRENCY = "USD";
+const DEFAULT_BASE_PRICE = 1999;
+const DEFAULT_CURRENCY = "BDT";
 
 export function getDomainPriceQuote(domain: string): DomainPriceQuote {
   const normalized = domain.trim().toLowerCase();
@@ -57,7 +57,7 @@ export async function getLiveDomainPriceQuote(domain: string): Promise<DomainPri
     const { createAdminClient } = await import("@/lib/supabase/admin");
     const db = createAdminClient();
     const { data } = await db.from("domain_pricing").select("registration_price,currency").eq("tld", tld).eq("is_active", true).maybeSingle();
-    if (data) return { domain: normalized, price: Number(data.registration_price || 0), currency: String(data.currency || "USD"), isMock: false };
+    if (data) return { domain: normalized, price: Number(data.registration_price || 0), currency: String(data.currency || "BDT"), isMock: false };
   } catch {}
   return getDomainPriceQuote(normalized);
 }

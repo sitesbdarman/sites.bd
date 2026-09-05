@@ -82,13 +82,6 @@ export default async function DashboardPage() {
 
   const fullName = profile?.full_name?.trim() || null;
   const email = user?.email ?? null;
-  let isAdmin = false;
-  if (user) {
-    try {
-      const { data: roleProfile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle<{ role: string | null }>();
-      isAdmin = ["admin","super_admin","finance","support_agent"].includes(roleProfile?.role ?? "");
-    } catch { isAdmin = false; }
-  }
   const mobileNumber = profile?.mobile_number?.trim() || null;
   const avatarUrl = profile?.avatar_url || null;
 
@@ -143,22 +136,6 @@ export default async function DashboardPage() {
             Here&apos;s an overview of your domains, services, invoices, and support tickets.
           </p>
           {contactLine && <p className="mt-1 text-xs text-gray-400">{contactLine}</p>}
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href="/dashboard/settings"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-            >
-              Settings
-            </Link>
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800"
-              >
-                Admin Panel
-              </Link>
-            )}
-          </div>
         </div>
 
         {/* Quick actions — the handful of things a customer does most
@@ -179,7 +156,6 @@ export default async function DashboardPage() {
                 <h3 className="mt-1 text-lg font-black text-slate-900">Set up your account</h3>
                 <p className="mt-1 text-sm text-slate-600">Complete the basics before ordering your first domain or service.</p>
               </div>
-              <Link href="/domains/search" className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white">Find a domain</Link>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
               <Link href="/profile" className="rounded-xl bg-white p-4 text-sm font-semibold text-slate-800 hover:border-sky-200 hover:bg-sky-50">1. Complete profile</Link>
@@ -204,11 +180,6 @@ export default async function DashboardPage() {
               <EmptyState
                 icon={GlobeIcon}
                 message="Your registered domains will appear here."
-                action={
-                  <Link href="/domains/search" className="mt-1 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700">
-                    Find a domain
-                  </Link>
-                }
               />
             ) : (
               <div className="-mx-1">

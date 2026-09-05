@@ -271,7 +271,7 @@ export default function DomainSearchPage() {
     <>
       <PublicNavbar />
       <main className="min-h-screen bg-[#f7f9fc] px-4 py-10 sm:px-6 sm:py-14">
-      <div className="mx-auto w-full max-w-[980px]">
+      <div className="mx-auto w-full max-w-[1040px]">
         <div className="rounded-[28px] bg-slate-950 px-5 py-8 text-white shadow-[var(--shadow-float)] sm:px-8 sm:py-10">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[.2em] text-sky-300">Find your next identity</p>
@@ -380,7 +380,7 @@ export default function DomainSearchPage() {
               return (
                 <li
                   key={result.domain}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:border-blue-200 sm:p-5"
+                  className="rounded-[20px] border border-slate-200/90 bg-white p-4 shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:border-blue-200 sm:p-5"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -493,17 +493,23 @@ function AlternativeSuggestions({
   const available = (alternatives ?? []).filter((a) => a.available);
   const freeSubdomain = `${baseNameOf(domain)}.${FREE_SUBDOMAIN_TLD}`;
   return (
-    <div className="mt-3 space-y-2">
-      <p className="text-[11px] font-black uppercase tracking-[.14em] text-gray-400">Recommended alternatives</p>
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50/70 p-3">
-          <div className="min-w-0"><button type="button" onClick={() => onPick(freeSubdomain)} className="block truncate text-sm font-bold text-blue-900 hover:underline">{freeSubdomain}</button><p className="text-[11px] font-semibold text-blue-600">Free forever</p></div>
-          <button type="button" onClick={() => onClaim(freeSubdomain)} className="shrink-0 rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] font-black text-white hover:bg-blue-700">Claim Free</button>
+    <div className="mt-4">
+      <p className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Recommended</p>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50/60 px-3.5 py-3">
+          <div className="min-w-0 flex-1">
+            <button type="button" onClick={() => onPick(freeSubdomain)} className="block max-w-full truncate text-sm font-black text-blue-950 hover:text-blue-700">{freeSubdomain}</button>
+            <p className="mt-0.5 text-[11px] font-semibold text-blue-600">Free forever · SITES.BD</p>
+          </div>
+          <button type="button" onClick={() => onClaim(freeSubdomain)} className="shrink-0 rounded-lg bg-blue-600 px-3.5 py-2 text-[11px] font-black text-white shadow-sm hover:bg-blue-700">Claim free</button>
         </div>
         {available.map((alt) => (
-          <div key={alt.domain} className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-3">
-            <div className="min-w-0"><button type="button" onClick={() => onPick(alt.domain)} className="block truncate text-sm font-bold text-gray-900 hover:text-blue-700 hover:underline">{alt.domain}</button><p className="text-[11px] font-semibold text-emerald-600">Available</p></div>
-            <button type="button" onClick={() => onClaim(alt.domain)} className="shrink-0 rounded-lg border border-gray-300 px-3 py-1.5 text-[11px] font-bold text-gray-700 hover:bg-gray-50">Add to Cart</button>
+          <div key={alt.domain} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-3.5 py-3">
+            <div className="min-w-0 flex-1">
+              <button type="button" onClick={() => onPick(alt.domain)} className="block max-w-full truncate text-sm font-black text-slate-900 hover:text-blue-700">{alt.domain}</button>
+              <p className="mt-0.5 text-[11px] font-semibold text-emerald-600">Available</p>
+            </div>
+            <button type="button" onClick={() => onClaim(alt.domain)} className="shrink-0 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-[11px] font-black text-slate-700 hover:border-blue-300 hover:text-blue-700">Add to cart</button>
           </div>
         ))}
       </div>

@@ -28,12 +28,10 @@ interface CartDeleteResponse {
 
 type LoadState = "loading" | "error" | "loaded";
 
-function formatPrice(price: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(price);
-  } catch {
-    return `${currency} ${price.toFixed(2)}`;
-  }
+function formatPrice(price: number, currency = "BDT"): string {
+  if (currency === "BDT") return `৳${Number(price).toLocaleString("en-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} BDT`;
+  try { return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(price); }
+  catch { return `${currency} ${price.toFixed(2)}`; }
 }
 
 export function CartContent() {
@@ -205,16 +203,16 @@ export function CartContent() {
           <h2 className="text-base font-black text-gray-900">Order Summary</h2>
           <div className="mt-4 space-y-3 text-sm">
             {items.map(item => <div key={item.id} className="flex justify-between gap-3"><span className="truncate text-gray-600">{item.domain_name}</span><span className="font-semibold">{formatPrice(item.price, item.currency)}</span></div>)}
-            <div className="flex justify-between border-t border-gray-100 pt-3 text-gray-500"><span>Subtotal</span><span>{formatPrice(total, items[0]?.currency ?? "USD")}</span></div>
+            <div className="flex justify-between border-t border-gray-100 pt-3 text-gray-500"><span>Subtotal</span><span>{formatPrice(total, items[0]?.currency ?? "BDT")}</span></div>
             <div className="flex justify-between text-gray-500"><span>Tax / fees</span><span>Calculated at checkout</span></div>
-            <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-black text-gray-900"><span>Total</span><span>{formatPrice(total, items[0]?.currency ?? "USD")}</span></div>
+            <div className="flex justify-between border-t border-gray-200 pt-3 text-base font-black text-gray-900"><span>Total</span><span>{formatPrice(total, items[0]?.currency ?? "BDT")}</span></div>
           </div>
           <p className="mt-4 rounded-lg bg-slate-50 p-3 text-xs leading-5 text-slate-500">Secure checkout. Any applicable taxes or payment fees are shown before you place the order.</p>
           <Link href="/checkout/hosting" className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-800">Continue to Checkout →</Link>
         </aside>
       </div>
       <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 p-3 shadow-[0_-10px_30px_-20px_rgba(15,23,42,.35)] backdrop-blur md:hidden">
-        <Link href="/checkout/hosting" className="flex min-h-11 items-center justify-center rounded-xl bg-gray-900 px-4 py-2 text-sm font-black text-white">Checkout · {formatPrice(total, items[0]?.currency ?? "USD")} →</Link>
+        <Link href="/checkout/hosting" className="flex min-h-11 items-center justify-center rounded-xl bg-gray-900 px-4 py-2 text-sm font-black text-white">Checkout · {formatPrice(total, items[0]?.currency ?? "BDT")} →</Link>
       </div>
     </div>
   );

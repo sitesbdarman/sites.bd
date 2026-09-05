@@ -383,7 +383,7 @@ create table if not exists public.cart_items (
   owner_id uuid not null references auth.users (id) on delete cascade,
   domain_name text not null,
   price numeric(10, 2) not null check (price >= 0),
-  currency text not null default 'USD',
+  currency text not null default 'BDT',
   validity_years int not null default 1 check (validity_years > 0),
   created_at timestamptz not null default now(),
   -- One cart row per domain per user — the DB-level backstop for duplicate
@@ -1268,7 +1268,7 @@ create table if not exists public.domain_pricing (
   tld text not null unique,
   registration_price numeric(12,2) not null default 0,
   renewal_price numeric(12,2) not null default 0,
-  currency text not null default 'USD',
+  currency text not null default 'BDT',
   is_active boolean not null default true,
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
@@ -1314,8 +1314,8 @@ where not exists (select 1 from public.addons);
 
 insert into public.domain_pricing(tld,registration_price,renewal_price,currency,sort_order)
 select * from (values
- ('com',12.99,14.99,'USD',10),('net',14.99,16.99,'USD',20),('org',13.99,15.99,'USD',30),
- ('io',39.99,44.99,'USD',40),('dev',15.99,17.99,'USD',50),('co',24.99,29.99,'USD',60),('app',17.99,20.99,'USD',70)
+ ('com',1299,1499,'BDT',10),('net',1499,1699,'BDT',20),('org',1399,1599,'BDT',30),
+ ('io',3999,4499,'BDT',40),('dev',1599,1799,'BDT',50),('co',2499,2999,'BDT',60),('app',1799,2099,'BDT',70)
 ) v(tld,registration_price,renewal_price,currency,sort_order)
 where not exists (select 1 from public.domain_pricing);
 -- 0026_platform_control.sql

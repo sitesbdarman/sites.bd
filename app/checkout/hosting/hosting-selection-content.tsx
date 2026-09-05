@@ -92,8 +92,7 @@ export function HostingSelectionContent() {
 
   const [livePlans, setLivePlans] = useState<HostingPlan[]>(() => []);
   useEffect(() => { fetch("/api/catalog?kind=hosting", { cache: "no-store" }).then(r=>r.json()).then(d=>{ if(Array.isArray(d.items)&&d.items.length) setLivePlans(d.items.map((p:any)=>({id:String(p.id),type:p.type,name:p.name,price:Number(p.price||0),billingCycle:p.billing_cycle,description:p.description||"",configurable:true}))); }).catch(()=>{}); }, []);
-  const fallbackPlans = useMemo(() => getHostingPlansByType("premium").concat(getHostingPlansByType("free")), []);
-  const catalogPlans = livePlans.length ? livePlans : fallbackPlans;
+  const catalogPlans = livePlans.length ? livePlans : useMemo(() => getHostingPlansByType("premium").concat(getHostingPlansByType("free")), []);
   const premiumPlans = catalogPlans.filter(p=>p.type === "premium");
   const freePlans = catalogPlans.filter(p=>p.type === "free");
 

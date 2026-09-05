@@ -27,7 +27,7 @@ create table if not exists public.cart_items (
   owner_id uuid not null references auth.users (id) on delete cascade,
   domain_name text not null,
   price numeric(10, 2) not null check (price >= 0),
-  currency text not null default 'USD',
+  currency text not null default 'BDT',
   validity_years int not null default 1 check (validity_years > 0),
   created_at timestamptz not null default now(),
   -- One cart row per domain per user — the DB-level backstop for duplicate

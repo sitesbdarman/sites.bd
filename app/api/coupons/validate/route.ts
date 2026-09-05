@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const domainTotal = Math.round(cart.data.reduce((s:number,i:any)=>s+Number(i.price),0)*100)/100;
   let hostingPrice=0;
   if (body.hosting?.type !== "custom" && body.hosting?.planId) { const p=(await getLiveHostingPlanById(body.hosting.planId)) || getHostingPlanById(body.hosting.planId); if (p && p.type===body.hosting.type) hostingPrice=p.price; }
-  const addonIds=Array.from(new Set<string>(Array.isArray(body.addonIds)?body.addonIds:[]));
+  const addonIds=Array.from(new Set(Array.isArray(body.addonIds)?body.addonIds:[]));
   const addons=(await Promise.all(addonIds.map(async (id:string)=>(await getLiveAddonById(String(id))) || getAddonById(String(id))))).filter(Boolean) as any[];
   const subtotal=Math.round((domainTotal+hostingPrice+addons.reduce((s,a)=>s+a.price,0))*100)/100;
   const quote=await checkCoupon(String(body.code||""),subtotal);
