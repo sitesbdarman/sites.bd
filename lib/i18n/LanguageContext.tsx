@@ -32,8 +32,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("en");
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of localStorage (browser-only) on mount to restore the saved language choice.
-    setLanguageState(readInitialLanguage());
+    // Restore the saved language and keep the document language attribute in sync.
+    const initial = readInitialLanguage();
+    setLanguageState(initial);
+    document.documentElement.lang = initial;
   }, []);
 
   const setLanguage = useCallback((lang: Language) => {

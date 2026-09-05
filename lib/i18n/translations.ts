@@ -125,6 +125,19 @@ export const homeText = {
   },
 } as const;
 
+export const whyChooseText = {
+  title: { en: "Why Choose sites.bd?", bn: "কেন sites.bd বেছে নেবেন?" },
+  subtitle: { en: "Revolutionary subdomain system with instant creation and unlimited possibilities", bn: "ইনস্ট্যান্ট তৈরি এবং অসীম সম্ভাবনাসহ আধুনিক সাবডোমেইন সিস্টেম" },
+  cards: [
+    { title: { en: "100% Free", bn: "১০০% ফ্রি" }, text: { en: "Get your subdomain completely free with no hidden charges, no setup fees, and no monthly costs.", bn: "কোনো হিডেন চার্জ, সেটআপ ফি বা মাসিক খরচ ছাড়াই সম্পূর্ণ ফ্রিতে আপনার সাবডোমেইন নিন।" }, items: [{ en: "No Setup Fees", bn: "কোনো সেটআপ ফি নেই" }, { en: "No Monthly Charges", bn: "কোনো মাসিক চার্জ নেই" }, { en: "No Hidden Costs", bn: "কোনো হিডেন খরচ নেই" }], tone: "blue", icon: "gift" },
+    { title: { en: "Instant Activation", bn: "ইনস্ট্যান্ট অ্যাক্টিভেশন" }, text: { en: "Your subdomain is created and activated instantly. No waiting, no approval process.", bn: "আপনার সাবডোমেইন তাৎক্ষণিকভাবে তৈরি ও অ্যাক্টিভেট হবে। কোনো অপেক্ষা বা অ্যাপ্রুভাল প্রক্রিয়া নেই।" }, items: [{ en: "Immediate Creation", bn: "তাৎক্ষণিক তৈরি" }, { en: "Auto DNS Setup", bn: "অটো DNS সেটআপ" }, { en: "Ready to Use", bn: "ব্যবহারের জন্য প্রস্তুত" }], tone: "green", icon: "bolt" },
+    { title: { en: "Any Hosting Support", bn: "যেকোনো হোস্টিং সাপোর্ট" }, text: { en: "Use with any hosting provider, Blogger, or our own hosting. Complete flexibility.", bn: "যেকোনো হোস্টিং প্রোভাইডার, Blogger অথবা আমাদের নিজস্ব হোস্টিংয়ের সাথে ব্যবহার করুন। সম্পূর্ণ স্বাধীনতা।" }, items: [{ en: "Custom Hosting", bn: "কাস্টম হোস্টিং" }, { en: "Blogger Compatible", bn: "Blogger কম্প্যাটিবল" }, { en: "Our Hosting Available", bn: "আমাদের হোস্টিংও আছে" }], tone: "purple", icon: "server" },
+    { title: { en: "Easy Management", bn: "সহজ ম্যানেজমেন্ট" }, text: { en: "Simple order process with automatic DNS updates and easy subdomain management.", bn: "অটোমেটিক DNS আপডেট এবং সহজ সাবডোমেইন ম্যানেজমেন্টসহ সহজ অর্ডার প্রসেস।" }, items: [{ en: "Easy Order Process", bn: "সহজ অর্ডার প্রসেস" }, { en: "Auto DNS Updates", bn: "অটো DNS আপডেট" }, { en: "User Dashboard", bn: "ইউজার ড্যাশবোর্ড" }], tone: "orange", icon: "settings" },
+    { title: { en: "Secure & Reliable", bn: "নিরাপদ ও নির্ভরযোগ্য" }, text: { en: "Professional DNS infrastructure with 99.9% uptime and secure subdomain management.", bn: "৯৯.৯% আপটাইম এবং নিরাপদ সাবডোমেইন ম্যানেজমেন্টসহ প্রফেশনাল DNS ইনফ্রাস্ট্রাকচার।" }, items: [{ en: "99.9% Uptime", bn: "৯৯.৯% আপটাইম" }, { en: "Secure DNS", bn: "নিরাপদ DNS" }, { en: "Professional Support", bn: "প্রফেশনাল সাপোর্ট" }], tone: "red", icon: "shield" },
+    { title: { en: "For Everyone", bn: "সবার জন্য" }, text: { en: "Perfect for beginners and developers alike. No technical knowledge required.", bn: "বিগিনার ও ডেভেলপার—সবার জন্য উপযুক্ত। কোনো টেকনিক্যাল জ্ঞান প্রয়োজন নেই।" }, items: [{ en: "Beginner Friendly", bn: "বিগিনার ফ্রেন্ডলি" }, { en: "Developer Ready", bn: "ডেভেলপার রেডি" }, { en: "No Tech Skills Needed", bn: "টেকনিক্যাল স্কিল দরকার নেই" }], tone: "teal", icon: "users" },
+  ],
+} as const;
+
 export const domainSearchText = {
   title: { en: "Check Your Domain Name", bn: "আপনার ডোমেইন নাম চেক করুন" },
   subtitle: { en: "Search again here or view the domain you searched from the homepage.", bn: "এখানে আবার সার্চ করুন অথবা হোমপেজ থেকে সার্চ করা ডোমেইনটি দেখুন।" },
@@ -140,8 +153,11 @@ export const domainSearchText = {
   addedToCart: { en: "Added to cart", bn: "কার্টে যোগ হয়েছে" },
   whois: { en: "Whois", bn: "Whois" },
   seeSimilar: { en: "See similar available names →", bn: "একই রকম উপলব্ধ নাম দেখুন →" },
+  seeMoreOptions: { en: "See more domain options →", bn: "আরও ডোমেইন অপশন দেখুন →" },
   checkingSimilar: { en: "Checking similar names for", bn: "একই রকম নাম চেক করা হচ্ছে:" },
   noSimilar: { en: "No similar names available right now.", bn: "এই মুহূর্তে একই রকম কোনো নাম উপলব্ধ নেই।" },
+  recommended: { en: "Recommended", bn: "প্রস্তাবিত" },
+  alsoConsider: { en: "You might also like", bn: "আপনার আরও পছন্দ হতে পারে" },
   noResults: { en: "No results found.", bn: "কোনো ফলাফল পাওয়া যায়নি।" },
   mockNotice: {
     en: "Availability shown below is placeholder demo data — no real registry has been checked yet.",

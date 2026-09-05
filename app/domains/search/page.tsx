@@ -153,8 +153,8 @@ export default function DomainSearchPage() {
       saveRecentSearch(trimmed);
       setRecentSearches(loadRecentSearches());
 
-      const unavailable = nextResults.filter((item) => !item.available).slice(0, 3);
-      for (const item of unavailable) {
+      const toPrefetch = nextResults.slice(0, 3);
+      for (const item of toPrefetch) {
         const candidates = buildAlternativeSuggestions(item.domain).filter((candidate) => !candidate.endsWith(`.${FREE_SUBDOMAIN_TLD}`));
         setAltLoading((prev) => ({ ...prev, [item.domain]: true }));
         void fetch(`/api/domains/check?query=${encodeURIComponent(candidates.join(","))}`)
@@ -428,20 +428,19 @@ export default function DomainSearchPage() {
                     </p>
                   )}
 
-                  {!result.available && (
-                    <AlternativeSuggestions
-                      domain={result.domain}
-                      language={language}
-                      loading={Boolean(altLoading[result.domain])}
-                      alternatives={altResults[result.domain]}
-                      onReveal={() => loadAlternatives(result.domain)}
-                      onPick={(alt) => {
-                        setQuery(alt);
-                        runSearch(alt);
-                      }}
-                      onClaim={(alt) => setClaimTarget(alt)}
-                    />
-                  )}
+                  <AlternativeSuggestions
+                    domain={result.domain}
+                    language={language}
+                    available={result.available}
+                    loading={Boolean(altLoading[result.domain])}
+                    alternatives={altResults[result.domain]}
+                    onReveal={() => loadAlternatives(result.domain)}
+                    onPick={(alt) => {
+                      setQuery(alt);
+                      runSearch(alt);
+                    }}
+                    onClaim={(alt) => setClaimTarget(alt)}
+                  />
                 </li>
               );
             })}
@@ -477,24 +476,26 @@ export default function DomainSearchPage() {
 }
 
 function AlternativeSuggestions({
-  domain, language, loading, alternatives, onReveal, onPick, onClaim,
+  domain, language, available: domainAvailable, loading, alternatives, onReveal, onPick, onClaim,
 }: {
-  domain: string; language: Language; loading: boolean; alternatives?: DomainResult[];
+  domain: string; language: Language; available: boolean; loading: boolean; alternatives?: DomainResult[];
   onReveal: () => void; onPick: (domain: string) => void; onClaim: (domain: string) => void;
 }) {
   const st = domainSearchText;
   if (!alternatives && !loading) return (
-    <button type="button" onClick={onReveal} className="text-xs font-bold text-blue-600 hover:text-blue-700">
-      {tr(st.seeSimilar, language)}
+    <button type="button" onClick={onReveal} className="mt-2 text-xs font-bold text-blue-600 hover:text-blue-700">
+      {domainAvailable ? tr(st.seeMoreOptions, language) : tr(st.seeSimilar, language)}
     </button>
   );
-  if (loading) return <p className="text-xs text-gray-400">{tr(st.checkingSimilar, language)} {domain}…</p>;
+  if (loading) return <p className="mt-2 text-xs text-gray-400">{tr(st.checkingSimilar, language)} {domain}…</p>;
 
   const available = (alternatives ?? []).filter((a) => a.available);
   const freeSubdomain = `${baseNameOf(domain)}.${FREE_SUBDOMAIN_TLD}`;
   return (
     <div className="mt-4">
-      <p className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Recommended</p>
+      <p className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-400">
+        {domainAvailable ? tr(st.alsoConsider, language) : tr(st.recommended, language)}
+      </p>
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50/60 px-3.5 py-3">
           <div className="min-w-0 flex-1">

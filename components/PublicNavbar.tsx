@@ -7,6 +7,8 @@ import { ProfileMenu } from "@/components/auth/ProfileMenu";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { CartBadge } from "@/components/dashboard/CartBadge";
 import { BrandMark } from "@/components/BrandMark";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { homeText, tr } from "@/lib/i18n/translations";
 
 interface PublicNavbarProps {
   loggedIn?: boolean;
@@ -26,6 +28,7 @@ interface ProfileResponse {
 
 export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: initialAvatar = null, fullName: initialName = null, email: initialEmail = null }: PublicNavbarProps) {
   const pathname = usePathname();
+  const { language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
@@ -53,11 +56,11 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
   }, [pathname]);
 
   const links = [
-    { href: "/", label: "Home" },
-    { href: "/#features", label: "Features" },
-    { href: "/pricing", label: "Pricing" },
-    { href: "/domains/search", label: "Domain Search" },
-    { href: "/contact", label: "Contact" },
+    { href: "/", label: tr(homeText.nav.home, language) },
+    { href: "/#features", label: tr(homeText.nav.features, language) },
+    { href: "/pricing", label: tr(homeText.nav.pricing, language) },
+    { href: "/domains/search", label: tr(homeText.nav.domainSearch, language) },
+    { href: "/contact", label: tr(homeText.nav.contact, language) },
   ];
 
   return (
