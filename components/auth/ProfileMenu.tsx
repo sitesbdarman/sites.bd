@@ -37,7 +37,7 @@ export function ProfileMenu({ loggedIn, avatarUrl, fullName, email }: ProfileMen
           <UserIcon className="h-5 w-5 transition group-hover:scale-105 sm:h-6 sm:w-6" />
         )}
       </span>
-      <span className="min-w-0 max-w-[7rem] sm:max-w-[12rem]">
+      <span className="hidden min-w-0 max-w-[7rem] sm:block sm:max-w-[12rem]">
         <span className="block truncate text-xs font-bold text-gray-800 sm:text-sm">{displayName}</span>
         {loggedIn && fullName && email && <span className="hidden truncate text-[11px] text-gray-400 sm:block">{email}</span>}
       </span>

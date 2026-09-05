@@ -38,3 +38,9 @@
 .feature-card-red{background:linear-gradient(145deg,#fff1f2,#ffe4e6);border-color:#ffe4e6}.feature-card-red .feature-icon{background:#ef4444}
 .feature-card-teal{background:linear-gradient(145deg,#f0fdfa,#ccfbf1);border-color:#ccfbf1}.feature-card-teal .feature-icon{background:#0f9f9a}
 @media (max-width:639px){.feature-card{min-height:auto}.feature-icon{width:72px;height:72px}}
+
+/* Compact variant for the consolidated "what you get" grid (icon + title + copy, no checklist) */
+.feature-card-clean{min-height:0;display:flex;gap:1.1rem;align-items:flex-start}
+.feature-card-clean .feature-icon{width:56px;height:56px;flex:none}
+.feature-card-clean .feature-icon svg{width:24px;height:24px}
+@media (max-width:639px){.feature-card-clean{gap:.9rem}.feature-card-clean .feature-icon{width:48px;height:48px}.feature-card-clean .feature-icon svg{width:20px;height:20px}}

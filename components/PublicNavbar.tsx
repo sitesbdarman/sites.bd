@@ -55,6 +55,14 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
     return () => { cancelled = true; };
   }, [pathname]);
 
+  // Lock body scroll while the mobile menu sheet is open.
+  useEffect(() => {
+    if (!open) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = original; };
+  }, [open]);
+
   const links = [
     { href: "/", label: tr(homeText.nav.home, language) },
     { href: "/#features", label: tr(homeText.nav.features, language) },
@@ -65,24 +73,30 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,.02)] backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[70px] max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-5 lg:px-8">
-        <Link href="/" className="group flex shrink-0 items-center gap-2 font-display text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20"><BrandMark className="h-6 w-6" /></span>
-          <span>SITES<span className="text-gray-900">.BD</span></span>
+      <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 lg:px-8">
+        <Link href="/" className="group flex shrink-0 items-center gap-2 font-display text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-transform group-hover:scale-105">
+            <BrandMark className="h-6 w-6" />
+          </span>
+          <span className="whitespace-nowrap">SITES<span className="text-blue-600">.BD</span></span>
         </Link>
 
-        <div className="hidden flex-1 items-center justify-center gap-5 text-sm font-semibold lg:flex">
+        <div className="hidden flex-1 items-center justify-center gap-1 text-sm font-semibold lg:flex">
           {links.map((link) => {
             const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
             return (
-              <Link key={link.href} href={link.href} className={`rounded-lg px-3 py-2 transition hover:bg-blue-50 hover:text-blue-700 ${active ? "bg-blue-50 text-blue-700" : "text-slate-600"}`}>
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative rounded-full px-4 py-2 transition-colors ${active ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+              >
                 {link.label}
               </Link>
             );
           })}
         </div>
 
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5">
           <LanguageToggle className="hidden sm:flex" />
           <CartBadge />
           <ProfileMenu loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
@@ -91,33 +105,50 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="public-mobile-menu"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-blue-300 hover:text-blue-600 active:scale-95 lg:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-blue-300 hover:text-blue-600 active:scale-95 lg:hidden"
           >
-            <span className="sr-only">Open menu</span>
-            <span className="flex flex-col gap-1.5">
-              <span className="block h-0.5 w-5 bg-current" />
-              <span className="block h-0.5 w-5 bg-current" />
-              <span className="block h-0.5 w-5 bg-current" />
+            <span className="sr-only">{open ? "Close menu" : "Open menu"}</span>
+            <span className="relative flex h-4 w-5 flex-col items-center justify-center">
+              <span className={`absolute block h-0.5 w-5 rounded-full bg-current transition-all duration-200 ${open ? "rotate-45" : "-translate-y-[6px]"}`} />
+              <span className={`absolute block h-0.5 w-5 rounded-full bg-current transition-all duration-150 ${open ? "opacity-0" : "opacity-100"}`} />
+              <span className={`absolute block h-0.5 w-5 rounded-full bg-current transition-all duration-200 ${open ? "-rotate-45" : "translate-y-[6px]"}`} />
             </span>
           </button>
         </div>
       </div>
 
-      {open && (
-        <div id="public-mobile-menu" className="border-t border-gray-100 bg-white px-4 py-3 shadow-lg lg:hidden">
-          <div className="mx-auto max-w-7xl space-y-1">
-            {links.map((link) => (
-              <Link key={link.href} href={link.href} className="block rounded-xl px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-blue-50 hover:text-blue-700">
-                {link.label}
-              </Link>
-            ))}
-            <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+      <div
+        id="public-mobile-menu"
+        className={`grid overflow-hidden border-t border-slate-100 bg-white shadow-lg transition-[grid-template-rows] duration-200 ease-out lg:hidden ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr] border-t-0"}`}
+      >
+        <div className="min-h-0">
+          <div className="mx-auto max-w-7xl space-y-1 px-4 py-3">
+            {links.map((link) => {
+              const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`block rounded-xl px-4 py-3 text-sm font-semibold transition ${active ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"}`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
               <LanguageToggle />
-              <Link href="/cart" className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white">Open Cart</Link>
+              {!loggedIn && (
+                <Link href="/login" className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700">
+                  {language === "bn" ? "লগইন" : "Log in"}
+                </Link>
+              )}
+              <Link href="/#claim" className="btn-signature flex-1 rounded-xl bg-blue-600 px-4 py-2.5 text-center text-sm font-bold text-white">
+                {language === "bn" ? "ফ্রি সাবডোমেইন" : "Get Free Subdomain"}
+              </Link>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </nav>
   );
 }
