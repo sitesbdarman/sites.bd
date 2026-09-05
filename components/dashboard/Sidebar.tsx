@@ -4,9 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ComponentType, SVGProps } from "react";
-import { LogoutButton } from "@/app/dashboard/logout-button";
-import { CloseIcon, DashboardIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, TicketIcon } from "./icons";
+import { ChevronRightIcon, CloseIcon, DashboardIcon, FlagIcon, GlobeIcon, HomeIcon, InvoiceIcon, ServerIcon, TicketIcon } from "./icons";
 import { SiteLogo } from "@/components/SiteLogo";
+
+const COLLAPSE_STORAGE_KEY = "dashboard-sidebar-collapsed";
 
 interface NavItem {
   label: string;
@@ -40,6 +41,8 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
   { label: "Support", items: [
     { label: "Tickets", href: "/dashboard/tickets", icon: TicketIcon },
     { label: "Knowledge Base", href: "/support/knowledge-base", icon: TicketIcon },
+    { label: "Report a Problem", href: "/dashboard/report", icon: FlagIcon },
+    { label: "Back to website", href: "/", icon: HomeIcon },
   ]},
 ];
 
@@ -51,7 +54,8 @@ interface SidebarProps {
 }
 
 function isActive(pathname: string, href: string) {
-  return href === "/dashboard" ? pathname === href : pathname.startsWith(href);
+  if (href === "/dashboard" || href === "/") return pathname === href;
+  return pathname.startsWith(href);
 }
 
 function SidebarContent({
@@ -60,21 +64,25 @@ function SidebarContent({
   onClose,
   logoUrl = null,
   siteName = null,
+  collapsed = false,
+  onToggleCollapse,
 }: {
   pathname: string;
   onNavigate?: () => void;
   onClose?: () => void;
   logoUrl?: string | null;
   siteName?: string | null;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }) {
   return (
     <div className="flex h-full flex-col bg-white">
-      <div className="flex h-[68px] shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-5">
+      <div className={`flex h-[68px] shrink-0 items-center gap-2 border-b border-slate-100 ${collapsed ? "justify-center px-2" : "justify-between px-5"}`}>
         {/* Plain <a>, not next/link's <Link>: clicking the logo/site name should
             always do a full hard refresh straight to the public homepage. */}
-        <a href="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
-          <SiteLogo logoUrl={logoUrl} className="h-6 w-6 text-blue-600" />
-          {siteName ? siteName : <>SITES<span className="text-blue-600">.BD</span></>}
+        <a href="/" title="SITES.BD" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-gray-900">
+          <SiteLogo logoUrl={logoUrl} className="h-6 w-6 shrink-0 text-blue-600" />
+          {!collapsed && (siteName ? siteName : <>SITES<span className="text-blue-600">.BD</span></>)}
         </a>
         {onClose && (
           <button
@@ -91,7 +99,7 @@ function SidebarContent({
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
-            <p className="px-3 pb-1.5 text-[10px] font-black uppercase tracking-[.16em] text-slate-400">{group.label}</p>
+            {!collapsed && <p className="px-3 pb-1.5 text-[10px] font-black uppercase tracking-[.16em] text-slate-400">{group.label}</p>}
             <div className="space-y-0.5">
               {group.items.map((item) => {
                 const active = isActive(pathname, item.href);
@@ -99,11 +107,13 @@ function SidebarContent({
                 return (
                   <Link key={`${group.label}-${item.label}`} href={item.href} onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
-                    className={`relative flex items-center gap-3 rounded-xl py-2.5 pl-4 pr-3 text-sm font-bold transition-colors ${
-                      active ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
-                    }`}>
+                    title={collapsed ? item.label : undefined}
+                    className={`relative flex items-center rounded-xl py-2.5 text-sm font-bold transition-colors ${
+                      collapsed ? "justify-center px-2.5" : "gap-3 pl-4 pr-3"
+                    } ${active ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"}`}>
                     {active && <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-blue-600" aria-hidden="true" />}
-                    <Icon className="h-4.5 w-4.5 shrink-0" />{item.label}
+                    <Icon className="h-4.5 w-4.5 shrink-0" />
+                    {!collapsed && item.label}
                   </Link>
                 );
               })}
@@ -112,13 +122,20 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div className="shrink-0 space-y-1 border-t border-gray-200 p-3">
-        <Link href="/" onClick={onNavigate} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900">
-          <HomeIcon className="h-5 w-5 shrink-0" />
-          Back to website
-        </Link>
-        <LogoutButton variant="full" />
-      </div>
+      {onToggleCollapse && (
+        <div className="hidden shrink-0 border-t border-gray-200 p-3 md:block">
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900 ${collapsed ? "justify-center" : ""}`}
+          >
+            <ChevronRightIcon className={`h-4.5 w-4.5 shrink-0 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+            {!collapsed && "Collapse"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -127,6 +144,29 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [siteName, setSiteName] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+    try {
+      setCollapsed(window.localStorage.getItem(COLLAPSE_STORAGE_KEY) === "1");
+    } catch {
+      // localStorage unavailable (e.g. privacy mode) — default to expanded.
+    }
+  }, []);
+
+  function toggleCollapse() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(COLLAPSE_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        // Ignore write failures; the toggle still works for this session.
+      }
+      return next;
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -143,9 +183,22 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop: persistent sidebar */}
-      <aside className="hidden w-[272px] shrink-0 border-r border-slate-200/80 bg-white md:block">
-        <SidebarContent pathname={pathname} logoUrl={logoUrl} siteName={siteName} />
+      {/* Desktop: persistent sidebar. sticky + h-screen keeps it pinned to the
+          viewport while the page content scrolls, instead of scrolling away
+          with the document; the nav's own overflow-y-auto handles the case
+          where the link list itself is taller than the viewport. */}
+      <aside
+        className={`sticky top-0 hidden h-screen shrink-0 self-start border-r border-slate-200/80 bg-white md:block ${
+          collapsed ? "w-[76px]" : "w-[272px]"
+        } ${hydrated ? "transition-[width] duration-150 ease-out" : ""}`}
+      >
+        <SidebarContent
+          pathname={pathname}
+          logoUrl={logoUrl}
+          siteName={siteName}
+          collapsed={collapsed}
+          onToggleCollapse={toggleCollapse}
+        />
       </aside>
 
       {/* Mobile: off-canvas sidebar + backdrop */}

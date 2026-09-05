@@ -151,7 +151,6 @@ export function AccountMenu({ loggedIn, avatarUrl, fullName, email, showLabel = 
   const notifCount = notifications.length;
   const urgentCount = notifications.filter((n) => n.urgent).length;
   const displayName = fullName || email || "Account";
-  const needsVerification = identityStatus === "unverified" || identityStatus === "rejected";
 
   return (
     <div ref={containerRef} className="relative">
@@ -160,8 +159,8 @@ export function AccountMenu({ loggedIn, avatarUrl, fullName, email, showLabel = 
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={`Account menu for ${displayName}`}
-        className={`group flex min-w-0 items-center gap-2.5 rounded-full border border-gray-200 bg-white shadow-sm transition-all hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[.98] ${
-          showLabel ? "py-1.5 pl-1.5 pr-2" : "p-1"
+        className={`group flex min-w-0 items-center gap-2.5 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/30 active:scale-[.98] ${
+          showLabel ? "border border-gray-200 bg-white py-1.5 pl-1.5 pr-2 shadow-sm hover:border-blue-300 hover:shadow-md" : ""
         }`}
       >
         <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-sky-50 to-blue-100 text-blue-600 shadow-inner ring-2 ring-white transition group-hover:ring-blue-100 sm:h-11 sm:w-11">
@@ -171,13 +170,13 @@ export function AccountMenu({ loggedIn, avatarUrl, fullName, email, showLabel = 
           ) : (
             <UserIcon className="h-5 w-5 transition group-hover:scale-105 sm:h-6 sm:w-6" />
           )}
-          {(notifCount > 0 || needsVerification) && (
+          {notifCount > 0 && (
             <span
               className={`absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full border-2 border-white px-1 text-[10px] font-bold text-white ${
-                urgentCount > 0 || needsVerification ? "bg-red-500" : "bg-blue-500"
+                urgentCount > 0 ? "bg-red-500" : "bg-blue-500"
               }`}
             >
-              {notifCount > 9 ? "9+" : notifCount > 0 ? notifCount : "!"}
+              {notifCount > 9 ? "9+" : notifCount}
             </span>
           )}
         </span>

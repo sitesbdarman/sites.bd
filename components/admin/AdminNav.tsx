@@ -19,7 +19,11 @@ import {
   ShieldIcon,
   MenuIcon,
   CloseIcon,
+  ChevronRightIcon,
 } from "@/components/dashboard/icons";
+import { SiteLogo } from "@/components/SiteLogo";
+
+const ADMIN_COLLAPSE_STORAGE_KEY = "admin-sidebar-collapsed";
 
 export const adminNav = [
   { href: "/admin", label: "Overview", Icon: DashboardIcon },
@@ -44,7 +48,7 @@ function isActive(pathname: string, href: string) {
 }
 
 /** Desktop sidebar nav — used inside the fixed <aside>. */
-export function AdminSidebarNav() {
+export function AdminSidebarNav({ collapsed = false }: { collapsed?: boolean }) {
   const pathname = usePathname();
   return (
     <nav className="flex-1 space-y-0.5 px-4 py-5">
@@ -55,19 +59,100 @@ export function AdminSidebarNav() {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`relative flex items-center gap-3 rounded-lg py-2.5 pl-4 pr-3 text-sm font-semibold transition-colors active:scale-[.98] ${
-              active ? "text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"
-            }`}
+            title={collapsed ? label : undefined}
+            className={`relative flex items-center rounded-lg py-2.5 text-sm font-semibold transition-colors active:scale-[.98] ${
+              collapsed ? "justify-center px-2.5" : "gap-3 pl-4 pr-3"
+            } ${active ? "text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}
           >
             {active && (
               <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-sky-400" aria-hidden="true" />
             )}
             <Icon className={`h-4.5 w-4.5 shrink-0 ${active ? "text-sky-300" : "text-slate-400"}`} />
-            {label}
+            {!collapsed && label}
           </Link>
         );
       })}
     </nav>
+  );
+}
+
+/**
+ * Full desktop sidebar shell: logo, nav, a collapse toggle, and whatever
+ * account/footer content the layout passes in. Client component because it
+ * owns the collapsed/expanded state (persisted to localStorage) — the
+ * surrounding admin layout stays a server component.
+ */
+export function AdminSidebarShell({
+  siteName,
+  logoUrl,
+  footer,
+}: {
+  siteName?: string | null;
+  logoUrl?: string | null;
+  footer: React.ReactNode;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+    try {
+      setCollapsed(window.localStorage.getItem(ADMIN_COLLAPSE_STORAGE_KEY) === "1");
+    } catch {
+      // localStorage unavailable — default to expanded.
+    }
+  }, []);
+
+  function toggleCollapse() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(ADMIN_COLLAPSE_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        // Ignore write failures; the toggle still works for this session.
+      }
+      return next;
+    });
+  }
+
+  return (
+    <aside
+      className={`hidden shrink-0 border-r border-white/10 bg-slate-950 text-white lg:flex lg:flex-col ${
+        collapsed ? "w-20" : "w-72"
+      } ${hydrated ? "transition-[width] duration-150 ease-out" : ""}`}
+    >
+      <div className={`flex items-center border-b border-white/10 py-6 ${collapsed ? "justify-center px-3" : "px-6"}`}>
+        <Link href="/admin" title={collapsed ? "Admin overview" : undefined} className="group flex items-center gap-2.5">
+          <SiteLogo logoUrl={logoUrl ?? null} className="h-7 w-7 shrink-0 text-sky-400" />
+          {!collapsed && (
+            <div>
+              {siteName ? (
+                <div className="text-xl font-black tracking-tight font-display">{siteName}</div>
+              ) : (
+                <div className="text-xl font-black tracking-tight font-display">SITES<span className="text-sky-400">.BD</span></div>
+              )}
+              <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Admin Control Center</div>
+            </div>
+          )}
+        </Link>
+      </div>
+      <AdminSidebarNav collapsed={collapsed} />
+      <div className="border-t border-white/10 p-3">
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-white ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
+          <ChevronRightIcon className={`h-4.5 w-4.5 shrink-0 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+          {!collapsed && "Collapse"}
+        </button>
+      </div>
+      {!collapsed && <div className="border-t border-white/10 p-4">{footer}</div>}
+    </aside>
   );
 }
 

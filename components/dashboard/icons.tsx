@@ -276,6 +276,19 @@ export function ShieldIcon(props: IconProps) {
   );
 }
 
+export function FlagIcon(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 3.75v16.5" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5.25 4.5h11.69a.75.75 0 0 1 .53 1.28l-3.22 3.22 3.22 3.22a.75.75 0 0 1-.53 1.28H5.25V4.5Z"
+      />
+    </svg>
+  );
+}
+
 export function InboxIcon(props: IconProps) {
   return (
     <svg {...base(props)}>
