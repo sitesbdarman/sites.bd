@@ -65,40 +65,41 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
 
   const links = [
     { href: "/", label: tr(homeText.nav.home, language) },
-    { href: "/#features", label: tr(homeText.nav.features, language) },
     { href: "/pricing", label: tr(homeText.nav.pricing, language) },
     { href: "/domains/search", label: tr(homeText.nav.domainSearch, language) },
     { href: "/contact", label: tr(homeText.nav.contact, language) },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,.02)] backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 lg:px-8">
-        <Link href="/" className="group flex shrink-0 items-center gap-2 font-display text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-transform group-hover:scale-105">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/95 shadow-[0_1px_2px_rgba(15,23,42,.04)] backdrop-blur-xl">
+      <div className="mx-auto flex min-h-[72px] max-w-7xl items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 lg:px-8">
+        <Link href="/" className="group flex shrink-0 items-center gap-2.5 font-display text-lg font-black tracking-tight text-slate-950 sm:text-2xl">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/25 transition-transform group-hover:scale-105 sm:h-10 sm:w-10">
             <BrandMark className="h-6 w-6" />
           </span>
           <span className="whitespace-nowrap">SITES<span className="text-blue-600">.BD</span></span>
         </Link>
 
-        <div className="hidden flex-1 items-center justify-center gap-1 text-sm font-semibold lg:flex">
+        <div className="hidden flex-1 items-center justify-center gap-1 text-sm font-bold lg:flex">
           {links.map((link) => {
             const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative rounded-full px-4 py-2 transition-colors ${active ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+                className={`relative rounded-full px-4 py-2 transition-all ${active ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
               >
                 {link.label}
+                {active && <span className="absolute inset-x-4 -bottom-[9px] h-[3px] rounded-full bg-blue-600" />}
               </Link>
             );
           })}
         </div>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageToggle className="hidden sm:flex" />
           <CartBadge />
+          <span className="hidden h-8 w-px bg-slate-200 sm:block" />
           <ProfileMenu loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
           <button
             type="button"
@@ -135,10 +136,10 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
                 </Link>
               );
             })}
-            <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
               <LanguageToggle />
               {!loggedIn && (
-                <Link href="/login" className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700">
+                <Link href="/login" className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:text-blue-700">
                   {language === "bn" ? "লগইন" : "Log in"}
                 </Link>
               )}
