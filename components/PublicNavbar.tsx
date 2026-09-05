@@ -88,7 +88,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-[0_1px_0_rgba(15,23,42,.02)] backdrop-blur-xl">
-      <div className="mx-auto flex min-h-[68px] max-w-7xl items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-5 lg:px-8">
+      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center gap-2 px-4 py-2.5 sm:gap-3 sm:px-6 lg:px-10 xl:px-14">
         {/* Plain <a>, not next/link's <Link>: clicking the logo/site name should always
             do a full hard refresh straight back to the homepage, never a client-side
             navigation that could leave stale state around. */}
@@ -118,7 +118,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
           })}
         </div>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2.5">
+        <div className="ml-auto flex items-center gap-2.5 sm:gap-4">
           <LanguageToggle className="hidden sm:flex" />
           <AccountMenu loggedIn={loggedIn} avatarUrl={avatarUrl} fullName={fullName} email={email} />
           <button
@@ -143,7 +143,7 @@ export function PublicNavbar({ loggedIn: initialLoggedIn = false, avatarUrl: ini
         className={`grid overflow-hidden border-t border-slate-100 bg-white shadow-lg transition-[grid-template-rows] duration-200 ease-out lg:hidden ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr] border-t-0"}`}
       >
         <div className="min-h-0">
-          <div className="mx-auto max-w-7xl space-y-1 px-4 py-3">
+          <div className="mx-auto max-w-[1440px] space-y-1 px-4 py-3">
             {links.map((link) => {
               const active = link.href === "/" ? pathname === "/" : link.href.startsWith("/#") ? pathname === "/" : pathname.startsWith(link.href.split("#")[0] || link.href);
               return (

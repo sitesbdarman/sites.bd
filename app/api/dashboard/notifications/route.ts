@@ -7,7 +7,7 @@ export async function GET() {
   if (!user) return NextResponse.json({ notifications: [] });
 
   const [customRes, domainRes, invoiceRes, ticketRes] = await Promise.all([
-    supabase.from("user_notifications").select("id,title,message,kind,link,is_read,created_at").order("created_at", { ascending: false }).limit(30),
+    supabase.from("user_notifications").select("id,title,message,kind,link,is_read,created_at").eq("is_read", false).order("created_at", { ascending: false }).limit(30),
     supabase.from("domains").select("id,domain_name,expires_at").eq("status", "active").lte("expires_at", new Date(Date.now() + 30*24*60*60*1000).toISOString()).gte("expires_at", new Date().toISOString()),
     supabase.from("invoices").select("id,invoice_number,total,currency").eq("status", "unpaid"),
     supabase.from("support_tickets").select("id,ticket_number,subject,status,updated_at").eq("status", "pending"),
